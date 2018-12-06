@@ -1,2 +1,2 @@
 cppcheck:
-    - cppcheck ascenddk/common/
+    - cppcheck --template {file}:{line},{severity},{id},{message} --quiet --inline-suppr ascenddk/common/
