@@ -5,7 +5,9 @@ dist: xenial
 before_install:
     - sudo apt-get install python3
     - sudo apt-get install python-yaml
-    - cd $TRAVIS_BUILD_DIR/Ascend
+    - git clone branch=$TRAVIS_BRANCH https://github.com/Ascend/tools.git $TRAVIS_BUILD_DIR/../../Ascend/tools 
+    - cd $TRAVIS_BUILD_DIR/../../Ascend/tools && git checkout
+    - cd $TRAVIS_BUILD_DIR/../
 
 #default install, can be overwrited by jobs
 install: python3 ascenddk/scripts/install/install_default.py
