@@ -28,14 +28,12 @@ sys.path.append(os.path.join(os.path.dirname(
 
 import comm.util as util
 
+
 def main():
-    command_file_name = None
-    if len(os.sys.argv) >= 2:
-        command_file_name = os.sys.argv[1]
+    check_type = os.sys.argv[1]
 
-    install_commands = StaticCheckCommands(command_file_name)
-    ret, commands = install_commands.get_cppcheck_commands()
-
+    static_check_commands = StaticCheckCommands()
+    ret, commands = static_check_commands.get_commands(check_type)
     if not ret:
         exit(-1)
 

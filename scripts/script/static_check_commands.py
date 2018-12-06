@@ -63,10 +63,10 @@ class StaticCheckCommands(object):
             if stream in locals():
                 stream.close()
 
-    def get_cppcheck_commands(self):
+    def get_commands(self, check_type):
         if self.error:
             cilog.cilog_error(
                 THIS_FILE_NAME, "no command yaml or config yaml not exist.")
             return False, None
-        commands = self.commands.get("cppcheck")
+        commands = self.commands.get(check_type)
         return True, commands
