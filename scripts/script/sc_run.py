@@ -19,14 +19,14 @@
 import os
 import sys
 
+from static_check_commands import StaticCheckCommands
+
 THIS_FILE_NAME = __file__
 
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
 import comm.util as util
-
-from script.static_check_commands import StaticCheckCommands
 
 def main():
     command_file_name = None
