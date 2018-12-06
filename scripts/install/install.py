@@ -32,7 +32,7 @@ def main():
 
 	install_commands = InstallationCommands(command_file_name)
 	ret, commands = install_commands.get_install_commands()
-	print(commands)
+
 	if not ret:
 		exit(-1)
 

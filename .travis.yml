@@ -8,7 +8,7 @@ before_install:
     - cd $TRAVIS_BUILD_DIR/../
 
 #default install, can be overwrited by jobs
-install: python3 ascenddk/scripts/install/install_default.py
+install: python3 ascenddk/scripts/install/install.py
 
 jobs:
     include:
@@ -18,3 +18,5 @@ jobs:
         - name: "st_presentor"
           install: echo "custom install"
           script: echo "running"
+        - name: "sc_cppcheck"
+          install: python3 ascenddk/scripts/install/install.py cppcheck
