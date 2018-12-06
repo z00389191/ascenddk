@@ -31,20 +31,18 @@ CONFIG_PATH = os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), "config")
 
 
-class InstallationCommands(object):
+class StaticCheckCommands(object):
     '''
     read commands from yaml file
     '''
 
-    def __init__(self, command_file_name=None):
+    def __init__(self):
         self.commands = {}
-        self.command_file_name = command_file_name
+        self.command_file_name = "static_check.yaml"
         self.error = False
-        if self.command_file_name is None:
-            self.command_file_name = "default"
-
+        
         self.command_file = os.path.join(
-            CONFIG_PATH, self.command_file_name + ".yaml")
+            CONFIG_PATH, self.command_file_name)
         if not os.path.exists(self.command_file):
             self.error = True
             cilog.cilog_error(
@@ -65,10 +63,10 @@ class InstallationCommands(object):
             if stream in locals():
                 stream.close()
 
-    def get_install_commands(self):
+    def get_cppcheck_commands(self):
         if self.error:
             cilog.cilog_error(
                 THIS_FILE_NAME, "no command yaml or config yaml not exist.")
             return False, None
-        commands = self.commands.get("install")
+        commands = self.commands.get("cppcheck")
         return True, commands

@@ -13,10 +13,10 @@ install: python3 ascenddk/scripts/install/install.py
 jobs:
     include:
         - stage: ascenddk llt and sc
-          name: "ut_presentor"
+          name: "sc_cppcheck"
+          install: python3 ascenddk/scripts/install/install.py cppcheck
+          script: python3 ascenddk/scripts/script/sc_run.py cppcheck
+        - name: "ut_presentor"
           script: echo "running"
         - name: "st_presentor"
-          install: echo "custom install"
           script: echo "running"
-        - name: "sc_cppcheck"
-          install: python3 ascenddk/scripts/install/install.py cppcheck

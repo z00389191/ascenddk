@@ -20,21 +20,21 @@ import os
 import sys
 
 THIS_FILE_NAME = __file__
+
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
 import comm.util as util
 
-from install.commands import InstallationCommands
-
+from script.static_check_commands import StaticCheckCommands
 
 def main():
     command_file_name = None
     if len(os.sys.argv) >= 2:
         command_file_name = os.sys.argv[1]
 
-    install_commands = InstallationCommands(command_file_name)
-    ret, commands = install_commands.get_install_commands()
+    install_commands = StaticCheckCommands(command_file_name)
+    ret, commands = install_commands.get_cppcheck_commands()
 
     if not ret:
         exit(-1)
@@ -46,5 +46,5 @@ def main():
     exit(0)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
