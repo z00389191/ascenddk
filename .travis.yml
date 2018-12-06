@@ -5,7 +5,7 @@ dist: xenial
 before_install:
     - sudo apt-get install python3
     - sudo apt-get install python-yaml
-    - cd $TRAVIS_BUILD_DIR
+    - cd $TRAVIS_BUILD_DIR/Ascend
 
 #default install, can be overwrited by jobs
 install: python3 ascenddk/scripts/install/install_default.py
