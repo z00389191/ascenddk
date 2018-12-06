@@ -26,22 +26,22 @@ THIS_FILE_NAME = __file__
 
 
 def main():
-	command_file_name = None
-	if len(os.sys.argv) >= 2:
-		command_file_name = os.sys.argv[1]
+    command_file_name = None
+    if len(os.sys.argv) >= 2:
+        command_file_name = os.sys.argv[1]
 
-	install_commands = InstallationCommands(command_file_name)
-	ret, commands = install_commands.get_install_commands()
+    install_commands = InstallationCommands(command_file_name)
+    ret, commands = install_commands.get_install_commands()
 
-	if not ret:
-		exit(-1)
+    if not ret:
+        exit(-1)
 
-	for command in commands:
-		ret = util.execute(command)
-		if not ret[0]:
-			exit(-1)
-	exit(0)
+    for command in commands:
+        ret = util.execute(command)
+        if not ret[0]:
+            exit(-1)
+    exit(0)
 
 
 if __name__ == "__main__":
-	main()
+    main()

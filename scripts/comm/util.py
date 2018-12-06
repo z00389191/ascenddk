@@ -30,10 +30,11 @@ THIS_FILE_NAME = __file__
 def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     if print_cmd:
         if len(cmd) > 200:
-            cilog.cilog_info(
-                THIS_FILE_NAME, "execute the cmd: %s ... %s", cmd[0:100], cmd[-100:])
+            cilog.cilog_info_color(
+                THIS_FILE_NAME, cilog.COLOR_F_YELLOW, "execute the cmd: %s ... %s", cmd[0:100], cmd[-100:])
         else:
-            cilog.cilog_info(THIS_FILE_NAME, "execute the cmd: %s", cmd)
+            cilog.cilog_info_color(
+                THIS_FILE_NAME, cilog.COLOR_F_YELLOW, "execute the cmd: %s", cmd)
 
     is_linux = platform.system() == 'Linux'
 
@@ -41,7 +42,7 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     if not cwd:
         cwd = os.getcwd()
     p = subprocess.Popen(cmd, cwd=cwd, bufsize=32768, stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT, shell=True, 
+                         stderr=subprocess.STDOUT, shell=True,
                          preexec_fn=os.setsid if is_linux else None)
 
     # 判断子进程执行时间是否超时
