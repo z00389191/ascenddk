@@ -97,7 +97,7 @@ def cilog_info_color(filename, color, log_msg, *log_paras):
 
 def print_in_color(msg, color):
     color_str = "\x1b[%dm" % color
-    print(color_str=color_str + msg + "\x1b[0m")
+    print(color_str + msg + "\x1b[0m")
 
 
 if __name__ == "__main__":
