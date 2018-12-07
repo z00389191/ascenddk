@@ -18,8 +18,10 @@
 #
 import os
 
+FILE_EMPTY_SIZE = 0
+
 def check_file_is_empty(file_name):
-    if os.path.getsize(file_name):
+    if os.path.getsize(file_name) == FILE_EMPTY_SIZE:
         return True
     else:
         return False

@@ -75,7 +75,7 @@ def main():
         comand_type = command_dict.get("type")
         command = command_dict.get("command")
         if comand_type == "command":
-            ret = util.execute(command)
+            ret = util.execute(command, print_output_flag=True)
             if not ret[0]:
                 exit(-1)
         elif comand_type == "function":

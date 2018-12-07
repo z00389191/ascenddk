@@ -78,25 +78,19 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     for i in std_output_lines:
         std_output_lines_last.append(i + "\n")
     if print_output_flag:
+        print(str_std_output)        
         cilog.cilog_info(
             THIS_FILE_NAME, "execute, return code: %s", p.returncode)
-        cilog.cilog_info(THIS_FILE_NAME, "execute, std_output begin:")
-        print(str_std_output)
-        cilog.cilog_info(THIS_FILE_NAME, "execute, std_output end")
 
     if "Traceback" in str_std_output:
+        print(str_std_output)
         cilog.cilog_info(
             THIS_FILE_NAME, "execute, return code: %s", p.returncode)
-        cilog.cilog_info(THIS_FILE_NAME, "execute, std_output begin:")
-        print(str_std_output)
-        cilog.cilog_info(THIS_FILE_NAME, "Find exception in std_output!")
         return False, std_output_lines_last
 
     if p.returncode != 0:
+        print(str_std_output)
         cilog.cilog_info(
             THIS_FILE_NAME, "execute, return code: %s", p.returncode)
-        cilog.cilog_info(THIS_FILE_NAME, "execute, std_output:begin:")
-        print(str_std_output)
-        cilog.cilog_info(THIS_FILE_NAME, "execute, std_output end")
         return False, std_output_lines_last
     return True, std_output_lines_last
