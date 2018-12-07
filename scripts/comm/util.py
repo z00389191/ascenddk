@@ -23,6 +23,7 @@ import os
 import signal
 
 import comm.ci_log as cilog
+from comm.ci_log import COLOR_F_RED
 
 THIS_FILE_NAME = __file__
 
@@ -77,20 +78,15 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     std_output_lines = str_std_output.split("\n")
     for i in std_output_lines:
         std_output_lines_last.append(i + "\n")
-    if print_output_flag:
-        print(str_std_output)        
-        cilog.cilog_info(
-            THIS_FILE_NAME, "execute, return code: %s", p.returncode)
 
-    if "Traceback" in str_std_output:
-        print(str_std_output)
+    if p.returncode != 0 or "Traceback" in str_std_output:
+        cilog.print_in_color(str_std_output, cilog.COLOR_F_RED)
         cilog.cilog_info(
             THIS_FILE_NAME, "execute, return code: %s", p.returncode)
         return False, std_output_lines_last
-
-    if p.returncode != 0:
-        print(str_std_output)
-        cilog.cilog_info(
-            THIS_FILE_NAME, "execute, return code: %s", p.returncode)
-        return False, std_output_lines_last
+    else:
+        if print_output_flag:
+            cilog.print_in_color(str_std_output, cilog.COLOR_F_YELLOW)        
+            cilog.cilog_info(
+                THIS_FILE_NAME, "execute, return code: %s", p.returncode)
     return True, std_output_lines_last

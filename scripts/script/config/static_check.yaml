@@ -1,7 +1,8 @@
 cppcheck:
     - type : command
       command : cppcheck --template {file}:{line},{severity},{id},{message} 
-                --quiet --inline-suppr ascenddk/common/ 
+                --quiet --inline-suppr 
+                ${ASCEND_ROOT_PATH}/ascenddk/common/ 
                 2>&1 | tee ${BUILD_TEMP_PATH}/cppcheck.log
     - type : function
       command : 
