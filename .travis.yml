@@ -17,7 +17,7 @@ jobs:
           name: "static_check_cppcheck"
           #no need to do clone tools
           before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install
-          install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py cppcheck
+          install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install_cppcheck
           script: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/script/static_check_run.py cppcheck
         - name: "ut_presentor"
           script: echo "running"
