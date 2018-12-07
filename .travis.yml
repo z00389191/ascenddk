@@ -1,20 +1,24 @@
 language: cpp
 
 dist: xenial
+env:
+    - ASCEND_ROOT_PATH=${HOME}/build/Ascend
+      BUILD_TEMP_PATH=${ASCEND_ROOT_PATH}/ascenddk/scripts/temp
 
 #default before_install, clone Ascend/tools as default, it can be overwrited by jobs
-before_install: python3 $HOME/Ascend/ascenddk/scripts/install/install.py before_install_clone_tools
+before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install_clone_tools
 
 #default install, it can be overwrited by jobs
-install: python3 $HOME/Ascend/ascenddk/scripts/install/install.py install
+install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install
 
 jobs:
     include:
         - stage: ascenddk llt and sc
           name: "static_check_cppcheck"
-          before_install: pwd
-          install: python3 $HOME/Ascend/ascenddk/scripts/install/install.py cppcheck
-          script: python3 $HOME/Ascend/ascenddk/scripts/script/static_check_run.py cppcheck
+          #no need to do clone tools
+          before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install
+          install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py cppcheck
+          script: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/script/static_check_run.py cppcheck
         - name: "ut_presentor"
           script: echo "running"
         - name: "st_presentor"
