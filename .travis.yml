@@ -2,18 +2,17 @@ language: cpp
 
 dist: xenial
 
-before_install:
-    - git clone --depth=50 --branch=$TRAVIS_BRANCH https://github.com/Ascend/tools.git $TRAVIS_BUILD_DIR/../../Ascend/tools 
-    - cd $TRAVIS_BUILD_DIR/../../Ascend/tools && git checkout
-    - cd $TRAVIS_BUILD_DIR/../
+#default before_install, clone Ascend/tools as default, it can be overwrited by jobs
+before_install: python3 ascenddk/scripts/install/install.py before_install_clone_tools
 
-#default install, can be overwrited by jobs
-install: python3 ascenddk/scripts/install/install.py
+#default install, it can be overwrited by jobs
+install: python3 ascenddk/scripts/install/install.py install
 
 jobs:
     include:
         - stage: ascenddk llt and sc
           name: "static_check_cppcheck"
+          before_install: python3 ascenddk/scripts/install/install.py before_install
           install: python3 ascenddk/scripts/install/install.py cppcheck
           script: python3 ascenddk/scripts/script/static_check_run.py cppcheck
         - name: "ut_presentor"
