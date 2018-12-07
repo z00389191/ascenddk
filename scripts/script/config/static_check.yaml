@@ -1,6 +1,8 @@
 cppcheck:
     - type : command
-      command : cppcheck --template {file}:{line},{severity},{id},{message} --quiet --inline-suppr ascenddk/common/ 2> cppcheck.log
+      command : cppcheck --template {file}:{line},{severity},{id},{message} 
+                --quiet --inline-suppr ascenddk/common/ 
+                2>&1 | tee cppcheck.log
     - type : function
       command : 
           function_name : check_file_is_empty
