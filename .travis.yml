@@ -12,7 +12,7 @@ jobs:
     include:
         - stage: ascenddk llt and sc
           name: "static_check_cppcheck"
-          before_install: true
+          before_install: pwd
           install: python3 $HOME/Ascend/ascenddk/scripts/install/install.py cppcheck
           script: python3 $HOME/Ascend/ascenddk/scripts/script/static_check_run.py cppcheck
         - name: "ut_presentor"
