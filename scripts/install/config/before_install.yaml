@@ -1,2 +1,2 @@
 install:
-    - cd $TRAVIS_BUILD_DIR/../
+    - cd $HOME
