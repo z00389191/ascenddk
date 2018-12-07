@@ -38,7 +38,7 @@ def main():
         exit(-1)
 
     for command in commands:
-        ret = util.execute(command)
+        ret = util.execute(command, print_output_flag=True)
         if not ret[0]:
             exit(-1)
     exit(0)
