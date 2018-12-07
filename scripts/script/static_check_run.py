@@ -33,12 +33,12 @@ import comm.ci_log as cilog
 def static_check_func(command):
     function_name = command.get("function_name")
 
-    if command.has_key("args"):
+    if "args" in command:
         args = command.get("args")
     else:
         args = []
 
-    if command.has_key("kwargs"):
+    if "kwargs" in command:
         kwargs = command.get("kwargs")
     else:
         kwargs = {}
