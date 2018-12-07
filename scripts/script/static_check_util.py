@@ -22,8 +22,8 @@ import re
 FILE_EMPTY_SIZE = 0
 
 #{replace_pattern : replace_value}
-ENV_DICT = {"\$\{HOME\}" : os.getenv("HOME"),
-            "\$HOME" : os.getenv("HOME")}
+ENV_DICT = {"\$\{BUILD_TEMP_PATH\}" : os.getenv("BUILD_TEMP_PATH"),
+            "\$\{ASCEND_ROOT_PATH\}" : os.getenv("ASCEND_ROOT_PATH")}
 
 def replace_env(file_name):
     for key, value in ENV_DICT.items():
