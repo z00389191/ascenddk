@@ -20,6 +20,9 @@ jobs:
           install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install_cppcheck
           script: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/script/static_check_run.py cppcheck
         - name: "ut_presentor"
+          install: 
+            - git clone --depth=50 --branch=master https://github.com/swxEmily/proxy.git ${HOME}/build/swxEmily/proxy
+            - cd ${HOME}/build/swxEmily/proxy && git checkout
           script: echo "running"
         - name: "st_presentor"
           script: echo "running"
