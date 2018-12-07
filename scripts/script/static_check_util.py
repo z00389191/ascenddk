@@ -17,32 +17,9 @@
 #    =======================================================================
 #
 import os
-import sys
 
-from static_check_commands import StaticCheckCommands
-
-THIS_FILE_NAME = __file__
-
-sys.path.append(os.path.join(os.path.dirname(
-    os.path.realpath(THIS_FILE_NAME)), ".."))
-
-import comm.util as util
-
-
-def main():
-    check_type = os.sys.argv[1]
-
-    static_check_commands = StaticCheckCommands()
-    ret, commands = static_check_commands.get_commands(check_type)
-    if not ret:
-        exit(-1)
-
-    for command in commands:
-        ret = util.execute(command, print_output_flag=True)
-        if not ret[0]:
-            exit(-1)
-    exit(0)
-
-
-if __name__ == '__main__':
-    main()
+def check_file_is_empty(file_name):
+    if os.path.getsize(file_name):
+        return True
+    else:
+        return False

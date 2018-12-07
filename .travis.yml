@@ -13,9 +13,9 @@ install: python3 ascenddk/scripts/install/install.py
 jobs:
     include:
         - stage: ascenddk llt and sc
-          name: "sc_cppcheck"
+          name: "static_check_cppcheck"
           install: python3 ascenddk/scripts/install/install.py cppcheck
-          script: python3 ascenddk/scripts/script/sc_run.py cppcheck
+          script: python3 ascenddk/scripts/script/static_check_run.py cppcheck
         - name: "ut_presentor"
           script: echo "running"
         - name: "st_presentor"
