@@ -30,10 +30,6 @@ sys.path.append(os.path.join(os.path.dirname(
 import comm.util as util
 import comm.ci_log as cilog
 
-EXPECTED_RESULT_DICT = {"True": True,
-                        "False": False}
-
-
 def static_check_func(command):
     function_name = command.get("function_name")
 
@@ -53,7 +49,7 @@ def static_check_func(command):
 
     ret = eval(function_name)(*args, **kwargs)
 
-    expected_result = EXPECTED_RESULT_DICT.get(command.get("expected_result"))
+    expected_result = command.get("expected_result")
 
     if ret == expected_result:
         cilog.cilog_info(
@@ -82,7 +78,7 @@ def main():
             ret = util.execute(command)
             if not ret[0]:
                 exit(-1)
-        elif comand_type == "func":
+        elif comand_type == "function":
             ret = static_check_func(command)
             if not ret:
                 exit(-1)
