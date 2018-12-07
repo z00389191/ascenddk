@@ -2,10 +2,10 @@ cppcheck:
     - type : command
       command : cppcheck --template {file}:{line},{severity},{id},{message} 
                 --quiet --inline-suppr ascenddk/common/ 
-                2>&1 | tee cppcheck.log
+                2>&1 | tee ${ASCEND_ROOT_PATH}/cppcheck.log
     - type : function
       command : 
           function_name : check_file_is_empty
           args :
-              - cppcheck.log
+              - ${ASCEND_ROOT_PATH}/cppcheck.log
           expected_result : True

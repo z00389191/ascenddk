@@ -17,10 +17,23 @@
 #    =======================================================================
 #
 import os
+import re
 
 FILE_EMPTY_SIZE = 0
 
+#{replace_pattern : replace_value}
+ENV_DICT = {"\$\{ASCEND_ROOT_PATH\}" : os.getenv("ASCEND_ROOT_PATH"),
+            "\$ASCEND_ROOT_PATH" : os.getenv("ASCEND_ROOT_PATH")}
+
+def replace_env(file_name):
+    for key, value in ENV_DICT.items():
+        file_name = re.sub(key, value, file_name)
+    return file_name
+
 def check_file_is_empty(file_name):
+    
+    #replace env in the file_name
+    file_name = replace_env(file_name)
     if os.path.getsize(file_name) == FILE_EMPTY_SIZE:
         return True
     else:
