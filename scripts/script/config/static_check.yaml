@@ -1,12 +1,13 @@
 cppcheck:
     - type: command
       command:
-        cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
-             --quiet --inline-suppr 
-             __CPPCHECK_PATH__ 2>&1 | tee ${BUILD_TEMP_PATH}/cppcheck.log
-        args:
-            #new checked path added here
-            -__CPPCHECK_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/
+          cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
+               --quiet --inline-suppr 
+               __CPPCHECK_PATH__ 2>&1 | tee ${BUILD_TEMP_PATH}/cppcheck.log
+          args: #[{}, {}] map in list
+              #new checked path added here
+              -
+                  __CPPCHECK_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/
     - type: function
       command: 
           function_name: check_file_is_empty
@@ -17,12 +18,13 @@ cppcheck:
 pylint:
     - type: command
       command:
-        cmd: pylint3 -rcfile=${ASCEND_ROOT_PATH} -rn
-                __PYLINT_PATH__
-                --ignore=__PYLINT_IGNORE_PATH__
-        args:
-            #new checked path added here
-            -__PYLINT_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/server/src/
-             #null means no ignored files
-             #Add files or directories to the blacklist. They should be base names, not paths.
-             __PYLINT_IGNORE_PATH__: presenter_message_pb2.py
+          cmd: pylint3 -rcfile=${ASCEND_ROOT_PATH} -rn
+               __PYLINT_PATH__
+               --ignore=__PYLINT_IGNORE_PATH__
+          args:
+              #new checked path added here
+              -
+                  __PYLINT_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/server/src/
+                  #null means no ignored files
+                  #Add files or directories to the blacklist. They should be base names, not paths.
+                  __PYLINT_IGNORE_PATH__: presenter_message_pb2.py
