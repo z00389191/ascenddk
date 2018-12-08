@@ -18,6 +18,7 @@
 #
 import os
 import sys
+import re
 
 from static_check_commands import StaticCheckCommands
 from static_check_util import check_file_is_empty
@@ -62,6 +63,29 @@ def static_check_func(command):
             " expected_result: %s", ret, expected_result)
         return False
 
+def static_check_cmd(command):
+    cmd = command.get("cmd")
+    args = command.get("args")
+    result = True
+    if args is None:
+        ret = util.execute(cmd, print_output_flag=True)
+        result = ret[0]
+    else:
+        for each_arg in args:
+            #replace all parameters in the command
+            for param_key, param_value in each_arg.items():
+                cmd = re.sub(param_key, param_value, cmd)
+            
+            ret = util.execute(cmd, print_output_flag=True)
+            
+            #not return here, check every args
+            if not ret[0]:
+                result = False
+
+    if not result:
+        cilog.cilog_error(THIS_FILE_NAME, "static check failed.")
+
+    return result
 
 def main():
     check_type = os.sys.argv[1]
@@ -75,7 +99,7 @@ def main():
         comand_type = command_dict.get("type")
         command = command_dict.get("command")
         if comand_type == "command":
-            ret = util.execute(command, print_output_flag=True)
+            ret = static_check_cmd(command)
             if not ret[0]:
                 exit(-1)
         elif comand_type == "function":

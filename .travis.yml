@@ -19,10 +19,10 @@ jobs:
           before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install
           install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install_cppcheck
           script: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/script/static_check_run.py cppcheck
-        - name: "ut_presentor"
-          install: 
-            - git clone --depth=50 --branch=master https://github.com/swxEmily/proxy.git ${HOME}/build/swxEmily/proxy
-            - cd ${HOME}/build/swxEmily/proxy && git checkout
-          script: echo "running"
+        - name: "static_check_pylint"
+          #no need to do clone tools
+          before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install
+          install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install_pylint
+          script: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/script/static_check_run.py pylint
         - name: "st_presentor"
           script: echo "running"

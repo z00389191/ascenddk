@@ -1,12 +1,24 @@
 cppcheck:
-    - type : command
-      command : cppcheck --template {file}:{line},{severity},{id},{message} 
-                --quiet --inline-suppr 
-                ${ASCEND_ROOT_PATH}/ascenddk/common/ 
-                2>&1 | tee ${BUILD_TEMP_PATH}/cppcheck.log
-    - type : function
-      command : 
-          function_name : check_file_is_empty
-          args :
+    - type: command
+      command: 
+      	cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
+      	     --quiet --inline-suppr 
+             __CPPCHECK_PATH__ 2>&1 | tee ${BUILD_TEMP_PATH}/cppcheck.log
+        args:
+        	-__CPPCHECK_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/
+    - type: function
+      command: 
+          function_name: check_file_is_empty
+          args:
               - ${BUILD_TEMP_PATH}/cppcheck.log
-          expected_result : True
+          expected_result: True
+
+pylint:
+    - type£º command
+      command£º
+      	cmd: pylint3 -rcfile=${ASCEND_ROOT_PATH} -rn
+                __PYLINT_PATH__
+                --ignore=__PYLINT_IGNORE_PATH__
+        args:
+        	-__PYLINT_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/server/src/
+             __PYLINT_IGNORE_PATH__: presenter_message_pb2.py

@@ -23,7 +23,6 @@ import os
 import signal
 
 import comm.ci_log as cilog
-from comm.ci_log import COLOR_F_RED
 
 THIS_FILE_NAME = __file__
 
@@ -31,11 +30,10 @@ THIS_FILE_NAME = __file__
 def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     if print_cmd:
         if len(cmd) > 200:
-            cilog.cilog_info_color(
-                THIS_FILE_NAME, cilog.COLOR_F_YELLOW, "execute the cmd: %s ... %s", cmd[0:100], cmd[-100:])
+            cilog.print_in_color("%s ... %s" %
+                                 cmd[0:100], cmd[-100:], cilog.COLOR_F_YELLOW)
         else:
-            cilog.cilog_info_color(
-                THIS_FILE_NAME, cilog.COLOR_F_YELLOW, "execute the cmd: %s", cmd)
+            cilog.print_in_color(cmd, cilog.COLOR_F_YELLOW)
 
     is_linux = platform.system() == 'Linux'
 
@@ -81,12 +79,8 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
 
     if p.returncode != 0 or "Traceback" in str_std_output:
         cilog.print_in_color(str_std_output, cilog.COLOR_F_RED)
-        cilog.cilog_info(
-            THIS_FILE_NAME, "execute, return code: %s", p.returncode)
         return False, std_output_lines_last
     else:
         if print_output_flag:
-            cilog.print_in_color(str_std_output, cilog.COLOR_F_YELLOW)        
-            cilog.cilog_info(
-                THIS_FILE_NAME, "execute, return code: %s", p.returncode)
+            cilog.print_in_color(str_std_output, cilog.COLOR_F_YELLOW)
     return True, std_output_lines_last
