@@ -36,13 +36,13 @@ class StaticCheckCommands(object):
     read commands from yaml file
     '''
 
-    def __init__(self):
+    def __init__(self, command_file_name):
         self.commands = {}
-        self.command_file_name = "static_check.yaml"
+        self.command_file_name = "static_check_" + command_file_name
         self.error = False
         
         self.command_file = os.path.join(
-            CONFIG_PATH, self.command_file_name)
+            CONFIG_PATH, self.command_file_name + ".yaml")
         if not os.path.exists(self.command_file):
             self.error = True
             cilog.cilog_error(
@@ -63,10 +63,10 @@ class StaticCheckCommands(object):
             if stream in locals():
                 stream.close()
 
-    def get_commands(self, check_type):
+    def get_commands(self):
         if self.error:
             cilog.cilog_error(
                 THIS_FILE_NAME, "no command yaml or config yaml not exist.")
             return False, None
-        commands = self.commands.get(check_type)
+        commands = self.commands.get("static_check")
         return True, commands

@@ -92,8 +92,8 @@ def static_check_cmd(command):
 def main():
     check_type = os.sys.argv[1]
 
-    static_check_commands = StaticCheckCommands()
-    ret, commands = static_check_commands.get_commands(check_type)
+    static_check_commands = StaticCheckCommands(check_type)
+    ret, commands = static_check_commands.get_commands()
     if not ret:
         exit(-1)
 

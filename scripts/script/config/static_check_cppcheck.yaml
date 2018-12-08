@@ -1,0 +1,16 @@
+static_check:
+    - type: command
+      command:
+          cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
+               --quiet --inline-suppr 
+               __CPPCHECK_PATH__ 2>&1 | tee ${BUILD_TEMP_PATH}/cppcheck.log
+          args: #[{}, {}] map in list
+              #new checked path added here
+              -
+                  __CPPCHECK_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/
+    - type: function
+      command: 
+          function_name: check_file_is_empty
+          args:
+              - ${BUILD_TEMP_PATH}/cppcheck.log
+          expected_result: True
