@@ -22,6 +22,7 @@ import re
 
 from static_check_commands import StaticCheckCommands
 from static_check_util import check_file_is_empty
+from _overlapped import NULL
 
 THIS_FILE_NAME = __file__
 
@@ -74,6 +75,7 @@ def static_check_cmd(command):
         for each_arg in args:
             #replace all parameters in the command
             for param_key, param_value in each_arg.items():
+
                 cmd = re.sub(param_key, param_value, cmd)
             
             ret = util.execute(cmd, print_output_flag=True)
