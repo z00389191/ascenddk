@@ -3,7 +3,7 @@ static_check:
       command:
           cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
                --quiet --inline-suppr 
-               __CPPCHECK_PATH__ 2>&1 | tee ${BUILD_TEMP_PATH}/cppcheck.log
+               __CPPCHECK_PATH__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/cppcheck.log
           args: #[{}, {}] map in list
               #new checked path added here
               -
