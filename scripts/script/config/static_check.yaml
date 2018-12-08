@@ -18,7 +18,7 @@ cppcheck:
 pylint:
     - type: command
       command:
-          cmd: pylint3 -rcfile=${ASCEND_ROOT_PATH} -rn
+          cmd: pylint3 -rcfile=${ASCEND_ROOT_PATH}/ascenddk/scripts/script/config/pylintrc -rn
                __PYLINT_PATH__
                --ignore=__PYLINT_IGNORE_PATH__
           args:
