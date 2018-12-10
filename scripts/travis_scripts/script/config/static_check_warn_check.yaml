@@ -1,10 +1,15 @@
 warn_check_command:
     args:
-        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
-        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
-        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/osd
-        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/utils/ascend_ezdvpp
-        - ${ASCEND_ROOT_PATH}/ascenddk/common/ascendcamera/build.sh
+        - 
+            __WARN_CHECK_COMMAND__: make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
+        -
+            __WARN_CHECK_COMMAND__: make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
+        -
+            __WARN_CHECK_COMMAND__: make -C ${ASCEND_ROOT_PATH}/ascenddk/common/osd
+        - 
+            __WARN_CHECK_COMMAND__: make -C ${ASCEND_ROOT_PATH}/ascenddk/common/utils/ascend_ezdvpp
+        -
+            __WARN_CHECK_COMMAND__: ${ASCEND_ROOT_PATH}/ascenddk/common/ascendcamera/build.sh
 warn_check_function:
     args:
         - mode-key-value:
