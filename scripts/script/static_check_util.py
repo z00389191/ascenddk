@@ -48,40 +48,32 @@ def check_file_is_empty(file_name):
     else:
         return False
 
-def get_compiler_headers():
-    ddk_root_path = os.getenv("DDK_ROOT_PATH")
-    cmd = "find " + ddk_root_path + "/include/ -type d -print"
+def get_complier_files(checked_path):
+    cmd = "find " + checked_path + " -type d -print"
     return util.execute(cmd)
 
 
-def warn_check(file_name, cmd):
-    file_name = replace_env(file_name)
-    if not os.path.exists(file_name):
-        cilog.cilog_error(THIS_FILE_NAME, "can not find cpp list file: %s", file_name)
+def warn_check_compile(cmd, checked_path, headers_list):
+    checked_path = replace_env(checked_path)
+    if not os.path.exists(checked_path):
+        cilog.cilog_error(THIS_FILE_NAME, "can not find cpp list file: %s", checked_path)
         return False;
-    
-    ret, header_list = get_compiler_headers()
-    
-    if not ret:
-        cilog.cilog_error(THIS_FILE_NAME, "get ddk headers failed.")
+    checked_file_cmd = "find " + checked_path + " -type d -print"
+    ret = util.execute(checked_file_cmd)
+    if ret[0] is False:
+        cilog.cilog_error(THIS_FILE_NAME, "can not find cpp list file: %s", checked_path)
         return False
+
+    checked_file = ret[1]
     
-    headers = " -I".join(header_list)
-    headers = "-I" + headers
+    headers = ""
+    if headers_list is not None:
+        headers = " -I".join(headers_list)
+        headers = "-I" + headers
+
     cmd = re.sub("__WARN_CHECK_HEADERS__", headers, cmd)
-    try:
-        checked_file = open(file_name, 'r')
-        while True:
-            files = checked_file.readlines(100000)
-            if not files:
-                break
-            for file in files:
-                temp_cmd = re.sub("__WARN_CHECK_FILE__", file, cmd)
-                ret = util.execute(temp_cmd, print_output_flag=True)
-    except OSError as reason:
-        cilog.cilog_error(THIS_FILE_NAME, "open file failed: %s", reason)
-        return False
-    finally:
-        if checked_file in locals():
-            checked_file.close()
+    
+    for file in checked_file:
+        temp_cmd = re.sub("__WARN_CHECK_FILE__", file, cmd)
+        util.execute(temp_cmd, print_output_flag=True)
     return True

@@ -1,13 +1,8 @@
-static_check:
-    - type: command
-      command:
-          cmd: pylint3 --rcfile=${ASCEND_ROOT_PATH}/ascenddk/scripts/script/config/pylintrc -rn
-               __PYLINT_PATH__
-               --ignore=__PYLINT_IGNORE_PATH__
-          args: #[{}, {}] map in list
-              #new checked path added here
-              -
-                  __PYLINT_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/server/src/
-                  #null means no ignored files
-                  #Add files or directories to the blacklist. They should be base names, not paths.
-                  __PYLINT_IGNORE_PATH__: presenter_message_pb2.py
+pylint: #[{}, {}] map in list
+    args:
+	    #new checked path added here
+	    -
+	        __PYLINT_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/server/src/
+	        #null means no ignored files
+	        #Add files or directories to the blacklist. They should be base names, not paths.
+	        __PYLINT_IGNORE_PATH__: presenter_message_pb2.py

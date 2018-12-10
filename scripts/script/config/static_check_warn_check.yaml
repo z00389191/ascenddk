@@ -1,22 +1,24 @@
-static_check:
-    - type: command
-      command:
-          cmd: find ${ASCEND_ROOT_PATH}/ascenddk -path "${ASCEND_ROOT_PATH}/ascenddk/common/*.cpp"
-               -o -path "${ASCEND_ROOT_PATH}/ascenddk/common/*.h" > ${BUILD_TEMP_PATH}/warncheck_filelist.log
-    - type: function
-      command:
-          function_name: warn_check
-          args:
-              - ${BUILD_TEMP_PATH}/warncheck_filelist.log
-              - aarch64-linux-gnu-g++ -std=c++11 -Wall 
-                __WARN_CHECK_HEADERS__ __WARN_CHECK_FILE__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/warncheck.log
-          expected_result: True      
-    - type: command
-      command:
-          cmd: cat ${BUILD_TEMP_PATH}/warncheck.log
-    - type: function
-      command: 
-          function_name: check_file_is_empty
-          args:
-              - ${BUILD_TEMP_PATH}/warncheck.log
-          expected_result: True
+warn_check_command:
+    args:
+	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
+	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
+	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/osd
+	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/utils/ascend_ezdvpp
+	    - ${ASCEND_ROOT_PATH}/ascenddk/common/ascendcamera/build.sh
+warn_check_function:
+    args:
+	    - mode-key-value:
+	        checked_path: ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
+	        headers_list:
+	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
+	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionInferenceEngine
+	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPostProcess
+	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPreProcess
+	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/common/include
+	            - ${DDK_ROOT_PATH}/include/inc
+	            - ${DDK_ROOT_PATH}/include/inc/custom
+	            - ${DDK_ROOT_PATH}/include/inc/ascenddk
+	            - ${DDK_ROOT_PATH}/include/third_party/opencv/include
+	            - ${DDK_ROOT_PATH}/include/third_party/protobuf/include
+	            - ${DDK_ROOT_PATH}/include/third_party/cereal/include
+	            - ${DDK_ROOT_PATH}/include/libc_sec/include

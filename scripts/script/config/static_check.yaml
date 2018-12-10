@@ -1,0 +1,42 @@
+cppcheck:
+    - type: command
+      command:
+          cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
+               --quiet --inline-suppr 
+               __CPPCHECK_PATH__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/cppcheck.log
+          arg_name: cppcheck
+    - type: function
+      command: 
+          function_name: check_file_is_empty
+          args:
+              - ${BUILD_TEMP_PATH}/cppcheck.log
+          expected_result: True
+pylint:
+    - type: command
+      command:
+          cmd: pylint3 --rcfile=${ASCEND_ROOT_PATH}/ascenddk/scripts/script/config/pylintrc -rn
+               __PYLINT_PATH__
+               --ignore=__PYLINT_IGNORE_PATH__
+          arg_name: pylint
+warn_check:
+    - type: command
+      command:
+          cmd: __WARN_CHECK_COMMAND__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/warncheck.log
+          arg_name: warn_check_command
+    - type: function
+      command:
+          function_name: warn_check_compile
+          cmd: aarch-linux-gnu-g++ -std=c++11 -Wall __WARN_CHECK_HEADERS__ __WARN_CHECK_FILE__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/warncheck.log
+          arg_name: warn_check_function
+          expected_result: True
+    - type: function
+      command:
+          function_name: filter_warn_check
+          args:
+          expected_result: True
+    - type: function
+      command: 
+          function_name: check_file_is_empty
+          args:
+              - ${BUILD_TEMP_PATH}/warncheck.log
+          expected_result: True

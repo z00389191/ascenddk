@@ -32,37 +32,56 @@ sys.path.append(os.path.join(os.path.dirname(
 import comm.util as util
 import comm.ci_log as cilog
 
+
 def static_check_func(command):
     function_name = command.get("function_name")
-
-    if "args" in command:
-        args = command.get("args")
-    else:
+    parameter_list = command.get("args")
+    cmd = command.get("cmd")
+    if parameter_list is None:
+        parameter_list.append({"mode-values": []})
+    result = True
+    for parameter in parameter_list:
         args = []
-
-    if "kwargs" in command:
-        kwargs = command.get("kwargs")
-    else:
         kwargs = {}
 
-    cilog.cilog_info_color(
-        THIS_FILE_NAME, cilog.COLOR_F_YELLOW,
-        "execute the func: %s(%s, %s)", function_name, args, kwargs)
+        # each time either mode-values or mode-key-values works
+        mode_values = parameter.get("mode-values")
 
-    ret = eval(function_name)(*args, **kwargs)
+        mode_key_values = parameter.get("mode-key-values")
 
-    expected_result = command.get("expected_result")
+        if mode_values is not None or mode_key_values is None:
+            if cmd is not None:
+                args.append(cmd)
+            args.extend(mode_values)
+        elif mode_values is None or mode_key_values is not None:
+            if cmd is not None:
+                kwargs["cmd"] = cmd
+            kwargs.update(mode_key_values)
+        else:
+            cilog.cilog_error(
+                THIS_FILE_NAME, "mode-values: %s and mode-key-values: %s are invalid", mode_values, mode_key_values)
+            return False
 
-    if ret == expected_result:
-        cilog.cilog_info(
-            THIS_FILE_NAME,
-            "execute the func as expected_result: %s", expected_result)
-        return True
-    else:
-        cilog.cilog_error(
-            THIS_FILE_NAME, "execute the func failed: actural result: %s,"
-            " expected_result: %s", ret, expected_result)
-        return False
+        cilog.cilog_info_color(
+            THIS_FILE_NAME, cilog.COLOR_F_YELLOW,
+            "execute the func: %s(%s, %s)", function_name, args, kwargs)
+
+        ret = eval(function_name)(*args, **kwargs)
+
+        expected_result = command.get("expected_result")
+
+        # not break here, finish every check
+        if ret == expected_result:
+            cilog.cilog_info(
+                THIS_FILE_NAME,
+                "execute the func as expected_result: %s", expected_result)
+        else:
+            cilog.cilog_error(
+                THIS_FILE_NAME, "execute the func failed: actural result: %s,"
+                " expected_result: %s", ret, expected_result)
+            result = False
+    return result
+
 
 def static_check_cmd(command):
     cmd = command.get("cmd")
@@ -73,15 +92,15 @@ def static_check_cmd(command):
         result = ret[0]
     else:
         for each_arg in args:
-            #replace all parameters in the command
+            # replace all parameters in the command
             for param_key, param_value in each_arg.items():
                 if param_value is None:
                     param_value = ""
                 cmd = re.sub(param_key, param_value, cmd)
-            
+
             ret = util.execute(cmd, print_output_flag=True)
-            
-            #not return here, check every args
+
+            # not return here, check every args
             if not ret[0]:
                 result = False
 
@@ -89,6 +108,7 @@ def static_check_cmd(command):
         cilog.cilog_error(THIS_FILE_NAME, "static check failed.")
 
     return result
+
 
 def main():
     check_type = os.sys.argv[1]

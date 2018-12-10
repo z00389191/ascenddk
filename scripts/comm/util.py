@@ -55,7 +55,7 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     for loop_index in range(0, loop):
 
         # 检查子进程是否结束
-        str_std_output = str_std_output + str(p.stdout.read())
+        str_std_output = str_std_output + str(p.stdout.read().decode())
         if p.poll() is not None:
             break
         seconds_passed = time.time() - t_beginning
@@ -71,7 +71,7 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
                               cmd, seconds_passed, timeout, p.returncode)
             return False, p.stdout.readlines()
         time.sleep(time_gap)
-
+    str_std_output = str_std_output.strip()
     std_output_lines_last = []
     std_output_lines = str_std_output.split("\\n")
     for i in std_output_lines:
