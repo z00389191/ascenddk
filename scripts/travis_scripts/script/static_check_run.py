@@ -97,9 +97,9 @@ def static_check_cmd(command):
             for param_key, param_value in each_arg.items():
                 if param_value is None:
                     param_value = ""
-                cmd = re.sub(param_key, param_value, cmd)
+                temp_cmd = re.sub(param_key, param_value, cmd)
 
-            ret = util.execute(cmd, print_output_flag=True)
+            ret = util.execute(temp_cmd, print_output_flag=True)
 
             # not return here, check every args
             if not ret[0]:
