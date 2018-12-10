@@ -75,7 +75,7 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     std_output_lines_last = []
     std_output_lines = str_std_output.split("\n")
     for i in std_output_lines:
-        std_output_lines_last.append(i + "\n")
+        std_output_lines_last.append(i)
 
     if p.returncode != 0 or "Traceback" in str_std_output:
         cilog.print_in_color(str_std_output, cilog.COLOR_F_RED)

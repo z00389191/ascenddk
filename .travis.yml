@@ -4,6 +4,7 @@ dist: xenial
 env:
     - ASCEND_ROOT_PATH=${HOME}/build/Ascend
       BUILD_TEMP_PATH=${ASCEND_ROOT_PATH}/ascenddk/scripts/temp
+      DDK_ROOT_PATH=${HOME}/build/tools/ddk
 
 #default before_install, clone Ascend/tools as default, it can be overwrited by jobs
 before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install_clone_tools
