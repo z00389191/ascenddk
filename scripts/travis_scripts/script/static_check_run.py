@@ -39,16 +39,16 @@ def static_check_func(command):
     cmd = command.get("cmd")
     if parameter_list is None:
         parameter_list = []
-        parameter_list.append({"mode-value": []})
+        parameter_list.append({"arg_value": []})
     result = True
     for parameter in parameter_list:
         args = []
         kwargs = {}
 
         # each time either mode-values or mode-key-values works
-        mode_values = parameter.get("mode-value")
+        mode_values = parameter.get("arg_value")
 
-        mode_key_values = parameter.get("mode-key-value")
+        mode_key_values = parameter.get("arg_key_value")
 
         if mode_values is not None and mode_key_values is None:
             if cmd is not None:

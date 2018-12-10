@@ -10,7 +10,7 @@ warn_check_command:
             __WARN_CHECK_COMMAND__: make -C ${ASCEND_ROOT_PATH}/ascenddk/common/ascendcamera
 warn_check_function:
     args:
-        - mode-key-value:
+        - arg_key_value:
             checked_path: ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
             headers_list:
                 - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
