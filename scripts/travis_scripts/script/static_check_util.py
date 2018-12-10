@@ -53,7 +53,7 @@ def warn_check_compile(cmd, checked_path, headers_list):
     if not os.path.exists(checked_path):
         cilog.cilog_error(THIS_FILE_NAME, "can not find cpp list file: %s", checked_path)
         return False;
-    checked_file_cmd = "find " + checked_path + " -type d -print"
+    checked_file_cmd = "find " + checked_path + " -name \"*.cpp\" -o -name \"*.h\""
     ret = util.execute(checked_file_cmd)
     if ret[0] is False:
         cilog.cilog_error(THIS_FILE_NAME, "can not find cpp list file: %s", checked_path)
