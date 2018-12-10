@@ -70,6 +70,9 @@ class StaticCheckCommands(object):
                 args = sub_dict.get(arg_name)
                 if args is None:
                     self.error = True
+                    cilog.cilog_error(
+                THIS_FILE_NAME, "args in %s is invalid", self.command_file)
+                    return
                 for key, value in args.items():
                     command[key] = value
             self.commands = command_list
