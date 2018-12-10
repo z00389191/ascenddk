@@ -63,9 +63,13 @@ class StaticCheckCommands(object):
             sub_stream = open(self.command_file, 'r')
             static_dict = yaml.load(static_stream)
             sub_dict = yaml.load(sub_stream)
-            command_list = static_dict.get(command_type)
-
-            for command in command_list:
+            self.commands = static_dict.get(command_type)
+            self.validate_commands()
+            if self.error:
+                return
+            
+            for commands in self.commands:
+                command = commands.get("command")
                 arg_name = command.get("arg_name")
                 if arg_name is None:
                     continue
@@ -77,8 +81,6 @@ class StaticCheckCommands(object):
                     return
                 for key, value in args.items():
                     command[key] = value
-            self.commands = command_list
-            self.validate_commands()
         except OSError as reason:
             self.error = True
             cilog.cilog_error(
