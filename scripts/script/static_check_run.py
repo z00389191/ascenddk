@@ -22,7 +22,7 @@ import re
 
 from static_check_commands import StaticCheckCommands
 from static_check_util import check_file_is_empty
-from static_check_util import warn_check
+from static_check_util import warn_check_compile
 
 THIS_FILE_NAME = __file__
 

@@ -48,11 +48,6 @@ def check_file_is_empty(file_name):
     else:
         return False
 
-def get_complier_files(checked_path):
-    cmd = "find " + checked_path + " -type d -print"
-    return util.execute(cmd)
-
-
 def warn_check_compile(cmd, checked_path, headers_list):
     checked_path = replace_env(checked_path)
     if not os.path.exists(checked_path):
