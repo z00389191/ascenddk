@@ -3,27 +3,28 @@ language: cpp
 dist: xenial
 env:
     - ASCEND_ROOT_PATH=${HOME}/build/Ascend
-      BUILD_TEMP_PATH=${ASCEND_ROOT_PATH}/ascenddk/scripts/temp
+      BUILD_ROOT_PATH=${HOME}/build/Ascend/scripts/travis_scripts
+      BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
       DDK_ROOT_PATH=${HOME}/build/tools/ddk
 
 #default before_install, clone Ascend/tools as default, it can be overwrited by jobs
-before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install_clone_tools
+before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install_clone_tools
 
 #default install, it can be overwrited by jobs
-install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install
+install: python3 ${BUILD_ROOT_PATH}/install/install.py install
 
 jobs:
     include:
         - stage: ascenddk llt and sc
           name: "static_check_cppcheck"
           #no need to do clone tools
-          before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install
-          install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install_cppcheck
-          script: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/script/static_check_run.py cppcheck
+          before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install
+          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_cppcheck
+          script: python3 ${BUILD_ROOT_PATH}/script/static_check_run.py cppcheck
         - name: "static_check_pylint"
           #no need to do clone tools
-          before_install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py before_install
-          install: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/install/install.py install_pylint
-          script: python3 ${ASCEND_ROOT_PATH}/ascenddk/scripts/script/static_check_run.py pylint
+          before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install
+          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pylint
+          script: python3 ${BUILD_ROOT_PATH}/script/static_check_run.py pylint
         - name: "st_presentor"
           script: echo "running"
