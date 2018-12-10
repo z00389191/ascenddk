@@ -18,10 +18,10 @@ warn_check_function:
                 - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPostProcess
                 - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPreProcess
                 - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/common/include
-                - ${DDK_ROOT_PATH}/include/inc
-                - ${DDK_ROOT_PATH}/include/inc/custom
-                - ${DDK_ROOT_PATH}/include/inc/ascenddk
-                - ${DDK_ROOT_PATH}/include/third_party/opencv/include
-                - ${DDK_ROOT_PATH}/include/third_party/protobuf/include
-                - ${DDK_ROOT_PATH}/include/third_party/cereal/include
-                - ${DDK_ROOT_PATH}/include/libc_sec/include
+                - ${DDK_HOME}/include/inc
+                - ${DDK_HOME}/include/inc/custom
+                - ${DDK_HOME}/include/inc/ascenddk
+                - ${DDK_HOME}/include/third_party/opencv/include
+                - ${DDK_HOME}/include/third_party/protobuf/include
+                - ${DDK_HOME}/include/third_party/cereal/include
+                - ${DDK_HOME}/include/libc_sec/include
