@@ -10,6 +10,7 @@ static_check:
               - ${BUILD_TEMP_PATH}/warncheck_filelist.log
               - aarch64-linux-gnu-g++ -std=c++11 -Wall 
                 __WARN_CHECK_HEADERS__ __WARN_CHECK_FILE__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/warncheck.log
+          expected_result: True      
     - type: command
       command:
           cmd: cat ${BUILD_TEMP_PATH}/warncheck.log
