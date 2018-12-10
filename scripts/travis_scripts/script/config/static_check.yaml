@@ -27,19 +27,13 @@ warn_check:
     - type: function
       command:
           function_name: warn_check_compile
-          cmd: aarch64-linux-gnu-g++ -std=c++11 -Wall __WARN_CHECK_HEADERS__ __WARN_CHECK_FILE__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/warncheck.log
+          cmd: aarch64-linux-gnu-g++ -std=c++11 -Wall -c __WARN_CHECK_HEADERS__ __WARN_CHECK_FILE__ 
+               -o ${BUILD_TEMP_PATH}/__WARN_CHECK_FILE_NAME__ 2>&1 | tee -a ${BUILD_TEMP_PATH}/warncheck.log
           arg_name: warn_check_function
           expected_result: True
     - type: function
       command:
-          function_name: filter_warn_check
-          args:
-              arg_value:
-                  - ${BUILD_TEMP_PATH}/warncheck.log
-          expected_result: True
-    - type: function
-      command: 
-          function_name: check_file_is_empty
+          function_name: filter_warn_check_is_none
           args:
               arg_value:
                   - ${BUILD_TEMP_PATH}/warncheck.log
