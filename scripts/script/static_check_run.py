@@ -102,7 +102,7 @@ def main():
         command = command_dict.get("command")
         if comand_type == "command":
             ret = static_check_cmd(command)
-            if not ret[0]:
+            if not ret:
                 exit(-1)
         elif comand_type == "function":
             ret = static_check_func(command)
