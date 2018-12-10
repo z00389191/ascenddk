@@ -33,6 +33,8 @@ warn_check:
       command:
           function_name: filter_warn_check
           args:
+              -
+                  ${BUILD_TEMP_PATH}/warncheck.log
           expected_result: True
     - type: function
       command: 
