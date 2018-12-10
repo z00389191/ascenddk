@@ -9,7 +9,7 @@ cppcheck:
       command: 
           function_name: check_file_is_empty
           args:
-              arg_value:
+              - arg_value:
                   - ${BUILD_TEMP_PATH}/cppcheck.log
           expected_result: True
 pylint:
@@ -35,6 +35,6 @@ warn_check:
       command:
           function_name: filter_warn_check_is_none
           args:
-              arg_value:
+              - arg_value:
                   - ${BUILD_TEMP_PATH}/warncheck.log
           expected_result: True
