@@ -38,6 +38,7 @@ def static_check_func(command):
     parameter_list = command.get("args")
     cmd = command.get("cmd")
     if parameter_list is None:
+        parameter_list = []
         parameter_list.append({"mode-values": []})
     result = True
     for parameter in parameter_list:

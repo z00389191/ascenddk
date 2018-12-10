@@ -67,6 +67,8 @@ class StaticCheckCommands(object):
 
             for command in command_list:
                 arg_name = command.get("arg_name")
+                if arg_name is None:
+                    continue
                 args = sub_dict.get(arg_name)
                 if args is None:
                     self.error = True
