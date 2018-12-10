@@ -87,6 +87,8 @@ def filter_warn_check_is_none(file_name):
         file_stream = open(file_name, 'r')
         while True:
             lines = file_stream.readlines(100000)
+            if not lines:
+                break
             for line in lines:
                 if "warning" in line:
                     return False
