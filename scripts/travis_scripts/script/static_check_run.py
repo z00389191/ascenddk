@@ -50,11 +50,11 @@ def static_check_func(command):
 
         mode_key_values = parameter.get("mode-key-values")
 
-        if mode_values is not None or mode_key_values is None:
+        if mode_values is not None and mode_key_values is None:
             if cmd is not None:
                 args.append(cmd)
             args.extend(mode_values)
-        elif mode_values is None or mode_key_values is not None:
+        elif mode_values is None and mode_key_values is not None:
             if cmd is not None:
                 kwargs["cmd"] = cmd
             kwargs.update(mode_key_values)
