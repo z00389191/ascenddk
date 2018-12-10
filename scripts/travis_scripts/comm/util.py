@@ -73,7 +73,7 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
         time.sleep(time_gap)
     str_std_output = str_std_output.strip()
     std_output_lines_last = []
-    std_output_lines = str_std_output.split("\\n")
+    std_output_lines = str_std_output.split("\n")
     for i in std_output_lines:
         std_output_lines_last.append(i)
 

@@ -11,7 +11,7 @@ warn_check_command:
 warn_check_function:
     args:
         - arg_key_value:
-            checked_path: ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
+            checked_path: ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp
             headers_list:
                 - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
                 - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionInferenceEngine
