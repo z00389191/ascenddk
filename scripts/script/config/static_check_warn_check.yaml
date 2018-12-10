@@ -5,7 +5,7 @@ static_check:
                -o -path "${ASCEND_ROOT_PATH}/ascenddk/common/*.h" > ${BUILD_TEMP_PATH}/warncheck_filelist.log
     - type: function
       command:
-          funcion_name: warn_check
+          function_name: warn_check
           args:
               - ${BUILD_TEMP_PATH}/warncheck_filelist.log
               - aarch64-linux-gnu-g++ -std=c++11 -Wall 
