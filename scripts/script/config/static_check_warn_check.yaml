@@ -1,24 +1,24 @@
 warn_check_command:
     args:
-	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
-	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
-	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/osd
-	    - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/utils/ascend_ezdvpp
-	    - ${ASCEND_ROOT_PATH}/ascenddk/common/ascendcamera/build.sh
+        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
+        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent
+        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/osd
+        - make -C ${ASCEND_ROOT_PATH}/ascenddk/common/utils/ascend_ezdvpp
+        - ${ASCEND_ROOT_PATH}/ascenddk/common/ascendcamera/build.sh
 warn_check_function:
     args:
-	    - mode-key-value:
-	        checked_path: ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
-	        headers_list:
-	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
-	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionInferenceEngine
-	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPostProcess
-	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPreProcess
-	            - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/common/include
-	            - ${DDK_ROOT_PATH}/include/inc
-	            - ${DDK_ROOT_PATH}/include/inc/custom
-	            - ${DDK_ROOT_PATH}/include/inc/ascenddk
-	            - ${DDK_ROOT_PATH}/include/third_party/opencv/include
-	            - ${DDK_ROOT_PATH}/include/third_party/protobuf/include
-	            - ${DDK_ROOT_PATH}/include/third_party/cereal/include
-	            - ${DDK_ROOT_PATH}/include/libc_sec/include
+        - mode-key-value:
+            checked_path: ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
+            headers_list:
+                - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/CameraDatasets
+                - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionInferenceEngine
+                - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPostProcess
+                - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/FaceDetectionPreProcess
+                - ${ASCEND_ROOT_PATH}/ascenddk/engine/computervision/facedetectionapp/facedetectionapp/common/include
+                - ${DDK_ROOT_PATH}/include/inc
+                - ${DDK_ROOT_PATH}/include/inc/custom
+                - ${DDK_ROOT_PATH}/include/inc/ascenddk
+                - ${DDK_ROOT_PATH}/include/third_party/opencv/include
+                - ${DDK_ROOT_PATH}/include/third_party/protobuf/include
+                - ${DDK_ROOT_PATH}/include/third_party/cereal/include
+                - ${DDK_ROOT_PATH}/include/libc_sec/include
