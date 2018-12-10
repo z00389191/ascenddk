@@ -64,8 +64,8 @@ def static_check_func(command):
                 THIS_FILE_NAME, "mode_value: %s and mode_key_value: %s are invalid", mode_values, mode_key_values)
             return False
 
-        cilog.cilog_info_color(
-            THIS_FILE_NAME, cilog.COLOR_F_YELLOW,
+        cilog.cilog_info(
+            THIS_FILE_NAME,
             "execute the func: %s(%s, %s)", function_name, args, kwargs)
 
         ret = eval(function_name)(*args, **kwargs)
