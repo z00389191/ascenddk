@@ -41,6 +41,13 @@ def main():
         file_stream = open(file_path, 'r')
         travis_dict = yaml.load(file_stream)
         env_variables = travis_dict.get("env")
+    except OSError as reason:
+        print(reason)
+        exit(-1)
+    finally:
+        if file_stream in locals():
+            file_stream.close()
+    try:        
         env_variables_list = env_variables.split(" ")
 
         env_variables_list.append("TRAVIS_BRANCH=" + code_branch)
@@ -50,8 +57,16 @@ def main():
         env_file = os.path.join(os.getenv("HOME"), ".bashrc_rc")
         env_stream = open(env_file, 'w')
         env_stream.writelines(env_variables_list)
-
-        bashrc_file = os.path.join(os.getenv("HOME"), ".bashrc")
+    except OSError as reason:
+        print(reason)
+        exit(-1)
+    finally:
+        if env_stream in locals():
+            env_stream.close()
+    
+    #add env to bashrc        
+    bashrc_file = os.path.join(os.getenv("HOME"), ".bashrc")
+    try:
         bashrc_read_stream = open(bashrc_file, 'r')
         all_lines = []
         while True:
@@ -59,25 +74,23 @@ def main():
             if not lines:
                 break
             all_lines.extend(lines)
-        if ". ~/.bashrc" not in all_lines:
-            try:
-                bashrc_write_stream = open(bashrc_file, 'a')
-                bashrc_write_stream.write(". ~/.bashrc")
-            except OSError as reason:
-                print(reason)
-            finally:
-                if bashrc_write_stream in locals():
-                    bashrc_write_stream.close()
-                
     except OSError as reason:
         print(reason)
+        exit(-1)
     finally:
-        if file_stream in locals():
-            file_stream.close()
-        if env_stream in locals():
-            env_stream.close()
         if bashrc_read_stream in locals():
             bashrc_read_stream.close()
+    #if bashrc haven been added, skip it            
+    if ". ~/.bashrc" not in all_lines:
+        try:
+            bashrc_write_stream = open(bashrc_file, 'a')
+            bashrc_write_stream.write(". ~/.bashrc")
+        except OSError as reason:
+            print(reason)
+        finally:
+            if bashrc_write_stream in locals():
+                bashrc_write_stream.close()
+
 
 
 if __name__ == '__main__':
