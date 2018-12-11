@@ -25,7 +25,9 @@ import comm.ci_log as cilog
 
 
 def main():
-    ret = util.execute("git branch")
+    base_path = os.path.dirname(
+        os.path.realpath(__file__))
+    ret = util.execute("git branch", cwd=base_path)
 
     if ret[0] is False:
         exit(-1)
@@ -33,9 +35,8 @@ def main():
     branch_info = ret[1]
     code_branch = branch_info[0].split(" ")[1]
     cilog.print_in_color(code_branch, cilog.COLOR_F_YELLOW)
-    
-    file_path = os.path.join(os.path.dirname(
-        os.path.realpath(__file__)), "../../.travis.yml")
+
+    file_path = os.path.join(base_path, "../../.travis.yml")
 
     try:
         file_stream = open(file_path, 'r')
@@ -47,13 +48,15 @@ def main():
     finally:
         if file_stream in locals():
             file_stream.close()
-    try:        
+    try:
         env_variables_list = env_variables.split(" ")
 
         env_variables_list.append("TRAVIS_BRANCH=" + code_branch)
 
-        env_variables_list = list(map(lambda x: "export " + x + "\n", env_variables_list))
-        cilog.print_in_color("env list: %s" % env_variables_list, cilog.COLOR_F_YELLOW)
+        env_variables_list = list(
+            map(lambda x: "export " + x + "\n", env_variables_list))
+        cilog.print_in_color("env list: %s" %
+                             env_variables_list, cilog.COLOR_F_YELLOW)
         env_file = os.path.join(os.getenv("HOME"), ".bashrc_ascend")
         env_stream = open(env_file, 'w')
         env_stream.writelines(env_variables_list)
@@ -63,8 +66,8 @@ def main():
     finally:
         if env_stream in locals():
             env_stream.close()
-    
-    #add env to bashrc        
+
+    # add env to bashrc
     bashrc_file = os.path.join(os.getenv("HOME"), ".bashrc")
     try:
         bashrc_read_stream = open(bashrc_file, 'r')
@@ -80,7 +83,7 @@ def main():
     finally:
         if bashrc_read_stream in locals():
             bashrc_read_stream.close()
-    #if bashrc haven been added, skip it            
+    # if bashrc haven been added, skip it
     if ". ~/.bashrc_ascend" not in all_lines:
         try:
             bashrc_write_stream = open(bashrc_file, 'a')
@@ -90,7 +93,6 @@ def main():
         finally:
             if bashrc_write_stream in locals():
                 bashrc_write_stream.close()
-
 
 
 if __name__ == '__main__':
