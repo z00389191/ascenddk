@@ -21,6 +21,7 @@ import os
 import yaml
 
 import comm.util as util
+import comm.ci_log as cilog
 
 
 def main():
@@ -30,23 +31,25 @@ def main():
         exit(-1)
 
     branch_info = ret[1]
-    code_branch = branch_info[0]
-    print(code_branch)
-
+    code_branch = branch_info[0].split(" ")[1]
+    cilog.print_in_color(code_branch, cilog.COLOR_F_YELLOW)
+    
     file_path = os.path.join(os.path.dirname(
         os.path.realpath(__file__)), "../../.travis.yml")
 
     try:
         file_stream = open(file_path, 'r')
         travis_dict = yaml.load(file_stream)
-        env_varaibles = travis_dict.get("env")
-        env_varaibles.append("TRAVIS_BRANCH=" + code_branch)
+        env_variables = travis_dict.get("env")
+        env_variables_list = env_variables.split(" ")
 
-        env_varaibles = list(map(lambda x: "export " + x, env_varaibles))
+        env_variables_list.append("TRAVIS_BRANCH=" + code_branch)
 
+        env_variables_list = list(map(lambda x: "export " + x, env_variables_list))
+        cilog.print_in_color(env_variables_list, cilog.COLOR_F_YELLOW)
         env_file = os.path.join(os.getenv("HOME"), ".bashrc_rc")
         env_stream = open(env_file, 'w')
-        env_stream.write_array(env_varaibles)
+        env_stream.write_array(env_variables_list)
 
         bashrc_file = os.path.join(os.getenv("HOME"), ".bashrc")
         bashrc_read_stream = open(bashrc_file, 'r')
