@@ -5,7 +5,7 @@ install:
     - tar -zxvf MSpore_DDK*
     - wget -P ${LLT_ROOT_PATH}/src/gtest --no-check-certificate "https://github.com/abseil/googletest/archive/release-1.8.1.tar.gz"
     - tar -zxvf ${LLT_ROOT_PATH}/src/gtest/release*.tar.gz -C ${LLT_ROOT_PATH}/src/gtest
-    - wget -R ${LLT_ROOT_PATH}/src/mockcpp --no-check-certificate "https://bitbucket.org/godsme/mockcpp/get/06ad37ddc45c.zip"
-    - unzip ${LLT_ROOT_PATH}/src/mockcpp *.zip -d ${LLT_ROOT_PATH}/src/mockcpp
+    - wget -P ${LLT_ROOT_PATH}/src/mockcpp --no-check-certificate "https://bitbucket.org/godsme/mockcpp/get/06ad37ddc45c.zip"
+    - unzip ${LLT_ROOT_PATH}/src/mockcpp/*.zip -d ${LLT_ROOT_PATH}/src/mockcpp
     - cd ${ASCEND_ROOT_PATH}
     - mkdir -p ${BUILD_TEMP_PATH}
