@@ -2,22 +2,10 @@ install:
     - git clone --depth=50 --branch=$TRAVIS_BRANCH https://github.com/Ascend/tools.git ${ASCEND_ROOT_PATH}/tools 
     - cd ${ASCEND_ROOT_PATH}/tools && git checkout
     - unzip mini_mind_studio_developerkit.rar
-    - sudo mkdir -p ${DDK_HOME}
-    - tar -zxvf MSpore_DDK* -C ${DDK_HOME}/../
-    - sudo chmod -R 775 /root
-    - wget -x -P ${LLT_ROOT_PATH}/src/gtest "https://github.com/abseil/googletest/archive/release-1.8.1.tar.gz"
-    - tar -zxvf ${LLT_ROOT_PATH}/src/gtest/googletest-release*.tar.gz -C ${LLT_ROOT_PATH}/src
-    - cd ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest
-    - cmake -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_CXX_FLAGS="-std=c++0x"
-      -DCMAKE_INSTALL_PREFIX=./install ./ && make && make install
-    - mkdir -p ${LLT_ROOT_PATH}/gtest
-    - cp -R ${LLT_ROOT_PATH}/src/googletest-release*/googletest/install/* ${LLT_ROOT_PATH}/gtest/
-    - wget -x -R ${LLT_ROOT_PATH}/src/mockcpp "https://bitbucket.org/godsme/mockcpp/get/06ad37ddc45c.zip"
+    - tar -zxvf MSpore_DDK*
+    - wget -P ${LLT_ROOT_PATH}/src/gtest --no-check-certificate "https://github.com/abseil/googletest/archive/release-1.8.1.tar.gz"
+    - tar -zxvf ${LLT_ROOT_PATH}/src/gtest/googletest-release*.tar.gz -C ${LLT_ROOT_PATH}/src/gtest
+    - wget -R ${LLT_ROOT_PATH}/src/mockcpp --no-check-certificate "https://bitbucket.org/godsme/mockcpp/get/06ad37ddc45c.zip"
     - unzip ${LLT_ROOT_PATH}/src/mockcpp *.zip -d ${LLT_ROOT_PATH}/src/mockcpp
-    - cd ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*
-    - cmake -DMOCKCPP_XUNIT=gtest -DMOCKCPP_XUNIT_HOME=${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest
-      -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_CXX_FLAGS="-std=c++0x"  -DCMAKE_INSTALL_PREFIX=./install ./
-    - mkdir -p ${LLT_ROOT_PATH}/mockcpp
-    - cp -R ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*/install/* ${LLT_ROOT_PATH}/mockcpp/
     - cd ${ASCEND_ROOT_PATH}
     - mkdir -p ${BUILD_TEMP_PATH}

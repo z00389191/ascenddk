@@ -5,7 +5,7 @@ env:
     ASCEND_ROOT_PATH=${HOME}/build/Ascend
     BUILD_ROOT_PATH=${HOME}/build/Ascend/ascenddk/scripts/travis_scripts
     BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
-    DDK_HOME=/root/tools/che/ddk/ddk
+    DDK_HOME=${ASCEND_ROOT_PATH}/tools/ddk
     LLT_ROOT_PATH=${HOME}/build/llt
 
 #default before_install, clone Ascend/tools as default, it can be overwrited by jobs

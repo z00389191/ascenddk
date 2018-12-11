@@ -1,0 +1,15 @@
+install:
+    - sudo apt-get update #travis CI: need to update before install
+    - sudo apt-get install gcc-aarch64-linux-gnu
+    - sudo apt-get install g++-aarch64-linux-gnu
+    - cd ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest
+    - cmake -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_CXX_FLAGS="-std=c++0x"
+      -DCMAKE_INSTALL_PREFIX=./install ./ && make
+    - mkdir -p ${LLT_ROOT_PATH}/gtest
+    - cp -R ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest/include ${LLT_ROOT_PATH}/gtest/
+    - cp -R ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest/lib ${LLT_ROOT_PATH}/gtest/
+    - cd ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*
+    - cmake -DMOCKCPP_XUNIT=gtest -DMOCKCPP_XUNIT_HOME=${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest
+      -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_CXX_FLAGS="-std=c++0x"  -DCMAKE_INSTALL_PREFIX=./install ./
+    - mkdir -p ${LLT_ROOT_PATH}/mockcpp
+    - cp -R ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*/install/* ${LLT_ROOT_PATH}/mockcpp/
