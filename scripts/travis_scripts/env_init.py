@@ -54,7 +54,7 @@ def main():
 
         env_variables_list = list(map(lambda x: "export " + x + "\n", env_variables_list))
         cilog.print_in_color("env list: %s" % env_variables_list, cilog.COLOR_F_YELLOW)
-        env_file = os.path.join(os.getenv("HOME"), ".bashrc_rc")
+        env_file = os.path.join(os.getenv("HOME"), ".bashrc_ascend")
         env_stream = open(env_file, 'w')
         env_stream.writelines(env_variables_list)
     except OSError as reason:
@@ -81,10 +81,10 @@ def main():
         if bashrc_read_stream in locals():
             bashrc_read_stream.close()
     #if bashrc haven been added, skip it            
-    if ". ~/.bashrc" not in all_lines:
+    if ". ~/.bashrc_ascend" not in all_lines:
         try:
             bashrc_write_stream = open(bashrc_file, 'a')
-            bashrc_write_stream.write(". ~/.bashrc")
+            bashrc_write_stream.write(". ~/.bashrc_ascend")
         except OSError as reason:
             print(reason)
         finally:
