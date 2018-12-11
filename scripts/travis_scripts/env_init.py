@@ -46,7 +46,7 @@ def main():
         env_variables_list.append("TRAVIS_BRANCH=" + code_branch)
 
         env_variables_list = list(map(lambda x: "export " + x, env_variables_list))
-        cilog.print_in_color(env_variables_list, cilog.COLOR_F_YELLOW)
+        cilog.print_in_color("env list: %s" % env_variables_list, cilog.COLOR_F_YELLOW)
         env_file = os.path.join(os.getenv("HOME"), ".bashrc_rc")
         env_stream = open(env_file, 'w')
         env_stream.write_array(env_variables_list)
