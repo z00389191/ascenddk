@@ -60,8 +60,15 @@ def main():
                 break
             all_lines.extend(lines)
         if ". ~/.bashrc" not in all_lines:
-            bashrc_write_stream = open(bashrc_file, 'a')
-            bashrc_write_stream.write(". ~/.bashrc")
+            try:
+                bashrc_write_stream = open(bashrc_file, 'a')
+                bashrc_write_stream.write(". ~/.bashrc")
+            except OSError as reason:
+                print(reason)
+            finally:
+                if bashrc_write_stream in locals():
+                    bashrc_write_stream.close()
+                
     except OSError as reason:
         print(reason)
     finally:
@@ -71,8 +78,6 @@ def main():
             env_stream.close()
         if bashrc_read_stream in locals():
             bashrc_read_stream.close()
-        if bashrc_write_stream in locals():
-            bashrc_write_stream.close()
 
 
 if __name__ == '__main__':
