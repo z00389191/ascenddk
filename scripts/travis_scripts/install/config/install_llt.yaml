@@ -10,7 +10,7 @@ install:
     - cp -R ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest/include ${LLT_ROOT_PATH}/gtest/
     - cp -R ${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest/lib*.a ${LLT_ROOT_PATH}/gtest/lib/
     - wget -P ${LLT_ROOT_PATH}/src/mockcpp --no-check-certificate -N "https://bitbucket.org/godsme/mockcpp/get/06ad37ddc45c.zip"
-    - unzip ${LLT_ROOT_PATH}/src/mockcpp/*.zip -d ${LLT_ROOT_PATH}/src/mockcpp
+    - unzip -o ${LLT_ROOT_PATH}/src/mockcpp/*.zip -d ${LLT_ROOT_PATH}/src/mockcpp
     - cd ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp* &&
       cmake -DMOCKCPP_XUNIT=gtest -DMOCKCPP_XUNIT_HOME=${LLT_ROOT_PATH}/src/gtest/googletest-release*/googletest
       -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_CXX_FLAGS="-std=c++0x" -DCMAKE_INSTALL_PREFIX=./install ./
