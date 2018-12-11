@@ -2,8 +2,6 @@ install:
     - git clone --depth=50 --branch=$TRAVIS_BRANCH https://github.com/Ascend/tools.git ${ASCEND_ROOT_PATH}/tools 
     - cd ${ASCEND_ROOT_PATH}/tools && git checkout
     - unzip mini_mind_studio_developerkit.rar
-    - sudo mkdir -p ${DDK_ROOT_PATH}
-    - tar -zxvf MSpore_DDK* -C ${DDK_ROOT_PATH}
-    - sudo chmod -R 775 /root
+    - tar -zxvf MSpore_DDK*
     - cd ${ASCEND_ROOT_PATH}
     - mkdir -p ${BUILD_TEMP_PATH}
