@@ -6,7 +6,7 @@ env:
     BUILD_ROOT_PATH=${HOME}/build/Ascend/ascenddk/scripts/travis_scripts
     BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
     DDK_HOME=/root/tools/che/ddk/ddk
-    LLT_ROOT_PATH=${HOME}/build/googletest
+    LLT_ROOT_PATH=${HOME}/build/llt
 
 #default before_install, clone Ascend/tools as default, it can be overwrited by jobs
 before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install_clone_tools
