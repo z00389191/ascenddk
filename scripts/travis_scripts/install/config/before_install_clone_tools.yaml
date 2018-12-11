@@ -1,4 +1,9 @@
 install:
+    - export ASCEND_ROOT_PATH=${HOME}/build/Ascend
+    - export BUILD_ROOT_PATH=${HOME}/build/Ascend/scripts/travis_scripts
+    - export BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
+    - export DDK_HOME=/root/tools/che/ddk/ddk
+    - export LLT_ROOT_PATH=${HOME}/build/googletest
     - git clone --depth=50 --branch=$TRAVIS_BRANCH https://github.com/Ascend/tools.git ${ASCEND_ROOT_PATH}/tools 
     - cd ${ASCEND_ROOT_PATH}/tools && git checkout
     - unzip mini_mind_studio_developerkit.rar

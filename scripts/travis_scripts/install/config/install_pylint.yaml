@@ -1,3 +1,5 @@
 install:
     - sudo apt-get update #travis CI: need to update before install
-    - sudo apt-get install pylint3
+    - sudo apt-get install python-pip3
+    - sudo apt-get install python3-setuptools
+    - pip3 install pylint
