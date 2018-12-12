@@ -7,19 +7,24 @@ assignees: ''
 
 ---
 
-Describe the bug A clear and concise description of what the bug is.
+**Describe the bug**
+A clear and concise description of what the bug is.
 
-To Reproduce Steps to reproduce the behavior:
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Step1
+2. Step2
+3. Step3
+4. Step4
 
-Step1
-Step2
-Step3
-Step4
-Expected behavior A clear and concise description of what you expected to happen.
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-Current behavior A clear and concise description of what happens currently.
+**Current behavior**
+A clear and concise description of what happens currently.
 
-Screenshots If applicable, add screenshots to help explain your problem.
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
 **Your environment : **
 
@@ -27,4 +32,5 @@ Screenshots If applicable, add screenshots to help explain your problem.
 
 **Developer Board Version : **
 
-Additional context Add any other context about the problem here.(e.g. detailed explanation, stacktraces, related issues, suggestions how to fix, etc)
+**Additional context**
+Add any other context about the problem here.(e.g. detailed explanation, stacktraces, related issues, suggestions how to fix, etc)
