@@ -59,9 +59,6 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
         str_out = str(p.stdout.read().decode())
         str_std_output = str_std_output + str_out
 
-        if print_output_flag:
-            cilog.print_in_color(str_out, cilog.COLOR_F_YELLOW)
-
         if p.poll() is not None:
             break
         seconds_passed = time.time() - t_beginning
@@ -86,5 +83,8 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     if p.returncode != 0 or "Traceback" in str_std_output:
         cilog.print_in_color(str_std_output, cilog.COLOR_F_RED)
         return False, std_output_lines_last
+    else:
+        if print_output_flag:
+            cilog.print_in_color(str_std_output, cilog.COLOR_F_YELLOW)
 
     return True, std_output_lines_last

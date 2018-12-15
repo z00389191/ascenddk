@@ -65,7 +65,8 @@ def pylint(cmd, sub_params):
         if ret[0] is False:
             return False
         initfiles = list(map(lambda x: os.path.split(x)[0], ret[1]))
-        init_path_list.extend(initfiles)
+        if len(initfiles) != 0:
+            init_path_list.extend(initfiles)
 
     if len(init_path_list) == 0:
         cilog.cilog_info(THIS_FILE_NAME, "no path to check in pylint")
