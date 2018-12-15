@@ -79,25 +79,26 @@ def pylint(cmd, sub_params):
         if cur_index > len(init_path_list) - 1:
             break
         next_index = cur_index + 1
-        while True:
-            if init_path_list[cur_index] not in init_path_list[next_index]:
+        if next_index <= len(init_path_list) - 1:
+            while True:
+                if init_path_list[cur_index] not in init_path_list[next_index]:
+                    break
+                init_path_list.remove(init_path_list[next_index])
+        pylint_path = init_path_list[cur_index]
+        pylint_ignore_file_list = []
+        for sub_cur_index in range(len(sub_params)):
+            if sub_cur_index > len(sub_params) - 1:
                 break
-            init_path_list.remove(init_path_list[next_index])
-            pylint_path = init_path_list[cur_index]
-            pylint_ignore_file_list = []
-            for sub_cur_index in range(len(sub_params)):
-                if sub_cur_index > len(sub_params) - 1:
-                    break
-                pylint_ignore_file = sub_params[sub_cur_index]
-                if pylint_path not in pylint_ignore_file:
-                    break
-                sub_params.remove(pylint_ignore_file)
-                pylint_ignore_file_list.append(
-                    os.path.split(pylint_ignore_file)[1])
+            pylint_ignore_file = sub_params[sub_cur_index]
+            if pylint_path not in pylint_ignore_file:
+                break
+            sub_params.remove(pylint_ignore_file)
+            pylint_ignore_file_list.append(
+                os.path.split(pylint_ignore_file)[1])
 
-            each_param = {"__PYLINT_PATH__": pylint_path,
-                          "__PYLINT_IGNORE_PATH__": ",".join(pylint_ignore_file_list)}
-            params_list.append(each_param)
+        each_param = {"__PYLINT_PATH__": pylint_path,
+                      "__PYLINT_IGNORE_PATH__": ",".join(pylint_ignore_file_list)}
+        params_list.append(each_param)
 
     result = True
     with ProcessPoolExecutor(max_workers=5) as executor:
