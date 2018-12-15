@@ -20,25 +20,23 @@ import os
 import re
 import sys
 
-import comm.ci_log as cilog
-import comm.util as util
-
-
 THIS_FILE_NAME = __file__
 
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
+import comm.ci_log as cilog
+import comm.util as util
 
 FILE_EMPTY_SIZE = 0
-ASCENDDK_ROOT_PATH = os.getenv("ASCENDDK_ROOT_PATH")
-GLOBAL_IGNORE_PATH = [os.path.join(ASCENDDK_ROOT_PATH, "ascenddk/test"),
-                      os.path.join(ASCENDDK_ROOT_PATH, "ascenddk/scripts"),
-                      os.path.join(ASCENDDK_ROOT_PATH, "ascenddk/.git")]
+ASCEND_ROOT_PATH = os.getenv("ASCEND_ROOT_PATH")
+GLOBAL_IGNORE_PATH = [os.path.join(ASCEND_ROOT_PATH, "ascenddk/test"),
+                      os.path.join(ASCEND_ROOT_PATH, "ascenddk/scripts"),
+                      os.path.join(ASCEND_ROOT_PATH, "ascenddk/.git")]
 
 #{replace_pattern : replace_value}
 ENV_DICT = {"\$\{BUILD_TEMP_PATH\}": os.getenv("BUILD_TEMP_PATH"),
-            "\$\{ASCEND_ROOT_PATH\}": os.getenv("ASCEND_ROOT_PATH")}
+            "\$\{ASCEND_ROOT_PATH\}": ASCEND_ROOT_PATH}
 
 
 def replace_env(file_name):
@@ -57,8 +55,9 @@ def check_file_is_empty(file_name):
 
 
 def find_checked_path():
-    checked_path_cmd = "find " + os.path.join(os.getenv(
-        "ASCEND_ROOT_PATH"), "ascenddk") + " -maxdepth 1 -mindepth 1  -type d -print"
+    checked_path_cmd = "find " + \
+        os.path.join(ASCEND_ROOT_PATH, "ascenddk") + \
+        " -maxdepth 1 -mindepth 1  -type d -print"
     ret = util.execute(checked_path_cmd, print_output_flag=True)
     if ret[0] is False:
         return False, []

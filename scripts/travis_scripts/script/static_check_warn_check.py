@@ -98,7 +98,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
 
 def warn_check_compile(cmd):
     engine_mind_cmd = "find " + \
-        os.path.join(os.getenv("ASCEND_ROOT_PATH"),
+        os.path.join(sc_util.ASCEND_ROOT_PATH,
                      "engine") + " -name \"*.mind\""
     ret = util.execute(engine_mind_cmd, print_output_flag=True)
     if ret[0] is False:
