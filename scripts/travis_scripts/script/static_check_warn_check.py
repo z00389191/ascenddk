@@ -166,7 +166,7 @@ def warn_check_makefile(cmd):
     for each_path in BASE_SO_PATH:
         makefile_path_list.remove(each_path)
         ret = single_warn_check_makefile(cmd, each_path)
-        if ret[0] is False:
+        if ret is False:
             return False
         temp_copy_cmd = re.sub("__MAKEFILE_OUT_PATH__",
                                os.path.join(each_path, "out"), copy_cmd)
