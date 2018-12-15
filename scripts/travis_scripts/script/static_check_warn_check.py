@@ -66,13 +66,15 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
         header_list = oi_engine_config_dict.get(
             run_side.lower()).get("includes").get("include")
         header_list = list(map(lambda x:
-                               re.sub("\$\(SRC_DIR\)}", checked_file_path, x), header_list))
+                               re.sub("\$\(SRC_DIR\)", checked_file_path, x), header_list))
         header_list = list(map(lambda x:
                                re.sub("\.\.", mind_file_path, x), header_list))
         header_list = list(map(lambda x:
-                               re.sub(" \\\\", mind_file_path, x), header_list))
+                               re.sub(" \\\\", "", x), header_list))
+        header_list = list(map(lambda x:
+                               re.sub("\$\(DDK_HOME\)", os.getenv("DDK_HOME"), x), header_list))
 
-        cmd = re.sub("__WARN_CHECK_HEADERS__", " ".join(header_list), cmd)
+        temp_cmd = re.sub("__WARN_CHECK_HEADERS__", " ".join(header_list), cmd)
 
         checked_file_cmd = "find " + checked_file_path + \
             " -name \"*.cpp\" -o -name \"*.h\""
@@ -85,13 +87,12 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
 
         for file in checked_files:
             file_names = os.path.split(file)
-            temp_cmd = re.sub("__WARN_CHECK_FILE__", file, cmd)
+            temp_cmd = re.sub("__WARN_CHECK_FILE__", file, temp_cmd)
             temp_cmd = re.sub("__WARN_CHECK_FILE_NAME__",
                               file_names[1], temp_cmd)
             ret = util.execute(temp_cmd, print_output_flag=True)
             if ret[0] is False:
                 result = False
-                continue
 
         return result
 
