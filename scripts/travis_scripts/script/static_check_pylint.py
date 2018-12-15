@@ -92,6 +92,7 @@ def pylint(cmd, sub_params):
             if sub_cur_index > len(sub_params) - 1:
                 break
             pylint_ignore_file = sub_params[sub_cur_index]
+            pylint_ignore_file = sc_util.replace_env(pylint_ignore_file)
             if pylint_path not in pylint_ignore_file:
                 break
             sub_params.remove(pylint_ignore_file)
