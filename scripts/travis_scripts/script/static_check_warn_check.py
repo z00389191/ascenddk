@@ -34,10 +34,10 @@ sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
 
-BASE_SO_PATH = [os.path.join(os.getenv("ASCENDDK_ROOT_PATH"), "ascenddk/common/presenter/agent"),
-                os.path.join(os.getenv("ASCENDDK_ROOT_PATH"),
+BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presenter/agent"),
+                os.path.join(sc_util.ASCEND_ROOT_PATH,
                              "ascenddk/common/utils/ascend_ezdvpp"),
-                os.path.join(os.getenv("ASCENDDK_ROOT_PATH"), "ascenddk/common/osd")]
+                os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/osd")]
 
 
 def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
