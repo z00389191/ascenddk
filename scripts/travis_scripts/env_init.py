@@ -18,10 +18,11 @@
 #
 
 import os
+
 import yaml
 
-import comm.util as util
 import comm.ci_log as cilog
+import comm.util as util
 
 
 def main():

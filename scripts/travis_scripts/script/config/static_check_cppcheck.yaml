@@ -1,7 +1,0 @@
-cppcheck: 
-    args:
-        #new checked path added here
-        -
-            __CPPCHECK_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/common/
-        -
-            __CPPCHECK_PATH__: ${ASCEND_ROOT_PATH}/ascenddk/engine/

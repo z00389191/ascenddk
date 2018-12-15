@@ -16,13 +16,14 @@
 #    limitations under the License.
 #    =======================================================================
 #
+import os
 import platform
+import signal
 import subprocess
 import time
-import os
-import signal
 
 import comm.ci_log as cilog
+
 
 THIS_FILE_NAME = __file__
 
@@ -57,10 +58,10 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
         # 检查子进程是否结束
         str_out = str(p.stdout.read().decode())
         str_std_output = str_std_output + str_out
-                
+
         if print_output_flag:
             cilog.print_in_color(str_out, cilog.COLOR_F_YELLOW)
-            
+
         if p.poll() is not None:
             break
         seconds_passed = time.time() - t_beginning

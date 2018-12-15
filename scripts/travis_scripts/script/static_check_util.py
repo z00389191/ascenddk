@@ -20,15 +20,22 @@ import os
 import re
 import sys
 
+import comm.ci_log as cilog
+import comm.util as util
+
+
 THIS_FILE_NAME = __file__
 
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
-import comm.util as util
-import comm.ci_log as cilog
 
 FILE_EMPTY_SIZE = 0
+
+GLOBAL_IGNORE_PATH = [os.path.join(os.getenv("ASCENDDK_ROOT_PATH"), "ascenddk/test"),
+                      os.path.join(os.getenv("ASCENDDK_ROOT_PATH"),
+                                   "ascenddk/scripts"),
+                      os.path.join(os.getenv("ASCENDDK_ROOT_PATH"), "ascenddk/.git")]
 
 #{replace_pattern : replace_value}
 ENV_DICT = {"\$\{BUILD_TEMP_PATH\}": os.getenv("BUILD_TEMP_PATH"),
@@ -50,53 +57,15 @@ def check_file_is_empty(file_name):
         return False
 
 
-def warn_check_compile(cmd, checked_path, headers_list):
-    checked_path = replace_env(checked_path)
-    if not os.path.exists(checked_path):
-        cilog.cilog_error(
-            THIS_FILE_NAME, "can not find cpp list file: %s", checked_path)
-        return False
-    checked_file_cmd = "find " + checked_path + " -name \"*.cpp\" -o -name \"*.h\""
-    ret = util.execute(checked_file_cmd)
+def find_checked_path():
+    checked_path_cmd = "find " + os.path.join(os.getenv(
+        "ASCEND_ROOT_PATH"), "ascenddk") + " -maxdepth 1 -mindepth 1  -type d -print"
+    ret = util.execute(checked_path_cmd, print_output_flag=True)
     if ret[0] is False:
-        cilog.cilog_error(
-            THIS_FILE_NAME, "can not find cpp list file: %s", checked_path)
-        return False
+        return False, []
+    found_path = []
+    for each_path in ret[1]:
+        if each_path not in GLOBAL_IGNORE_PATH:
+            found_path.append(each_path)
 
-    checked_file = ret[1]
-
-    headers = ""
-    if headers_list is not None:
-        headers = " -I".join(headers_list)
-        headers = "-I" + headers
-
-    cmd = re.sub("__WARN_CHECK_HEADERS__", headers, cmd)
-
-    for file in checked_file:
-        file_names = os.path.split(file)
-        temp_cmd = re.sub("__WARN_CHECK_FILE__", file, cmd)
-        temp_cmd = re.sub("__WARN_CHECK_FILE_NAME__", file_names[1], temp_cmd)
-        util.execute(temp_cmd, print_output_flag=True)
-    return True
-
-
-def filter_warn_check_is_none(file_name):
-    # replace env in the file_name
-    file_name = replace_env(file_name)
-    try:
-        file_stream = open(file_name, 'r')
-        while True:
-            lines = file_stream.readlines(100000)
-            if not lines:
-                break
-            for line in lines:
-                if "warning" in line:
-                    return False
-    except OSError as reason:
-        cilog.cilog_error(
-            THIS_FILE_NAME, "read file failed: %s", reason)
-        return False
-    finally:
-        if file_stream in locals():
-            file_stream.close()
-    return True
+    return True, found_path

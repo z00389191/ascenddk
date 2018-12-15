@@ -1,0 +1,3 @@
+install:
+    - wget -P ${BUILD_TEMP_PATH}/ --no-check-certificate -N "http://www.harukizaemon.com/simian/simian-2.5.10.tar.gz"
+    - tar -zxvf ${BUILD_TEMP_PATH}/simian*.tar.gz -C ${BUILD_TEMP_PATH}/
