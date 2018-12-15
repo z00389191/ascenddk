@@ -21,8 +21,6 @@ import os
 import re
 import sys
 
-import comm.ci_log as cilog
-import comm.util as util
 from static_check_commands import StaticCheckCommands
 from static_check_pylint import pylint
 from static_check_util import check_file_is_empty
@@ -34,6 +32,9 @@ THIS_FILE_NAME = __file__
 
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
+
+import comm.ci_log as cilog
+import comm.util as util
 
 
 def static_check_func(command, sub_params):
