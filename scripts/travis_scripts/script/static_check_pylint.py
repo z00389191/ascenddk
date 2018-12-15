@@ -79,11 +79,10 @@ def pylint(cmd, sub_params):
         if cur_index > len(init_path_list) - 1:
             break
         next_index = cur_index + 1
-        if next_index <= len(init_path_list) - 1:
-            while True:
-                if init_path_list[cur_index] not in init_path_list[next_index]:
-                    break
-                init_path_list.remove(init_path_list[next_index])
+        while True:
+            if next_index > len(init_path_list) - 1 or init_path_list[cur_index] not in init_path_list[next_index]:
+                break
+            init_path_list.remove(init_path_list[next_index])
         pylint_path = init_path_list[cur_index]
         pylint_ignore_file_list = []
         for sub_cur_index in range(len(sub_params)):
