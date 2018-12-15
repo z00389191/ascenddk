@@ -31,11 +31,10 @@ sys.path.append(os.path.join(os.path.dirname(
 
 
 FILE_EMPTY_SIZE = 0
-
-GLOBAL_IGNORE_PATH = [os.path.join(os.getenv("ASCENDDK_ROOT_PATH"), "ascenddk/test"),
-                      os.path.join(os.getenv("ASCENDDK_ROOT_PATH"),
-                                   "ascenddk/scripts"),
-                      os.path.join(os.getenv("ASCENDDK_ROOT_PATH"), "ascenddk/.git")]
+ASCENDDK_ROOT_PATH = os.getenv("ASCENDDK_ROOT_PATH")
+GLOBAL_IGNORE_PATH = [os.path.join(ASCENDDK_ROOT_PATH, "ascenddk/test"),
+                      os.path.join(ASCENDDK_ROOT_PATH, "ascenddk/scripts"),
+                      os.path.join(ASCENDDK_ROOT_PATH, "ascenddk/.git")]
 
 #{replace_pattern : replace_value}
 ENV_DICT = {"\$\{BUILD_TEMP_PATH\}": os.getenv("BUILD_TEMP_PATH"),
