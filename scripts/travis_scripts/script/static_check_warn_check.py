@@ -99,7 +99,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
 def warn_check_compile(cmd):
     engine_mind_cmd = "find " + \
         os.path.join(sc_util.ASCEND_ROOT_PATH,
-                     "engine") + " -name \"*.mind\""
+                     "ascenddk/engine") + " -name \"*.mind\""
     ret = util.execute(engine_mind_cmd, print_output_flag=True)
     if ret[0] is False:
         return False
@@ -161,15 +161,14 @@ def warn_check_makefile(cmd):
         makefile_path_list.extend(makefiles)
 
     # base so should be executed fist in sequence and copy to DDK path
-    copy_cmd = "cp -R __MAKEFILE_OUT_PATH__/lib* " + \
+    copy_cmd = "cp -R __MAKEFILE_OUT_PATH__/out/lib* " + \
         os.path.join(os.getenv("DDK_HOME"), "lib/aarch64-linux-gcc5.4")
     for each_path in BASE_SO_PATH:
         makefile_path_list.remove(each_path)
         ret = single_warn_check_makefile(cmd, each_path)
         if ret is False:
             return False
-        temp_copy_cmd = re.sub("__MAKEFILE_OUT_PATH__",
-                               os.path.join(each_path, "out"), copy_cmd)
+        temp_copy_cmd = re.sub("__MAKEFILE_OUT_PATH__", each_path, copy_cmd)
         ret = util.execute(temp_copy_cmd, print_output_flag=True)
         if ret[0] is False:
             return False
