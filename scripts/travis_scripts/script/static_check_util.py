@@ -32,7 +32,8 @@ FILE_EMPTY_SIZE = 0
 ASCEND_ROOT_PATH = os.getenv("ASCEND_ROOT_PATH")
 GLOBAL_IGNORE_PATH = [os.path.join(ASCEND_ROOT_PATH, "ascenddk/test"),
                       os.path.join(ASCEND_ROOT_PATH, "ascenddk/scripts"),
-                      os.path.join(ASCEND_ROOT_PATH, "ascenddk/.git")]
+                      os.path.join(ASCEND_ROOT_PATH, "ascenddk/.git"),
+                      os.path.join(ASCEND_ROOT_PATH, "ascenddk/.github")]
 
 #{replace_pattern : replace_value}
 ENV_DICT = {"\$\{BUILD_TEMP_PATH\}": os.getenv("BUILD_TEMP_PATH"),

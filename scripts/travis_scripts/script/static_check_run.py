@@ -64,7 +64,8 @@ def static_check_func(command, sub_params):
     ret = eval(function_name)(*args, **kwargs)
 
     expected_result = command.get("expected_result")
-
+    
+    result = True
     # not break here, finish every check
     if ret == expected_result:
         cilog.cilog_info(
