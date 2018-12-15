@@ -173,7 +173,8 @@ def warn_check_makefile(cmd):
         ret = util.execute(temp_copy_cmd, print_output_flag=True)
         if ret[0] is False:
             return False
-
+    
+    makefile_path_list.remove("")
     if len(makefile_path_list) == 0:
         cilog.cilog_info(
             THIS_FILE_NAME, "no Makefile to check in makefile mode")
