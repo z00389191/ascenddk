@@ -109,7 +109,7 @@ class StaticCheckCommands(object):
                 break
 
             if command_type == "command":
-                if "cmd" not in each_command.keys():
+                if "params" not in each_command.keys():
                     cilog.cilog_error(
                         THIS_FILE_NAME, "cmd is invalid: %s", each_command)
                     self.error = True
