@@ -34,10 +34,10 @@ sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
 
-BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presenter/agent"),
+BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presenter/agent/Makefile"),
                 os.path.join(sc_util.ASCEND_ROOT_PATH,
-                             "ascenddk/common/utils/ascend_ezdvpp"),
-                os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/osd")]
+                             "ascenddk/common/utils/ascend_ezdvpp/Makefile"),
+                os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/osd/Makefile")]
 
 
 def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
@@ -193,9 +193,8 @@ def warn_check_makefile(cmd):
             return False
 
         makefile_path_list.extend(ret[1])
-    
-    if "" in makefile_path_list:
-        makefile_path_list.remove("")
+
+    makefile_path_list.remove("")
 
     # base so should be executed fist in sequence and copy to DDK path
     copy_cmd = "cp -R __MAKEFILE_OUT_PATH__/out/lib* " + \
