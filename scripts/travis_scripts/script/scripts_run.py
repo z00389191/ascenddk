@@ -32,7 +32,7 @@ import comm.util as util
 
 
 from scripts_util import check_file_is_empty
-from static_check_commands import ScriptsCommands
+from scripts_commands import ScriptsCommands
 from static_check_pylint import pylint
 from static_check_warn_check import filter_warn_check_is_none
 from static_check_warn_check import warn_check
@@ -151,7 +151,7 @@ def run_cmd(command, sub_params):
             result = False
 
     if not result:
-        cilog.cilog_error(THIS_FILE_NAME, "static check failed.")
+        cilog.cilog_error(THIS_FILE_NAME, "scripts run failed.")
 
     return result
 
