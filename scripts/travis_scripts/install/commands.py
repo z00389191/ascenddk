@@ -1,3 +1,4 @@
+'''comamnd module'''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -21,17 +22,18 @@ import os
 import sys
 import yaml
 
+import comm.ci_log as cilog
+
 THIS_FILE_NAME = __file__
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
-import comm.ci_log as cilog
 
 CONFIG_PATH = os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), "config")
 
 
-class InstallationCommands(object):
+class InstallationCommands():
     '''
     read commands from yaml file
     '''
@@ -66,6 +68,7 @@ class InstallationCommands(object):
                 stream.close()
 
     def get_install_commands(self):
+        '''get install commands function'''
         if self.error:
             cilog.cilog_error(
                 THIS_FILE_NAME, "no command yaml or config yaml not exist.")
