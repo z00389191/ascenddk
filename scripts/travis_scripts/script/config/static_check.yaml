@@ -1,5 +1,7 @@
 cppcheck:
     - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
+    - type: command
       cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
            --quiet --inline-suppr -i${ASCEND_ROOT_PATH}/ascenddk/test
            ${ASCEND_ROOT_PATH}/ascenddk 2>&1 | tee -a ${BUILD_TEMP_PATH}/cppcheck.log
@@ -9,6 +11,8 @@ cppcheck:
           - ${BUILD_TEMP_PATH}/cppcheck.log
       expected_result: True
 pylint:
+    - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
     - type: function
       function_name: pylint
       params:
@@ -17,6 +21,8 @@ pylint:
       sub_params: pylint_ignored_files
       expected_result: True
 warn_check:
+    - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
     - type: function
       function_name: warn_check
       params:
