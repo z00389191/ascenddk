@@ -23,7 +23,7 @@ import signal
 import subprocess
 import time
 
-import ci_log as cilog
+import comm.ci_log as cilog
 
 
 THIS_FILE_NAME = __file__
