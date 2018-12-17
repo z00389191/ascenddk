@@ -117,7 +117,3 @@ def print_in_color(msg, color):
     '''print standard output in defined color'''
     color_str = "\x1b[%dm" % color
     print(color_str + msg + "\x1b[0m")
-
-
-if __name__ == "__main__":
-    pass
