@@ -19,16 +19,15 @@
 #
 
 from commands import InstallationCommands
-import comm.util as util
-
 import os
 import sys
+import comm.util as util
+
 
 THIS_FILE_NAME = __file__
 
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
-
 
 
 def main():
