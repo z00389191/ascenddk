@@ -75,6 +75,7 @@ def find_checked_path():
 
 def check_coverage(coverage_result_path, threshold = 0):
     '''check coverage'''
+    coverage_result_path = replace_env(coverage_result_path)
     html_file = os.path.join(coverage_result_path, "index.html")
     with open(html_file, 'r') as index_html:
         index_html_content = index_html.read()
