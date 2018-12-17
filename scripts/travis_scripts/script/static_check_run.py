@@ -1,3 +1,4 @@
+'''static check'''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -21,13 +22,6 @@ import os
 import re
 import sys
 
-from static_check_commands import StaticCheckCommands
-from static_check_pylint import pylint
-from static_check_util import check_file_is_empty
-from static_check_warn_check import filter_warn_check_is_none
-from static_check_warn_check import warn_check
-
-
 THIS_FILE_NAME = __file__
 
 sys.path.append(os.path.join(os.path.dirname(
@@ -37,7 +31,15 @@ import comm.ci_log as cilog
 import comm.util as util
 
 
+from static_check_commands import StaticCheckCommands
+from static_check_pylint import pylint
+from static_check_util import check_file_is_empty
+from static_check_warn_check import filter_warn_check_is_none
+from static_check_warn_check import warn_check
+
+
 def static_check_func(command, sub_params):
+    '''static check in function mode'''
     function_name = command.get("function_name")
     params = command.get("params")
     sub_commands = None
@@ -64,7 +66,7 @@ def static_check_func(command, sub_params):
     ret = eval(function_name)(*args, **kwargs)
 
     expected_result = command.get("expected_result")
-    
+
     result = True
     # not break here, finish every check
     if ret == expected_result:
@@ -80,6 +82,7 @@ def static_check_func(command, sub_params):
 
 
 def static_check_cmd(command, sub_params):
+    '''static check in command mode'''
     cmd = command.get("cmd")
     sub_commands = None
     if "sub_params" in command.keys():
@@ -149,6 +152,7 @@ def static_check_cmd(command, sub_params):
 
 
 def main():
+    '''static check'''
     check_type = os.sys.argv[1]
 
     static_check_commands = StaticCheckCommands(check_type)

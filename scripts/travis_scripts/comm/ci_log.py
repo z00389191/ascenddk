@@ -23,9 +23,6 @@ import inspect
 import os
 import sys
 
-
-THIS_FILE_NAME = __file__
-
 LEVELS = {"DEBUG": 1, "INFO": 2, "WARNING": 3, "ERROR": 4}
 
 # 打印颜色，’B‘开头的表示背景色，’F‘开关表示前景色

@@ -16,16 +16,10 @@
 #    limitations under the License.
 #    =======================================================================
 #
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import as_completed
 import json
 import os
 import re
 import sys
-
-import comm.ci_log as cilog
-import comm.util as util
-import static_check_util as sc_util
 
 
 THIS_FILE_NAME = __file__
@@ -33,6 +27,12 @@ THIS_FILE_NAME = __file__
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
+import comm.ci_log as cilog
+import comm.util as util
+import static_check_util as sc_util
+
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import as_completed
 
 BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presenter/agent/Makefile"),
                 os.path.join(sc_util.ASCEND_ROOT_PATH,
@@ -41,6 +41,7 @@ BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presente
 
 
 def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
+    '''single warm_check path in compile mode'''
     mind_file_paths = os.path.split(mind_file)
     mind_file_path = mind_file_paths[0]
 
@@ -101,6 +102,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
 
 
 def warn_check_compile(cmd):
+    '''warm check in compile mode'''
     engine_mind_cmd = "find " + \
         os.path.join(sc_util.ASCEND_ROOT_PATH,
                      "ascenddk/engine") + " -name \"*.mind\""
@@ -137,6 +139,7 @@ def warn_check_compile(cmd):
 
 
 def validate_makefile(makefile_path):
+    '''validate -Wall in makefile'''
     result = False
     try:
         makefile_stream = open(makefile_path, "r")
@@ -162,6 +165,7 @@ def validate_makefile(makefile_path):
 
 
 def single_warn_check_makefile(cmd, makefile_path):
+    '''single warn check in makefile mode'''
     ret = validate_makefile(makefile_path)
 
     if ret is False:
@@ -173,7 +177,7 @@ def single_warn_check_makefile(cmd, makefile_path):
 
 
 def warn_check_makefile(cmd):
-
+    '''warm check in makefile mode'''
     # find path which need to be checked
     ret = sc_util.find_checked_path()
     if ret[0] is False:
@@ -226,6 +230,7 @@ def warn_check_makefile(cmd):
 
 
 def warn_check(compile_cmd, makefile_cmd):
+    '''warn check'''
     result = warn_check_makefile(makefile_cmd)
 
     ret = warn_check_compile(compile_cmd)
@@ -237,6 +242,7 @@ def warn_check(compile_cmd, makefile_cmd):
 
 
 def filter_warn_check_is_none(file_name):
+    '''check warning in warn check result'''
     # replace env in the file_name
     file_name = sc_util.replace_env(file_name)
     try:

@@ -1,3 +1,4 @@
+'''pylint check'''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -34,7 +35,7 @@ sys.path.append(os.path.join(os.path.dirname(
 
 
 def single_pylint(cmd, params):
-
+    '''single pylint path check'''
     for key, value in params.items():
         cmd = re.sub(key, value, cmd)
 
@@ -48,6 +49,7 @@ def single_pylint(cmd, params):
 
 
 def pylint(cmd, sub_params):
+    '''check pylint'''
     ret = sc_util.find_checked_path()
     if ret is False:
         return False

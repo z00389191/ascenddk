@@ -18,14 +18,15 @@
 #    =======================================================================
 #
 
-from commands import InstallationCommands
 import os
 import sys
-import comm.util as util
 
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(__file__)), ".."))
 
+import comm.util as util
+
+from commands import InstallationCommands
 
 def main():
     '''handle install commands'''

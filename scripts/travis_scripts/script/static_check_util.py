@@ -1,3 +1,4 @@
+'''static check util'''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -41,12 +42,14 @@ ENV_DICT = {"\$\{BUILD_TEMP_PATH\}": os.getenv("BUILD_TEMP_PATH"),
 
 
 def replace_env(file_name):
+    '''replace whether env in file path or file name'''
     for key, value in ENV_DICT.items():
         file_name = re.sub(key, value, file_name)
     return file_name
 
 
 def check_file_is_empty(file_name):
+    '''check file content is empty or not'''
     # replace env in the file_name
     file_name = replace_env(file_name)
     if os.path.getsize(file_name) == FILE_EMPTY_SIZE:
@@ -56,6 +59,7 @@ def check_file_is_empty(file_name):
 
 
 def find_checked_path():
+    '''find static check base path'''
     checked_path_cmd = "find " + \
         os.path.join(ASCEND_ROOT_PATH, "ascenddk") + \
         " -maxdepth 1 -mindepth 1  -type d -print"

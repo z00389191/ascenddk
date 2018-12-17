@@ -1,3 +1,4 @@
+'''static check commands'''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -37,6 +38,7 @@ class StaticCheckCommands(object):
     '''
 
     def __init__(self, command_type):
+        '''init function'''
         self.commands = {}
         self.sub_params = None
         self.command_type = command_type
@@ -86,6 +88,7 @@ class StaticCheckCommands(object):
                 static_stream.close()
 
     def get_commands(self):
+        '''get static check commands'''
         if self.error is True:
             cilog.cilog_error(
                 THIS_FILE_NAME, "get command failed.")
@@ -93,6 +96,7 @@ class StaticCheckCommands(object):
         return True, self.commands
 
     def get_sub_params(self):
+        '''get static check sub params'''
         if self.error is True:
             cilog.cilog_error(
                 THIS_FILE_NAME, "get sub params failed.")
@@ -100,6 +104,7 @@ class StaticCheckCommands(object):
         return True, self.sub_params
 
     def validate_commands(self):
+        '''validate commands'''
         for each_command in self.commands:
             command_type = each_command.get("type")
             if command_type is None:
