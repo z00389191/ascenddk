@@ -204,7 +204,8 @@ def warn_check_makefile(cmd):
         ret = single_warn_check_makefile(cmd, each_path)
         if ret is False:
             return False
-        temp_copy_cmd = re.sub("__MAKEFILE_OUT_PATH__", each_path, copy_cmd)
+        temp_copy_cmd = re.sub("__MAKEFILE_OUT_PATH__",
+                               os.path.split(each_path)[0], copy_cmd)
         ret = util.execute(temp_copy_cmd, print_output_flag=True)
         if ret[0] is False:
             return False
