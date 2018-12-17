@@ -30,7 +30,7 @@ THIS_FILE_NAME = __file__
 
 def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     if print_cmd:
-        if len(cmd) > 200:
+        if len(cmd) > 2000:
             cilog.print_in_color("%s ... %s" %
                                  (cmd[0:100], cmd[-100:]), cilog.COLOR_F_YELLOW)
         else:
