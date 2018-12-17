@@ -56,7 +56,6 @@ def cilog_get_timestamp():
 def cilog_print_element(cilog_element):
     '''print log element'''
     print("[" + cilog_element + "]", end=' ')
-    return
 
 
 def cilog_logmsg(log_level, filename, line_no, funcname, log_msg, *log_paras):
@@ -74,15 +73,12 @@ def cilog_logmsg(log_level, filename, line_no, funcname, log_msg, *log_paras):
     print(log_msg % log_paras[0])
     sys.stdout.flush()
 
-    return
-
 
 def cilog_debug(filename, log_msg, *log_paras):
     '''print log in debug level'''
     line_no = inspect.currentframe().f_back.f_lineno
     funcname = inspect.currentframe().f_back.f_code.co_name
     cilog_logmsg("DEBUG", filename, line_no, funcname, log_msg, log_paras)
-    return
 
 
 def cilog_error(filename, log_msg, *log_paras):
@@ -91,7 +87,6 @@ def cilog_error(filename, log_msg, *log_paras):
     funcname = inspect.currentframe().f_back.f_code.co_name
     cilog_logmsg("ERROR", filename, line_no, funcname,
                  "\x1b[41m" + log_msg + "\x1b[0m", log_paras)
-    return
 
 
 def cilog_warning(filename, log_msg, *log_paras):
@@ -100,7 +95,6 @@ def cilog_warning(filename, log_msg, *log_paras):
     funcname = inspect.currentframe().f_back.f_code.co_name
     cilog_logmsg("WARNING", filename, line_no, funcname,
                  "\x1b[43m" + log_msg + "\x1b[0m", log_paras)
-    return
 
 
 def cilog_info(filename, log_msg, *log_paras):
@@ -108,7 +102,6 @@ def cilog_info(filename, log_msg, *log_paras):
     line_no = inspect.currentframe().f_back.f_lineno
     funcname = inspect.currentframe().f_back.f_code.co_name
     cilog_logmsg("INFO", filename, line_no, funcname, log_msg, log_paras)
-    return
 
 
 def cilog_info_color(filename, color, log_msg, *log_paras):
@@ -118,7 +111,6 @@ def cilog_info_color(filename, color, log_msg, *log_paras):
     funcname = inspect.currentframe().f_back.f_code.co_name
     cilog_logmsg("INFO", filename, line_no, funcname,
                  color_str + log_msg + "\x1b[0m", log_paras)
-    return
 
 
 def print_in_color(msg, color):
