@@ -74,7 +74,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
         header_list = list(map(lambda x:
                                re.sub("\$\(DDK_HOME\)", os.getenv("DDK_HOME"), x), header_list))
 
-        temp_cmd = re.sub("__WARN_CHECK_HEADERS__", " ".join(header_list), cmd)
+        replaced_cmd = re.sub("__WARN_CHECK_HEADERS__", " ".join(header_list), cmd)
 
         checked_file_cmd = "find " + checked_file_path + \
             " -name \"*.cpp\" -o -name \"*.h\""
@@ -87,7 +87,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
 
         for file in checked_files:
             file_names = os.path.split(file)
-            temp_cmd = re.sub("__WARN_CHECK_FILE__", file, temp_cmd)
+            temp_cmd = re.sub("__WARN_CHECK_FILE__", file, replaced_cmd)
             temp_cmd = re.sub("__WARN_CHECK_FILE_NAME__",
                               file_names[1], temp_cmd)
             ret = util.execute(temp_cmd, print_output_flag=True)
