@@ -22,6 +22,8 @@ import os
 import re
 import sys
 
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import as_completed
 
 THIS_FILE_NAME = __file__
 
@@ -32,8 +34,6 @@ import comm.ci_log as cilog
 import comm.util as util
 import static_check_util as sc_util
 
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import as_completed
 
 BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presenter/agent/Makefile"),
                 os.path.join(sc_util.ASCEND_ROOT_PATH,
@@ -186,8 +186,8 @@ def warn_check_makefile(cmd):
     if ret[0] is False:
         return False
     checked_path = ret[1]
-
-    if len(checked_path) == 0:
+    checked_path.remove("")
+    if checked_path is None:
         cilog.cilog_info(THIS_FILE_NAME, "no path to check in makefile mode")
         return True
 
@@ -217,7 +217,7 @@ def warn_check_makefile(cmd):
         if ret[0] is False:
             return False
 
-    if len(makefile_path_list) == 0:
+    if makefile_path_list is None:
         cilog.cilog_info(
             THIS_FILE_NAME, "no Makefile to check in makefile mode")
         return True

@@ -32,7 +32,7 @@ CONFIG_PATH = os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), "config")
 
 
-class StaticCheckCommands(object):
+class StaticCheckCommands():
     '''
     read commands from yaml file
     '''

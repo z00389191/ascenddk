@@ -55,7 +55,7 @@ def pylint(cmd, sub_params):
         return False
     checked_path = ret[1]
     checked_path.remove("")
-    
+
     if checked_path is None:
         cilog.cilog_info(THIS_FILE_NAME, "no path to check in pylint")
         return True

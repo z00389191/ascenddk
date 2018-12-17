@@ -1,3 +1,4 @@
+''' env init '''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -26,6 +27,7 @@ import comm.util as util
 
 
 def main():
+    '''env init'''
     base_path = os.path.dirname(
         os.path.realpath(__file__))
     ret = util.execute("git branch", cwd=base_path)
