@@ -86,10 +86,12 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
         checked_files = ret[1]
 
         for file in checked_files:
-            file_names = os.path.split(file)
+            file_path_name = os.path.split(file)
+            file_names = os.path.splitext(file_path_name[1])
+            file_name = file_names[0] + ".o"
             temp_cmd = re.sub("__WARN_CHECK_FILE__", file, replaced_cmd)
             temp_cmd = re.sub("__WARN_CHECK_FILE_NAME__",
-                              file_names[1], temp_cmd)
+                              file_name, temp_cmd)
             ret = util.execute(temp_cmd, print_output_flag=True)
             if ret[0] is False:
                 result = False
