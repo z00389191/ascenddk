@@ -88,15 +88,16 @@ def static_check_cmd(command, sub_params):
     if "sub_params" in command.keys():
         sub_commands = sub_params.get(command.get("sub_params"))
 
-    replaced_vars = re.findall("(__[\w+_\w+]*__)", cmd)
+    replaced_vars = re.findall(r"(__[\w+_\w+]*__)", cmd)
     replaced_vars.sort()
     vars_length = len(replaced_vars)
 
     result = True
     if sub_commands is None and vars_length != 0:
         cilog.cilog_error(
-            THIS_FILE_NAME, "sub commands %s is not match replaced vars length %s", sub_commands, vars_length)
-        return False
+            THIS_FILE_NAME, "sub commands %s is not match" \
+            " replaced vars length %s", sub_commands, vars_length)
+        result = False
     elif sub_commands is None and vars_length == 0:
         ret = util.execute(cmd, print_output_flag=True)
         result = ret[0]
@@ -106,7 +107,8 @@ def static_check_cmd(command, sub_params):
                 args = each_arg.split()
                 if vars_length != len(args):
                     cilog.cilog_error(
-                        THIS_FILE_NAME, "sub commands %s is not match replaced vars length %s", sub_commands, vars_length)
+                        THIS_FILE_NAME, "sub commands %s is not match" \
+                        " replaced vars length %s", sub_commands, vars_length)
                     return False
                 temp_cmd = cmd
                 for index in range(0, len(replaced_vars)):
@@ -122,12 +124,14 @@ def static_check_cmd(command, sub_params):
             for each_arg in sub_commands:
                 if len(replaced_vars) != len(each_arg):
                     cilog.cilog_error(
-                        THIS_FILE_NAME, "sub commands %s is not match replaced vars length %s", sub_commands, vars_length)
+                        THIS_FILE_NAME, "sub commands %s is not match" \
+                        " replaced vars length %s", sub_commands, vars_length)
                     return False
                 key_list = each_arg.keys().sort()
                 if not operator.eq(replaced_vars, key_list):
                     cilog.cilog_error(
-                        THIS_FILE_NAME, "sub commands %s is not match replaced vars %s", key_list, replaced_vars)
+                        THIS_FILE_NAME, "sub commands %s is not match" \
+                        " replaced vars %s", key_list, replaced_vars)
                     return False
                 temp_cmd = cmd
 
@@ -144,6 +148,7 @@ def static_check_cmd(command, sub_params):
                     result = False
         else:
             cilog.cilog_error(THIS_FILE_NAME, "unsuppoted sub commands type")
+            result = False
 
     if not result:
         cilog.cilog_error(THIS_FILE_NAME, "static check failed.")

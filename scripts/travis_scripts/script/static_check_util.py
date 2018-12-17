@@ -26,7 +26,6 @@ THIS_FILE_NAME = __file__
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
-import comm.ci_log as cilog
 import comm.util as util
 
 FILE_EMPTY_SIZE = 0
@@ -37,8 +36,8 @@ GLOBAL_IGNORE_PATH = [os.path.join(ASCEND_ROOT_PATH, "ascenddk/test"),
                       os.path.join(ASCEND_ROOT_PATH, "ascenddk/.github")]
 
 #{replace_pattern : replace_value}
-ENV_DICT = {"\$\{BUILD_TEMP_PATH\}": os.getenv("BUILD_TEMP_PATH"),
-            "\$\{ASCEND_ROOT_PATH\}": ASCEND_ROOT_PATH}
+ENV_DICT = {r"\$\{BUILD_TEMP_PATH\}": os.getenv("BUILD_TEMP_PATH"),
+            r"\$\{ASCEND_ROOT_PATH\}": ASCEND_ROOT_PATH}
 
 
 def replace_env(file_name):
@@ -52,10 +51,10 @@ def check_file_is_empty(file_name):
     '''check file content is empty or not'''
     # replace env in the file_name
     file_name = replace_env(file_name)
-    if os.path.getsize(file_name) == FILE_EMPTY_SIZE:
+    if os.path.getsize(file_name):
         return True
-    else:
-        return False
+    
+    return False
 
 
 def find_checked_path():
