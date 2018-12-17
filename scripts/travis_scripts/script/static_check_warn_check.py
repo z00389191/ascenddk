@@ -74,7 +74,8 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
         header_list = list(map(lambda x:
                                re.sub("\$\(DDK_HOME\)", os.getenv("DDK_HOME"), x), header_list))
 
-        replaced_cmd = re.sub("__WARN_CHECK_HEADERS__", " ".join(header_list), cmd)
+        replaced_cmd = re.sub("__WARN_CHECK_HEADERS__",
+                              " ".join(header_list), cmd)
 
         checked_file_cmd = "find " + checked_file_path + \
             " -name \"*.cpp\" -o -name \"*.h\""
@@ -135,7 +136,37 @@ def warn_check_compile(cmd):
     return result
 
 
+def validate_makefile(makefile_path):
+    result = False
+    try:
+        makefile_stream = open(makefile_path, "r")
+        while True:
+            lines = makefile_stream.readlines(1000)
+            if not lines:
+                break
+            for line in lines:
+                if "-Wall" in line:
+                    result = True
+                    break
+    except OSError as reason:
+        cilog.cilog_error(
+            THIS_FILE_NAME, "read makefile %s failed: %s", makefile_path, reason)
+    finally:
+        if makefile_stream in locals():
+            makefile_stream.close()
+
+    if result is False:
+        cilog.cilog_error(
+            THIS_FILE_NAME, "makefile %s is invalid: no -Wall compile parameters", makefile_path)
+    return result
+
+
 def single_warn_check_makefile(cmd, makefile_path):
+    ret = validate_makefile(makefile_path)
+
+    if ret is False:
+        return False
+    makefile_path = os.path.split(makefile_path)[0]
     cmd = re.sub("(__[\w+_\w+]*__)", makefile_path, cmd)
     ret = util.execute(cmd, print_output_flag=True)
     return ret[0]
@@ -160,8 +191,10 @@ def warn_check_makefile(cmd):
         ret = util.execute(makefile_cmd, print_output_flag=True)
         if ret[0] is False:
             return False
-        makefiles = list(map(lambda x: os.path.split(x)[0], ret[1]))
-        makefile_path_list.extend(makefiles)
+
+        makefile_path_list.extend(ret[1])
+
+    makefile_path_list.remove("")
 
     # base so should be executed fist in sequence and copy to DDK path
     copy_cmd = "cp -R __MAKEFILE_OUT_PATH__/out/lib* " + \
@@ -175,8 +208,7 @@ def warn_check_makefile(cmd):
         ret = util.execute(temp_copy_cmd, print_output_flag=True)
         if ret[0] is False:
             return False
-    
-    makefile_path_list.remove("")
+
     if len(makefile_path_list) == 0:
         cilog.cilog_info(
             THIS_FILE_NAME, "no Makefile to check in makefile mode")
