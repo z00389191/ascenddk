@@ -27,6 +27,7 @@ sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
 import comm.util as util
+import comm.ci_log as cilog
 
 FILE_EMPTY_SIZE = 0
 ASCEND_ROOT_PATH = os.getenv("ASCEND_ROOT_PATH")
@@ -71,3 +72,28 @@ def find_checked_path():
             found_path.append(each_path)
 
     return True, found_path
+
+def check_coverage(coverage_result_path, threshold = 0):
+    '''check coverage'''
+    html_file = os.path.join(coverage_result_path, "index.html")
+    with open(html_file, 'r') as index_html:
+        index_html_content = index_html.read()
+
+    pattern = r'<span class="pc_cov">(.*?)</span>'
+    coverage_data = re.findall(pattern, index_html_content)
+    cilog.cilog_info(THIS_FILE_NAME, "line coverage_data is %s", coverage_data)
+    line_coverage = "0.0%"
+    if len(coverage_data) > 0:
+        line_coverage = coverage_data[0].replace("%", "")
+    cilog.cilog_info(THIS_FILE_NAME, "line coverage is %s", line_coverage)
+    coverage_number = int(line_coverage.split(".")[0])
+    threshold_num = int(threshold)
+    if coverage_number >= threshold_num:
+        cilog.cilog_info(THIS_FILE_NAME, "line coverage is equal or over %d, coverage result is succ!",
+                              threshold_num)
+        return True
+    else:
+        cilog.cilog_error(THIS_FILE_NAME, "line coverage is below %d, coverage result is fail!",
+                               threshold_num)
+        return False
+
