@@ -24,9 +24,9 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(__file__)), ".."))
 
+from commands import InstallationCommands
 import comm.util as util
 
-from commands import InstallationCommands
 
 def main():
     '''handle install commands'''
