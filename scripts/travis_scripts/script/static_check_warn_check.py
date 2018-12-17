@@ -94,7 +94,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
             if ret[0] is False:
                 result = False
 
-        return result
+    return result
 
 
 def warn_check_compile(cmd):
