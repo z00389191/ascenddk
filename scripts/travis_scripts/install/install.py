@@ -1,3 +1,4 @@
+'''preinstall or install stage script'''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -16,19 +17,21 @@
 #    limitations under the License.
 #    =======================================================================
 #
+
 import os
 import sys
 
-import comm.util as util
-from commands import InstallationCommands
-
-
 THIS_FILE_NAME = __file__
+
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
 
+from commands import InstallationCommands
+import comm.util as util
+
 
 def main():
+    '''handle install commands'''
     command_file_name = None
     if len(os.sys.argv) >= 2:
         command_file_name = os.sys.argv[1]
