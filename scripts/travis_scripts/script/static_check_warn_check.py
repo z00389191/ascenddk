@@ -32,7 +32,7 @@ sys.path.append(os.path.join(os.path.dirname(
 
 import comm.ci_log as cilog
 import comm.util as util
-import static_check_util as sc_util
+import scripts_util as sc_util
 
 
 BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presenter/agent/Makefile"),

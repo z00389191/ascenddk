@@ -25,7 +25,7 @@ import sys
 
 import comm.ci_log as cilog
 import comm.util as util
-import static_check_util as sc_util
+import scripts_util as sc_util
 
 
 THIS_FILE_NAME = __file__
