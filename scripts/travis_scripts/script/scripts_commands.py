@@ -32,20 +32,21 @@ CONFIG_PATH = os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), "config")
 
 
-class StaticCheckCommands():
+class ScriptsCommands():
     '''
     read commands from yaml file
     '''
 
-    def __init__(self, command_type):
+    def __init__(self, check_type, command_type):
         '''init function'''
         self.commands = {}
         self.sub_params = None
+        self.check_type = check_type
         self.command_type = command_type
         self.error = False
 
         self.static_check_command_file = os.path.join(
-            CONFIG_PATH, "static_check.yaml")
+            CONFIG_PATH, self.check_type + ".yaml")
         if not os.path.exists(self.static_check_command_file):
             self.error = True
             cilog.cilog_error(
@@ -63,7 +64,7 @@ class StaticCheckCommands():
                 return
 
             self.command_file = os.path.join(
-                CONFIG_PATH, "static_check_" + self.command_type + ".yaml")
+                CONFIG_PATH, self.check_type + "_" + self.command_type + ".yaml")
             if os.path.exists(self.command_file):
                 cilog.cilog_debug(
                     THIS_FILE_NAME, "read sub command yaml file: %s", self.command_file)

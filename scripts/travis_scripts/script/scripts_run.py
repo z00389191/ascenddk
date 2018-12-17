@@ -31,14 +31,14 @@ import comm.ci_log as cilog
 import comm.util as util
 
 
-from static_check_commands import StaticCheckCommands
+from scripts_util import check_file_is_empty
+from static_check_commands import ScriptsCommands
 from static_check_pylint import pylint
-from static_check_util import check_file_is_empty
 from static_check_warn_check import filter_warn_check_is_none
 from static_check_warn_check import warn_check
 
 
-def static_check_func(command, sub_params):
+def exec_func(command, sub_params):
     '''static check in function mode'''
     function_name = command.get("function_name")
     params = command.get("params")
@@ -81,7 +81,7 @@ def static_check_func(command, sub_params):
     return result
 
 
-def static_check_cmd(command, sub_params):
+def run_cmd(command, sub_params):
     '''static check in command mode'''
     cmd = command.get("cmd")
     sub_commands = None
@@ -159,23 +159,24 @@ def static_check_cmd(command, sub_params):
 def main():
     '''static check'''
     check_type = os.sys.argv[1]
+    commahd_type = os.sys.argv[2]
 
-    static_check_commands = StaticCheckCommands(check_type)
-    ret, commands = static_check_commands.get_commands()
+    scripts_commands = ScriptsCommands(check_type, commahd_type)
+    ret, commands = scripts_commands.get_commands()
     if not ret:
         exit(-1)
-    ret, sub_params = static_check_commands.get_sub_params()
+    ret, sub_params = scripts_commands.get_sub_params()
     if not ret:
         exit(-1)
 
     for command_dict in commands:
         comand_type = command_dict.get("type")
         if comand_type == "command":
-            ret = static_check_cmd(command_dict, sub_params)
+            ret = run_cmd(command_dict, sub_params)
             if not ret:
                 exit(-1)
         elif comand_type == "function":
-            ret = static_check_func(command_dict, sub_params)
+            ret = exec_func(command_dict, sub_params)
             if not ret:
                 exit(-1)
         else:

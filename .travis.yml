@@ -21,14 +21,17 @@ jobs:
           #no need to do clone tools
           before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_cppcheck
-          script: python3 ${BUILD_ROOT_PATH}/script/static_check_run.py cppcheck
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check cppcheck
         - name: "static_check_pylint"
           #no need to do clone tools
           before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pylint
-          script: python3 ${BUILD_ROOT_PATH}/script/static_check_run.py pylint
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check pylint
         - name: "static_warn_check"
-          script: python3 ${BUILD_ROOT_PATH}/script/static_check_run.py warn_check
-        - name: "presenter_agent_ut"
-          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_llt
-          script: python3 ${BUILD_ROOT_PATH}/script/llt_run.py presenter_agent_ut
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check warn_check
+        - name: "ut_pytest"
+          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pytest
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ut_pytest
+        - name: "st_pytest"
+          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pytest
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt st_pytest
