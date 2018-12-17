@@ -78,8 +78,8 @@ def pylint(cmd, sub_params):
     init_path_list.sort()
     sub_params.sort()
     params_list = []
-
-    for cur_index in range(len(init_path_list)):
+    init_length = len(init_path_list)
+    for cur_index in range(init_length):
         if cur_index > len(init_path_list) - 1:
             break
 
@@ -93,7 +93,8 @@ def pylint(cmd, sub_params):
             init_path_list.remove(init_path_list[next_index])
 
         pylint_ignore_file_list = []
-        for sub_cur_index in range(len(sub_params)):
+        sub_length = len(sub_params)
+        for sub_cur_index in range(sub_length):
             if sub_cur_index > len(sub_params) - 1:
                 break
             ignore_file = sub_params[sub_cur_index]

@@ -56,6 +56,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
         return False
 
     result = True
+    checked_file_path = ""
     for mind_node in mind_nodes:
         if mind_node.get("group") == "MyModel":
             continue
