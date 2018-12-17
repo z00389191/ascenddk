@@ -1,3 +1,4 @@
+'''warn check'''
 # -*- coding: UTF-8 -*-
 #
 #    =======================================================================
@@ -67,13 +68,13 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
         header_list = oi_engine_config_dict.get(
             run_side.lower()).get("includes").get("include")
         header_list = list(map(lambda x:
-                               re.sub("\$\(SRC_DIR\)", checked_file_path, x), header_list))
+                               re.sub(r"\$\(SRC_DIR\)", checked_file_path, x), header_list))
         header_list = list(map(lambda x:
-                               re.sub("\.\.", mind_file_path, x), header_list))
+                               re.sub(r"\.\.", mind_file_path, x), header_list))
         header_list = list(map(lambda x:
-                               re.sub(" \\\\", "", x), header_list))
+                               re.sub(r" \\\\", "", x), header_list))
         header_list = list(map(lambda x:
-                               re.sub("\$\(DDK_HOME\)", os.getenv("DDK_HOME"), x), header_list))
+                               re.sub(r"\$\(DDK_HOME\)", os.getenv("DDK_HOME"), x), header_list))
 
         replaced_cmd = re.sub("__WARN_CHECK_HEADERS__",
                               " ".join(header_list), cmd)
@@ -91,8 +92,8 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
             file_path_name = os.path.split(file)
             file_names = os.path.splitext(file_path_name[1])
             file_name = file_names[0] + ".o"
-            temp_cmd = re.sub("__WARN_CHECK_FILE__", file, replaced_cmd)
-            temp_cmd = re.sub("__WARN_CHECK_FILE_NAME__",
+            temp_cmd = re.sub(r"__WARN_CHECK_FILE__", file, replaced_cmd)
+            temp_cmd = re.sub(r"__WARN_CHECK_FILE_NAME__",
                               file_name, temp_cmd)
             ret = util.execute(temp_cmd, print_output_flag=True)
             if ret[0] is False:
@@ -131,7 +132,8 @@ def warn_check_compile(cmd):
     result = True
     with ProcessPoolExecutor(max_workers=5) as executor:
         futures_pool = {executor.submit(
-            single_warn_check_compile, cmd, mind_file, oi_lower_dict): mind_file for mind_file in mind_files}
+            single_warn_check_compile, cmd, mind_file, oi_lower_dict): \
+            mind_file for mind_file in mind_files}
         for future in as_completed(futures_pool):
             if future.result() is False:
                 result = False
@@ -160,7 +162,8 @@ def validate_makefile(makefile_path):
 
     if result is False:
         cilog.cilog_error(
-            THIS_FILE_NAME, "makefile %s is invalid: no -Wall compile parameters", makefile_path)
+            THIS_FILE_NAME, "makefile %s is invalid:"\
+            " no -Wall compile parameters", makefile_path)
     return result
 
 
@@ -171,7 +174,7 @@ def single_warn_check_makefile(cmd, makefile_path):
     if ret is False:
         return False
     makefile_path = os.path.split(makefile_path)[0]
-    cmd = re.sub("(__[\w+_\w+]*__)", makefile_path, cmd)
+    cmd = re.sub(r"(__[\w+_\w+]*__)", makefile_path, cmd)
     ret = util.execute(cmd, print_output_flag=True)
     return ret[0]
 
@@ -222,7 +225,8 @@ def warn_check_makefile(cmd):
     result = True
     with ProcessPoolExecutor(max_workers=5) as executor:
         futures_pool = {executor.submit(
-            single_warn_check_makefile, cmd, mind_file_path): mind_file_path for mind_file_path in makefile_path_list}
+            single_warn_check_makefile, cmd, mind_file_path): \
+            mind_file_path for mind_file_path in makefile_path_list}
         for future in as_completed(futures_pool):
             if future.result() is False:
                 result = False

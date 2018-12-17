@@ -54,8 +54,9 @@ def pylint(cmd, sub_params):
     if ret is False:
         return False
     checked_path = ret[1]
-
-    if len(checked_path) == 0:
+    checked_path.remove("")
+    
+    if checked_path is None:
         cilog.cilog_info(THIS_FILE_NAME, "no path to check in pylint")
         return True
 
@@ -67,9 +68,10 @@ def pylint(cmd, sub_params):
         if ret[0] is False:
             return False
         initfiles = list(map(lambda x: os.path.split(x)[0], ret[1]))
+        initfiles.remove("")
         init_path_list.extend(initfiles)
 
-    if len(init_path_list) == 0:
+    if init_path_list is None:
         cilog.cilog_info(THIS_FILE_NAME, "no path to check in pylint")
         return True
 
@@ -80,12 +82,13 @@ def pylint(cmd, sub_params):
     for cur_index in range(len(init_path_list)):
         if cur_index > len(init_path_list) - 1:
             break
+
         pylint_path = init_path_list[cur_index]
-        if len(pylint_path.strip()) == 0:
-            continue
+
         next_index = cur_index + 1
         while True:
-            if next_index > len(init_path_list) - 1 or pylint_path not in init_path_list[next_index]:
+            if next_index > len(init_path_list) - 1 \
+                or pylint_path not in init_path_list[next_index]:
                 break
             init_path_list.remove(init_path_list[next_index])
 

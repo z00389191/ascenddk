@@ -111,7 +111,7 @@ def static_check_cmd(command, sub_params):
                         " replaced vars length %s", sub_commands, vars_length)
                     return False
                 temp_cmd = cmd
-                for index in range(0, len(replaced_vars)):
+                for index in range(0, vars_length):
                     temp_cmd = re.sub(
                         replaced_vars[index], args[index], temp_cmd)
 

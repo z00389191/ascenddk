@@ -53,7 +53,7 @@ def check_file_is_empty(file_name):
     file_name = replace_env(file_name)
     if os.path.getsize(file_name):
         return True
-    
+
     return False
 
 
