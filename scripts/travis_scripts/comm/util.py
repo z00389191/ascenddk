@@ -44,18 +44,17 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     if not cwd:
         cwd = os.getcwd()
     process = subprocess.Popen(cmd, cwd=cwd, bufsize=32768, stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT, shell=True,
-                         preexec_fn=os.setsid if is_linux else None)
+                               stderr=subprocess.STDOUT, shell=True,
+                               preexec_fn=os.setsid if is_linux else None)
 
     # 判断子进程执行时间是否超时
     t_beginning = time.time()
 
     # 计算循环次数
     time_gap = 0.01
-    loop = timeout * 100 + 200
 
     str_std_output = ""
-    for loop_index in range(0, loop):
+    while True:
 
         # 检查子进程是否结束
         str_out = str(process.stdout.read().decode())
@@ -86,8 +85,8 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
     if process.returncode != 0 or "Traceback" in str_std_output:
         cilog.print_in_color(str_std_output, cilog.COLOR_F_RED)
         return False, std_output_lines_last
-    else:
-        if print_output_flag:
-            cilog.print_in_color(str_std_output, cilog.COLOR_F_YELLOW)
 
-        return True, std_output_lines_last
+    if print_output_flag:
+        cilog.print_in_color(str_std_output, cilog.COLOR_F_YELLOW)
+
+    return True, std_output_lines_last
