@@ -7,6 +7,7 @@ env:
     BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
     DDK_HOME=${ASCEND_ROOT_PATH}/tools/ddk
     LLT_ROOT_PATH=${HOME}/build/llt
+    ASCEND_DEFAULT_COMPILER=aarch64-linux-gnu-g++
 
 #default before_install, clone Ascend/tools as default, it can be overwrited by jobs
 before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install_clone_tools
@@ -35,3 +36,8 @@ jobs:
         - name: "st_pytest"
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pytest
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt st_pytest
+        - name: "ut_ctest"
+          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_llt
+          script:
+              - python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ut_ctest
+              - echo ${ASCEND_DEFAULT_COMPILER}

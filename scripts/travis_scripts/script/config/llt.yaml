@@ -25,3 +25,14 @@ st_pytest:
       params:
           - ${BUILD_TEMP_PATH}/coverage_result
       expected_result: True
+ut_ctest:
+    - type: command
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
+    - type: function
+      function_name: set_env
+      params:
+          env_dict:
+              ASCEND_DEFAULT_COMPILER: g++
+      expected_result: True
+    - type: command
+      cmd: echo ${ASCEND_DEFAULT_COMPILER}

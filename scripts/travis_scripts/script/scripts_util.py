@@ -98,3 +98,8 @@ def check_coverage(coverage_result_path, threshold = 0):
                                threshold_num)
         return False
 
+def set_env(env_dict):
+    '''set env'''
+    for key, value in env_dict.items():
+        os.environ[key] = value
+    return True

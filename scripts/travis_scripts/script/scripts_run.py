@@ -33,6 +33,7 @@ import comm.util as util
 
 from scripts_util import check_file_is_empty
 from scripts_util import check_coverage
+from scripts_util import set_env
 from scripts_commands import ScriptsCommands
 from static_check_pylint import pylint
 from static_check_warn_check import filter_warn_check_is_none
