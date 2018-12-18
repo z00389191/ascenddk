@@ -37,6 +37,7 @@ jobs:
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pytest
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt st_pytest
         - name: "ut_ctest"
+          before_install: true
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_llt
           script:
               - python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ut_ctest
