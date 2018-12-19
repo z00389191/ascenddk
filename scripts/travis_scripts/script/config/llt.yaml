@@ -41,8 +41,9 @@ llt_prepare:
     - type: function
       function_name: compile_base
       params:
-          - make achrive -C __BASE_SO_PATH__
-          - copy -R ${ASCEND_ROOT_PATH}/out/* ${LLT_ROOT_PATH}/ascenddk/
+          - 
+              - make achrive -C __BASE_SO_PATH__
+              - copy -R ${ASCEND_ROOT_PATH}/out/* ${LLT_ROOT_PATH}/ascenddk/
       expected_result: True
 ut_ctest:
     - type: command
