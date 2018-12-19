@@ -25,6 +25,23 @@ st_pytest:
       params:
           - ${BUILD_TEMP_PATH}/coverage_result
       expected_result: True
+prepare:
+    - type: command
+      cmd:
+          - rm -rf ${BUILD_TEMP_PATH}/*
+          - rm -rf ${LLT_ROOT_PATH}/ascenddk
+          - mkdir -p ${LLT_ROOT_PATH}/ascenddk
+    - type: function
+      function_name: set_env
+      params:
+          env_dict:
+              ASCEND_DEFAULT_COMPILER: g++
+      expected_result: True
+    - type: function: compile_base
+      params:
+          - make achrive -C __BASE_SO_PATH__
+          - copy -R ${ASCEND_ROOT_PATH}/out/* ${LLT_ROOT_PATH}/ascenddk/
+      expected_result: True
 ut_ctest:
     - type: command
       cmd: rm -rf ${BUILD_TEMP_PATH}/*
@@ -34,5 +51,5 @@ ut_ctest:
           env_dict:
               ASCEND_DEFAULT_COMPILER: g++
       expected_result: True
-    - type: command
-      cmd: echo ${ASCEND_DEFAULT_COMPILER}
+    - type: function
+      

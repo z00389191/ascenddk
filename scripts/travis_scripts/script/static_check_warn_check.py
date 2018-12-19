@@ -35,12 +35,6 @@ import comm.util as util
 import scripts_util as sc_util
 
 
-BASE_SO_PATH = [os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/presenter/agent/Makefile"),
-                os.path.join(sc_util.ASCEND_ROOT_PATH,
-                             "ascenddk/common/utils/ascend_ezdvpp/Makefile"),
-                os.path.join(sc_util.ASCEND_ROOT_PATH, "ascenddk/common/osd/Makefile")]
-
-
 def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
     '''single warm_check path in compile mode'''
     mind_file_paths = os.path.split(mind_file)
@@ -207,7 +201,8 @@ def warn_check_makefile(cmd):
     # base so should be executed fist in sequence and copy to DDK path
     copy_cmd = "cp -R __MAKEFILE_OUT_PATH__/out/lib* " + \
         os.path.join(os.getenv("DDK_HOME"), "lib/aarch64-linux-gcc5.4")
-    for each_path in BASE_SO_PATH:
+    base_so_path = sc_util.get_base_list()
+    for each_path in base_so_path:
         makefile_path_list.remove(each_path)
         ret = single_warn_check_makefile(cmd, each_path)
         if ret is False:

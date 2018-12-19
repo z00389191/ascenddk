@@ -3,5 +3,3 @@ install:
     - cd ${ASCEND_ROOT_PATH}/tools && git checkout
     - unzip mini_mind_studio_developerkit.rar
     - tar -zxvf MSpore_DDK*
-    - cd ${ASCEND_ROOT_PATH}
-    - mkdir -p ${BUILD_TEMP_PATH}

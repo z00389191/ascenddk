@@ -20,11 +20,15 @@
 import os
 import re
 import sys
+import yaml
 
 THIS_FILE_NAME = __file__
 
 sys.path.append(os.path.join(os.path.dirname(
     os.path.realpath(THIS_FILE_NAME)), ".."))
+
+CONFIG_FILE = os.path.join(os.path.dirname(
+    os.path.realpath(THIS_FILE_NAME)), "config/base_so_definition.yaml")
 
 import comm.util as util
 import comm.ci_log as cilog
@@ -102,4 +106,28 @@ def set_env(env_dict):
     '''set env'''
     for key, value in env_dict.items():
         os.environ[key] = value
+    return True
+
+def get_base_list():
+    '''get base list'''
+    try:
+        base_so_definition = open(CONFIG_FILE, 'r')
+        base_list = yaml.load(base_so_definition)
+    except OSError as reason:
+        return []
+    finally:
+        if base_so_definition in locals():
+            base_so_definition.close()
+    return base_list
+        
+def compile_base(cmd_list):
+    '''compile base libs'''
+    base_list = get_base_list()
+    for file in base_list:
+        file = os.path.split(file)[0]
+        for cmd in cmd_list:
+            cmd = re.sub(r"(__[\w+_\w+]*__)", file, cmd)
+            ret = util.execute(cmd, print_output_flag=True)
+            if ret[0] is False:
+                return False;
     return True

@@ -1,0 +1,3 @@
+- ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/agent/Makefile
+- ${ASCEND_ROOT_PATH}/ascenddk/common/utils/ascend_ezdvpp/Makefile
+- ${ASCEND_ROOT_PATH}/ascenddk/common/osd/Makefile

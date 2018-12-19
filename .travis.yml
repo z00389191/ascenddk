@@ -3,14 +3,14 @@ language: cpp
 dist: xenial
 env:
     ASCEND_ROOT_PATH=${HOME}/build/Ascend
-    BUILD_ROOT_PATH=${HOME}/build/Ascend/ascenddk/scripts/travis_scripts
+    BUILD_ROOT_PATH=${ASCEND_ROOT_PATH}/ascenddk/scripts/travis_scripts
     BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
     DDK_HOME=${ASCEND_ROOT_PATH}/tools/ddk
-    LLT_ROOT_PATH=${HOME}/build/llt
+    LLT_ROOT_PATH=${ASCEND_ROOT_PATH}/llt
     ASCEND_DEFAULT_COMPILER=aarch64-linux-gnu-g++
 
 #default before_install, clone Ascend/tools as default, it can be overwrited by jobs
-before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install_clone_tools
+before_install: python3 ${BUILD_ROOT_PATH}/install/install.py clone_tools
 
 #default install, it can be overwrited by jobs
 install: python3 ${BUILD_ROOT_PATH}/install/install.py install
@@ -20,25 +20,25 @@ jobs:
         - stage: ascenddk llt and sc
           name: "static_check_cppcheck"
           #no need to do clone tools
-          before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install
+          before_install: true
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_cppcheck
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check cppcheck
         - name: "static_check_pylint"
           #no need to do clone tools
-          before_install: python3 ${BUILD_ROOT_PATH}/install/install.py before_install
+          before_install: true
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pylint
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check pylint
         - name: "static_warn_check"
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check warn_check
         - name: "ut_pytest"
+          before_install: true
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pytest
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ut_pytest
         - name: "st_pytest"
+          before_install: true
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pytest
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt st_pytest
         - name: "ut_ctest"
-          before_install: true
           install: python3 ${BUILD_ROOT_PATH}/install/install.py install_llt
-          script:
-              - python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ut_ctest
-              - echo ${ASCEND_DEFAULT_COMPILER}
+          before_script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt llt_prepare
+          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py llt ut_ctest

@@ -1,3 +1,0 @@
-install:
-    - cd ${ASCEND_ROOT_PATH}
-    - mkdir -p ${BUILD_TEMP_PATH}
