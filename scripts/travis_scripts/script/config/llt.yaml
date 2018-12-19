@@ -43,7 +43,7 @@ llt_prepare:
       params:
           - 
               - make achrive -C __BASE_SO_PATH__
-              - copy -R ${ASCEND_ROOT_PATH}/out/* ${LLT_ROOT_PATH}/ascenddk/
+              - cp -R ${ASCEND_ROOT_PATH}/out/* ${LLT_ROOT_PATH}/ascenddk/
       expected_result: True
 ut_ctest:
     - type: command
