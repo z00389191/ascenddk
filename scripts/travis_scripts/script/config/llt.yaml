@@ -37,7 +37,8 @@ prepare:
           env_dict:
               ASCEND_DEFAULT_COMPILER: g++
       expected_result: True
-    - type: function: compile_base
+    - type: function
+      function: compile_base
       params:
           - make achrive -C __BASE_SO_PATH__
           - copy -R ${ASCEND_ROOT_PATH}/out/* ${LLT_ROOT_PATH}/ascenddk/
