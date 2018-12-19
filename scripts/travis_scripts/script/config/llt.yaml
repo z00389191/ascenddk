@@ -25,7 +25,7 @@ st_pytest:
       params:
           - ${BUILD_TEMP_PATH}/coverage_result
       expected_result: True
-prepare:
+llt_prepare:
     - type: command
       cmd:
           - rm -rf ${BUILD_TEMP_PATH}/*
