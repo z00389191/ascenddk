@@ -38,7 +38,7 @@ llt_prepare:
               ASCEND_DEFAULT_COMPILER: g++
       expected_result: True
     - type: function
-      function: compile_base
+      function_name: compile_base
       params:
           - make achrive -C __BASE_SO_PATH__
           - copy -R ${ASCEND_ROOT_PATH}/out/* ${LLT_ROOT_PATH}/ascenddk/
