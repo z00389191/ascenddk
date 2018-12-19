@@ -27,10 +27,11 @@ st_pytest:
       expected_result: True
 llt_prepare:
     - type: command
-      cmd:
-          - rm -rf ${BUILD_TEMP_PATH}/*
-          - rm -rf ${LLT_ROOT_PATH}/ascenddk
-          - mkdir -p ${LLT_ROOT_PATH}/ascenddk
+      cmd: rm -rf ${BUILD_TEMP_PATH}/*
+    - type: command
+      cmd: rm -rf ${LLT_ROOT_PATH}/ascenddk
+    - type: command
+      cmd: mkdir -p ${LLT_ROOT_PATH}/ascenddk
     - type: function
       function_name: set_env
       params:
