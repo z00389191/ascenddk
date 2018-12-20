@@ -14,4 +14,5 @@ install:
       && make install
     - mkdir -p ${LLT_ROOT_PATH}/mockcpp
     - cp -R ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*/install/* ${LLT_ROOT_PATH}/mockcpp/
+    - cp -R ${LLT_ROOT_PATH}/src/mockcpp/godsme-mockcpp*/3rdparty ${LLT_ROOT_PATH}/mockcpp/include/
     - cd ${ASCEND_ROOT_PATH}

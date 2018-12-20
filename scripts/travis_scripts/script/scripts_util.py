@@ -119,15 +119,3 @@ def get_base_list():
         if base_so_definition in locals():
             base_so_definition.close()
     return base_list
-        
-def compile_base(cmd_list):
-    '''compile base libs'''
-    base_list = get_base_list()
-    for file in base_list:
-        file = os.path.split(file)[0]
-        for cmd in cmd_list:
-            cmd = re.sub(r"(__[\w+_\w+]*__)", file, cmd)
-            ret = util.execute(cmd, print_output_flag=True)
-            if ret[0] is False:
-                return False;
-    return True
