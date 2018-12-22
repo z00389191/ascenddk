@@ -56,7 +56,7 @@ def check_file_is_empty(file_name):
     '''check file content is empty or not'''
     # replace env in the file_name
     file_name = replace_env(file_name)
-    if os.path.getsize(file_name):
+    if not os.path.getsize(file_name):
         return True
 
     return False
