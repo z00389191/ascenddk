@@ -67,7 +67,7 @@ def single_warn_check_compile(cmd, mind_file, oi_engine_config_dict):
         header_list = list(map(lambda x:
                                re.sub(r"\.\.", mind_file_path, x), header_list))
         header_list = list(map(lambda x:
-                               re.sub(r" \\\\", "", x), header_list))
+                               re.sub(r" \\", "", x), header_list))
         header_list = list(map(lambda x:
                                re.sub(r"\$\(DDK_HOME\)", os.getenv("DDK_HOME"), x), header_list))
 
