@@ -7,7 +7,7 @@ int test1()
     a[10] = 0;
 
     //aaabbb
-    //ccccc
+    //ccc
     return 0;
 
 }
