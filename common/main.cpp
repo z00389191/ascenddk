@@ -6,7 +6,7 @@ int test1()
 
     a[10] = 0;
 
-    //aaa
+    //aaabbb
 
     return 0;
 
