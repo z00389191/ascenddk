@@ -2,6 +2,8 @@ cppcheck:
     - type: command
       cmd: rm -rf ${BUILD_TEMP_PATH}/*
     - type: command
+      cmd: touch ${BUILD_TEMP_PATH}/cppcheck.log
+    - type: command
       cmd: cppcheck --template {file}:{line},{severity},{id},{message} 
            --quiet --inline-suppr -i${ASCEND_ROOT_PATH}/ascenddk/test
            ${ASCEND_ROOT_PATH}/ascenddk 2>&1 | tee -a ${BUILD_TEMP_PATH}/cppcheck.log
