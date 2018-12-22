@@ -181,7 +181,7 @@ def warn_check_makefile(cmd):
     if ret[0] is False:
         return False
     checked_path = ret[1]
-    checked_path.remove("")
+
     if checked_path is None:
         cilog.cilog_info(THIS_FILE_NAME, "no path to check in makefile mode")
         return True
@@ -199,16 +199,15 @@ def warn_check_makefile(cmd):
     makefile_path_list.remove("")
 
     # base so should be executed fist in sequence and copy to DDK path
-    copy_cmd = "cp -R __MAKEFILE_OUT_PATH__/out/lib* " + \
-        os.path.join(os.getenv("DDK_HOME"), "lib/aarch64-linux-gcc5.4")
+    make_install_path = "make install -C __INSTALL_MAKEFILE_PATH__"
     base_so_path = sc_util.get_base_list()
     for each_path in base_so_path:
         makefile_path_list.remove(each_path)
         ret = single_warn_check_makefile(cmd, each_path)
         if ret is False:
             return False
-        temp_copy_cmd = re.sub("__MAKEFILE_OUT_PATH__",
-                               os.path.split(each_path)[0], copy_cmd)
+        temp_copy_cmd = re.sub(r"(__[\w+_\w+]*__)",
+                               os.path.split(each_path)[0], make_install_path)
         ret = util.execute(temp_copy_cmd, print_output_flag=True)
         if ret[0] is False:
             return False
