@@ -29,10 +29,4 @@ ut_ctest:
     - type: command
       cmd: rm -rf ${BUILD_TEMP_PATH}/*
     - type: function
-      function_name: set_env
-      params:
-          env_dict:
-              ASCEND_DEFAULT_COMPILER: g++
-      expected_result: True
-    - type: function
       
