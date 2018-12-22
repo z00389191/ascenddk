@@ -1,7 +1,7 @@
 int test1()
 
 {
-    //asdfasdfasdfasdfasdf
+    //asdfasdfasdfasdfasdf---aa
     char a[10];
 
     a[10] = 0;
