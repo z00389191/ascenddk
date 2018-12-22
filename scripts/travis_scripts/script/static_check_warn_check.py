@@ -195,8 +195,8 @@ def warn_check_makefile(cmd):
             return False
 
         makefile_path_list.extend(ret[1])
-
-    makefile_path_list.remove("")
+    if ""  in makefile_path_list:
+        makefile_path_list.remove("")
 
     # base so should be executed fist in sequence and copy to DDK path
     make_install_path = "make install -C __INSTALL_MAKEFILE_PATH__"
