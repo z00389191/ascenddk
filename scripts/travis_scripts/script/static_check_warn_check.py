@@ -202,6 +202,7 @@ def warn_check_makefile(cmd):
     make_install_path = "make install -C __INSTALL_MAKEFILE_PATH__"
     base_so_path = sc_util.get_base_list()
     for each_path in base_so_path:
+        each_path = sc_util.replace_env(each_path)
         makefile_path_list.remove(each_path)
         ret = single_warn_check_makefile(cmd, each_path)
         if ret is False:
