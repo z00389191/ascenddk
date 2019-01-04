@@ -1,8 +1,8 @@
-##开源项目Ascend Developer Kit
+## 开源项目-Ascend Developer Kit
 
 Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工智能芯片Ascend 310的计算平台生态项目，提供了丰富的开源代码库，助力开发者进行AI应用程序的开发。Ascend DK可以轻松部署到Atlas 200 Developer Kit（缩写：Atlas 200 DK）中，Atlas 200 DK面向开发者提供一站式开发套件，包括AI硬件计算平台、相关配套工具等，让开发者可以高效编写在特定硬件设备上运行的人工智能应用程序。
 
-##源码说明
+## 源码说明
 
 <table>
 <tr> 
