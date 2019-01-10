@@ -99,7 +99,7 @@ const int32_t kDvppToJpegLevel = 100;
 const int32_t kDealResultIndex = 2;
 
 // each results size
-const int32_t kEachResultSize = 8;
+const int32_t kEachResultSize = 7;
 
 // attribute index
 const int32_t kAttributeIndex = 1;
