@@ -52,6 +52,9 @@ const int kTagSize = 1;
 // protobuf string/bytes wire type
 const int kProtoStringWireType = 0x2;
 
+// max buffer size for varint32
+static const int kMaxVarint32Bytes = 5;
+
 // for calc tag
 const int kTagShift = 3;
 
@@ -73,10 +76,11 @@ static string ConvertToVarint32(uint32_t value) {
     return kEmptyStr;
   }
 
-  char buf[sizeof(int32_t)];
-  ArrayOutputStream arr(buf, sizeof(int32_t));
+  char buf[kMaxVarint32Bytes];
+  ArrayOutputStream arr(buf, kMaxVarint32Bytes);
   CodedOutputStream os(&arr);
   os.WriteVarint32(value);
+  // os.ByteCount() <= kMaxVarint32Bytes
   return string(buf, os.ByteCount());
 }
 

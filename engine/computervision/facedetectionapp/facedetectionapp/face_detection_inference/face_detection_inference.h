@@ -51,9 +51,14 @@
 class FaceDetectionInference : public hiai::Engine {
 public:
   /**
-   * @brief: construction function
+   * @brief: constructor
    */
   FaceDetectionInference();
+
+    /**
+   * @brief: default destructor
+   */
+  ~FaceDetectionInference() = default;
 
   /**
    * @brief: face detection inference engine initialize

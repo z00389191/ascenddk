@@ -128,10 +128,11 @@ class DvppProcess {
    * @param [in] input_buf:input image data
    *             (dvpp need char *,so pInputBuf do not use const)
    * @param [in] input_size: input image data size
+   * @param [in] output_size: output image data size
    * @param [out] output_buf: image data after conversion
    * @return enum DvppErrorCode
    */
-  int DvppBgrChangeToYuv(char *input_buf, int input_size,
+  int DvppBgrChangeToYuv(char *input_buf, int input_size, int output_size,
                          unsigned char *output_buf);
 
   // used for storage attributes of dvpp class
