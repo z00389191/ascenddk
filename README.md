@@ -104,7 +104,7 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 </table>
 
 ## 源码使用指导
--   [Code Samples](https://ascend.github.io/ascenddk-private/doc/samplecode/OverView.html)
+-   [Atlas DK开源App使用指导](https://ascend.github.io/ascenddk-private/doc/samplecode/OverView.html)
 
 ## 贡献流程
 -   [Contributing](contributing.md)
