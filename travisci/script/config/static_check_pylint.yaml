@@ -1,2 +1,0 @@
-pylint_ignored_files:
-    - ${ASCEND_ROOT_PATH}/ascenddk/common/presenter/server/src/presenter_message_pb2.py

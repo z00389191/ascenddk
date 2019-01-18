@@ -1,3 +1,0 @@
-install:
-    - sudo apt-get update #travis CI: need to update before install
-    - sudo apt-get -y install cppcheck

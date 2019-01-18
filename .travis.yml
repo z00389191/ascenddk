@@ -18,17 +18,7 @@ install: python3 ${BUILD_ROOT_PATH}/install/install.py install
 jobs:
     include:
         - stage: ascenddk llt and sc
-          name: "static_check_cppcheck"
-          #no need to do clone tools
-          before_install: true
-          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_cppcheck
-          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check cppcheck
-        - name: "static_check_pylint"
-          #no need to do clone tools
-          before_install: true
-          install: python3 ${BUILD_ROOT_PATH}/install/install.py install_pylint
-          script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check pylint
-        - name: "static_warn_check"
+          name: "static_warn_check"
           script: python3 ${BUILD_ROOT_PATH}/script/scripts_run.py static_check warn_check
         - name: "ut_pytest"
           before_install: true
