@@ -89,36 +89,6 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
     <td></td>
 	<td>持续集成构建脚本</td>
 </tr>
-<tr>
-	<td></td>
-	<td></td>
-    <td></td>
-	<td></td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-    <td></td>
-	<td></td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-    <td></td>
-	<td></td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-    <td></td>
-	<td></td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-    <td></td>
-	<td></td>
-</tr>
 </table>
 
 ## 源码使用指导
