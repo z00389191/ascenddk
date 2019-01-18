@@ -39,14 +39,12 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 	<td></td>
 	<td></td>
 	<td>agent</td>
-    <td></td>
 	<td>与Presenter Server交互的API</td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
 	<td>server</td>
-    <td></td>
 	<td>展示Presenter Agent推送过来的推理结果，浏览器访问</td>
 </tr>
 <tr>
@@ -81,8 +79,8 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 </tr>
 <tr>
 	<td></td>
-	<td></td>
     <td>facedetectionapp</td>
+	<td></td>
 	<td>人脸检测应用</td>
 </tr>
 <tr>
