@@ -15,91 +15,111 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 	<td>common</td>
 	<td></td>
     <td></td>
-	<td>XXX</td>
+	<td></td>
 </tr>
 <tr>
  	<td></td>
 	<td>ascendcamera</td>
     <td></td>
-	<td>XXX</td>
+	<td>使用Atlas DK开发板上的摄像头采集数据的样例</td>
 </tr>
 <tr>
 	<td></td>
 	<td>osd</td>
     <td></td>
-	<td>XXX</td>
+	<td>推理结果图像后处理公共API</td>
 </tr>
 <tr>
 	<td></td>
 	<td>presenter</td>
     <td></td>
-	<td>XXX</td>
+	<td>推理结果可视化实现样例</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td>agent</td>
+    <td></td>
+	<td>与Presenter Server交互的API</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td>server</td>
+    <td></td>
+	<td>展示Presenter Agent推送过来的推理结果，浏览器访问</td>
 </tr>
 <tr>
 	<td></td>
 	<td>utils</td>
     <td></td>
-	<td>XXX</td>
+	<td>公共能力</td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
     <td>ascend_ezdvpp</td>
-	<td>XXX</td>
+	<td>封装了dvpp接口，提供图像/视频的处理能力，如色域转换，图像/视频转换等</td>
 </tr>
 <tr>
 	<td>engine</td>
 	<td></td>
     <td></td>
-	<td>XXX</td>
+	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td>computervision</td>
     <td></td>
-	<td>XXX</td>
+	<td>视觉领域Engine</td>
+</tr>
+<tr>
+	<td>smartcity</td>
+	<td></td>
+    <td></td>
+	<td>ascenddk smart city samples</td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
     <td>facedetectionapp</td>
-	<td>XXX</td>
+	<td>人脸检测应用</td>
 </tr>
 <tr>
 	<td>scripts</td>
 	<td></td>
     <td></td>
-	<td>XXX</td>
+	<td>持续集成构建脚本</td>
 </tr>
 <tr>
 	<td></td>
 	<td>travis_scripts</td>
     <td></td>
-	<td>XXX</td>
+	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
     <td>common</td>
-	<td>XXX</td>
+	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
     <td>install</td>
-	<td>XXX</td>
+	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
     <td>script</td>
-	<td>XXX</td>
+	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
     <td>temp</td>
-	<td>XXX</td>
+	<td></td>
 </tr>
 </table>
 
