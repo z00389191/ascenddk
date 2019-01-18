@@ -1,5 +1,3 @@
-'''static check commands'''
-# -*- coding: UTF-8 -*-
 #
 #   =======================================================================
 #
@@ -32,6 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+'''static check commands'''
 
 import os
 import sys

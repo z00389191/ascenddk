@@ -1,5 +1,3 @@
-'''common log module'''
-# -*- coding: UTF-8 -*-
 #
 #   =======================================================================
 #
@@ -32,6 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+'''common log module'''
 
 import datetime
 import inspect

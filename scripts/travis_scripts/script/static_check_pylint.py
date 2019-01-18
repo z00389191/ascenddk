@@ -1,5 +1,3 @@
-'''pylint check'''
-# -*- coding: UTF-8 -*-
 #
 #   =======================================================================
 #
@@ -32,6 +30,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+'''pylint check'''
+
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import as_completed
 import os

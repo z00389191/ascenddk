@@ -1,6 +1,3 @@
-'''preinstall or install stage script'''
-
-# -*- coding: UTF-8 -*-
 #
 #   =======================================================================
 #
@@ -33,6 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+'''preinstall or install stage script'''
 
 import os
 import sys

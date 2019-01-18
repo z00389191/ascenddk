@@ -1,5 +1,3 @@
-'''common utils module'''
-# -*- coding: UTF-8 -*-
 #
 #   =======================================================================
 #
@@ -32,6 +30,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+'''common log module'''
+
 import os
 import platform
 import signal
@@ -55,23 +55,19 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
 
     is_linux = platform.system() == 'Linux'
 
-    # 生成一个子进程，执行cmd命令
     if not cwd:
         cwd = os.getcwd()
     process = subprocess.Popen(cmd, cwd=cwd, bufsize=32768, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, shell=True,
                                preexec_fn=os.setsid if is_linux else None)
 
-    # 判断子进程执行时间是否超时
     t_beginning = time.time()
 
-    # 计算循环次数
     time_gap = 0.01
 
     str_std_output = ""
     while True:
 
-        # 检查子进程是否结束
         str_out = str(process.stdout.read().decode())
         str_std_output = str_std_output + str_out
 
@@ -80,7 +76,7 @@ def execute(cmd, timeout=3600, print_output_flag=False, print_cmd=True, cwd=""):
         seconds_passed = time.time() - t_beginning
 
         if timeout and seconds_passed > timeout:
-            # 杀掉命令进程
+
             if is_linux:
                 os.kill(process.pid, signal.SIGTERM)
             else:

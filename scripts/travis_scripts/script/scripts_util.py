@@ -1,5 +1,3 @@
-'''static check util'''
-# -*- coding: UTF-8 -*-
 #
 #   =======================================================================
 #
@@ -32,6 +30,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+'''static check util'''
+
 import os
 import re
 import sys
