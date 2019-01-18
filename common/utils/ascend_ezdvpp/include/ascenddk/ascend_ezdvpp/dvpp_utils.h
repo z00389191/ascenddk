@@ -49,10 +49,11 @@ class DvppUtils {
    * @param [in] input_buf:input image data
    *             (dvpp need char *,so pInputBuf do not use const)
    * @param [in] input_size: input image data size
+   * @param [in] output_size: output image data size
    * @param [in] output_buf: image data after conversion
    * @return enum DvppErrorCode
    */
-  int CheckBgrToYuvParam(char *input_buf, int input_size,
+  int CheckBgrToYuvParam(char *input_buf, int input_size, int output_size,
                          unsigned char *output_buf);
   /**
    * @brief check whether the image needs alignment

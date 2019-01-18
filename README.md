@@ -103,8 +103,11 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 </tr>
 </table>
 
+## 源码使用指导
+-   [Code Samples](https://ascend.github.io/ascenddk-private/doc/samplecode/OverView.html)
+
 ## 贡献流程
-[Contributing](contributing.md)
+-   [Contributing](contributing.md)
 
 ## 声明
 华为Ascend芯片做为开放的AI计算平台，仅提供相关AI计算能力，使能第三方开发者，相关照片、视频等数据均由第三方开发者自行控制，由第三方开发者决定收集数据的内容与种类，华为不涉及任何用户数据的收集和保存。

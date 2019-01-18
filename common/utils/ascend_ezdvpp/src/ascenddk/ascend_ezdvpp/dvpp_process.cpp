@@ -112,7 +112,7 @@ int DvppProcess::DvppOperationProc(char *input_buf, int input_size,
     unsigned char *yuv_output_data = new unsigned char[data_size];
 
     // bgr change to yuv420spnv12
-    ret = DvppBgrChangeToYuv(input_buf, input_size, yuv_output_data);
+    ret = DvppBgrChangeToYuv(input_buf, input_size, data_size, yuv_output_data);
     if (ret != kDvppOperationOk) {
       delete[] yuv_output_data;
       return ret;
@@ -325,11 +325,13 @@ void DvppProcess::PrintErrorInfo(int code) const {
 }
 
 int DvppProcess::DvppBgrChangeToYuv(char *input_buf, int input_size,
+                                    int output_size,
                                     unsigned char *output_buf) {
   DvppUtils dvpp_utils;
 
   // check input param
-  int ret = dvpp_utils.CheckBgrToYuvParam(input_buf, input_size, output_buf);
+  int ret = dvpp_utils.CheckBgrToYuvParam(input_buf, input_size, output_size,
+                                          output_buf);
 
   if (ret != kDvppOperationOk) {
     return ret;
@@ -421,14 +423,10 @@ int DvppProcess::DvppBgrChangeToYuv(char *input_buf, int input_size,
   // 128 byte memory alignment in width direction of yuv image
   int yuv_stride = ALIGN_UP(vpc_in_msg.width, VPC_WIDTH_ALGIN);
 
-  int out_buffer_size = vpc_in_msg.width * vpc_in_msg.high *
-  DVPP_YUV420SP_SIZE_MOLECULE /
-  DVPP_YUV420SP_SIZE_DENOMINATOR;
-
   // The output image is also memory aligned, so if original image is already
   // memory aligned, directly copy all memory.
   if (image_align == kImageNotNeedAlign) {
-    ret = memcpy_s(output_buf, out_buffer_size,
+    ret = memcpy_s(output_buf, output_size,
                    vpc_in_msg.auto_out_buffer_1->getBuffer(),
                    vpc_in_msg.out_buffer_1_size);
     CHECK_VPC_MEMCPY_S_RESULT(ret, in_buffer, dvpp_api);
@@ -441,7 +439,7 @@ int DvppProcess::DvppBgrChangeToYuv(char *input_buf, int input_size,
     int out_index = 0;
 
     // remain memory size in DvppBgrChangeToYuv output buffer
-    int remain_out_buffer_size = out_buffer_size;
+    int remain_out_buffer_size = output_size;
 
     // y channel data copy
     for (int j = 0; j < vpc_in_msg.high; ++j) {

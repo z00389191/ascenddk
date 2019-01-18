@@ -46,8 +46,9 @@ DvppUtils::~DvppUtils() {
 }
 
 int DvppUtils::CheckBgrToYuvParam(char *input_buf, int input_size,
-                                  unsigned char *output_buf) {
-  if (input_buf == nullptr || output_buf == nullptr || input_size <= 0) {
+                                  int output_size, unsigned char *output_buf) {
+  if (input_buf == nullptr || output_buf == nullptr || input_size <= 0
+      || output_size <= 0) {
     ASC_LOG_ERROR("Input param and output param can not be null!");
     return kDvppErrorInvalidParameter;
   }

@@ -145,7 +145,7 @@ int Connect(int socket, const sockaddr_in& addr) {
   int ret = ::connect(socket, (sockaddr*) &addr, sizeof(addr));
   if (ret < 0) {
     if (errno != EINPROGRESS) {
-//      AGENT_LOG_ERROR("connect() error: %s", strerror(errno));
+
       return kSocketError;
     }
 

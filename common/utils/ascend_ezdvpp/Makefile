@@ -16,14 +16,13 @@ LOCAL_LIBRARY=$(OUT_DIR)/$(LOCAL_MODULE_NAME)
 OUT_INC_DIR = $(OUT_DIR)/include
 
 INC_DIR = \
+	-I$(LOCAL_DIR)/include \
 	-I$(DDK_HOME)/include/inc \
 	-I$(DDK_HOME)/include/inc/custom \
 	-I$(DDK_HOME)/include/third_party/protobuf/include \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
-	-I$(LOCAL_DIR)/include \
-	-I../
-
+	
 
 CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC -Wall -O2
 LNK_FLAGS := \
