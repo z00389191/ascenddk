@@ -75,7 +75,7 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 	<td>smartcity</td>
 	<td></td>
     <td></td>
-	<td>ascenddk smart city samples</td>
+	<td>ascenddk smart city样例</td>
 </tr>
 <tr>
 	<td></td>
