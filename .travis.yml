@@ -3,7 +3,7 @@ language: cpp
 dist: xenial
 env:
     ASCEND_ROOT_PATH=${HOME}/build/Ascend
-    BUILD_ROOT_PATH=${ASCEND_ROOT_PATH}/ascenddk/scripts/travis_scripts
+    BUILD_ROOT_PATH=${ASCEND_ROOT_PATH}/ascenddk/travisci
     BUILD_TEMP_PATH=${BUILD_ROOT_PATH}/temp
     DDK_HOME=${ASCEND_ROOT_PATH}/tools/ddk
     LLT_ROOT_PATH=${ASCEND_ROOT_PATH}/llt
