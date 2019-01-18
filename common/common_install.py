@@ -50,7 +50,7 @@ CURRENT_PATH = os.path.dirname(
     os.path.realpath(__file__))
 
 #installed so files
-_INSTALLED_SO_FILE = [{"makefile_path": os.path.join(CURRENT_PATH, "presenter/agent"),
+INSTALLED_SO_FILE = [{"makefile_path": os.path.join(CURRENT_PATH, "presenter/agent"),
                        "engine_setting": "-lpresenteragent \\",
                        "so_file" : os.path.join(CURRENT_PATH, "presenter/agent/out/libpresenteragent.so")},
                       {"makefile_path": os.path.join(CURRENT_PATH, "utils/ascend_ezdvpp"),
@@ -241,7 +241,7 @@ def main():
         print("Mkdir dir in %s failed, please check your env and input." % altasdk_ip)
         exit(-1)
 
-    for each_so_file_dict in _INSTALLED_SO_FILE:
+    for each_so_file_dict in INSTALLED_SO_FILE:
         makefile_path = each_so_file_dict.get("makefile_path")
         engine_settings.append(each_so_file_dict.get("engine_setting"))
         so_file = each_so_file_dict.get("so_file")
