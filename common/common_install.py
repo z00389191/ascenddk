@@ -1,5 +1,3 @@
-'''pre install'''
-# -*- coding: UTF-8 -*-
 #
 #   =======================================================================
 #
@@ -32,6 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+'''common installation'''
 import os
 import platform
 import signal
@@ -44,11 +43,13 @@ from collections import OrderedDict
 import re
 import datetime
 
+#ssh expect prompt
 PROMPT = ['# ', '>>> ', '> ', '\$ ']
 
 CURRENT_PATH = os.path.dirname(
     os.path.realpath(__file__))
 
+#installed so files
 _INSTALLED_SO_FILE = [{"makefile_path": os.path.join(CURRENT_PATH, "presenter/agent"),
                        "engine_setting": "-lpresenteragent \\",
                        "so_file" : os.path.join(CURRENT_PATH, "presenter/agent/out/libpresenteragent.so")},
@@ -65,23 +66,20 @@ def execute(cmd, timeout=3600, cwd=None):
     print(cmd)
     is_linux = platform.system() == 'Linux'
 
-    # 生成一个子进程，执行cmd命令
     if not cwd:
         cwd = os.getcwd()
     process = subprocess.Popen(cmd, cwd=cwd, bufsize=32768, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, shell=True,
                                preexec_fn=os.setsid if is_linux else None)
 
-    # 判断子进程执行时间是否超时
     t_beginning = time.time()
 
-    # 计算循环次数
+    # cycle times
     time_gap = 0.01
 
     str_std_output = ""
     while True:
 
-        # 检查子进程是否结束
         str_out = str(process.stdout.read().decode())
         str_std_output = str_std_output + str_out
 
@@ -90,7 +88,7 @@ def execute(cmd, timeout=3600, cwd=None):
         seconds_passed = time.time() - t_beginning
 
         if timeout and seconds_passed > timeout:
-            # 杀掉命令进程
+
             if is_linux:
                 os.kill(process.pid, signal.SIGTERM)
             else:
@@ -111,6 +109,7 @@ def execute(cmd, timeout=3600, cwd=None):
 
 
 def scp_file_to_remote(user, ip, port, password, local_file, remote_file):
+    '''do scp file to remote node'''
     cmd = "scp -P {port} {local_file} {user}@{ip}:{remote_file} ".format(
         ip=ip, port=port, user=user, local_file=local_file, remote_file=remote_file)
     print(cmd)
@@ -138,6 +137,7 @@ def scp_file_to_remote(user, ip, port, password, local_file, remote_file):
 
 
 def ssh_to_remote(user, ip, port, password, cmd_list):
+    '''ssh to remote and execute command'''
     cmd = "ssh -p {port} {user}@{ip} ".format(ip=ip, port=port, user=user)
     print(cmd)
     try:
@@ -168,6 +168,7 @@ def ssh_to_remote(user, ip, port, password, cmd_list):
 
 
 def add_engine_setting(settings):
+    '''add common so configuration to ddk engine default setting file'''
     ddk_engine_config_path = os.path.join(
         os.getenv("DDK_HOME"), "conf/settings_engine.conf")
     try:
@@ -195,6 +196,7 @@ def add_engine_setting(settings):
 
 
 def main():
+    '''main function: install common so files'''
     while(True):
         altasdk_ip = input("Please input AltasDK IP:")
 
@@ -214,7 +216,9 @@ def main():
     altasdk_ssh_port = input("Please input AltasDK SSH port(default: 22):")
     if altasdk_ssh_port == "":
         altasdk_ssh_port = "22"
+
     print("Common installation is beggining.")
+
     ddk_engine_config_path = os.path.join(
         os.getenv("DDK_HOME"), "conf/settings_engine.conf")
     if not os.path.exists(ddk_engine_config_path):
@@ -222,6 +226,7 @@ def main():
         exit(-1)
 
     engine_settings = []
+
     now_time = datetime.datetime.now().strftime('scp_lib_%Y%m%d%H%M%S')
 
     mkdir_expect = PROMPT
@@ -275,8 +280,10 @@ def main():
     if not ret:
         print("Installation is failed.")
         exit(-1)
+
     print("Adding engine setting in DDK configuration.")
     add_engine_setting(engine_settings)
+
     print("Common installation is finished.")
 
 
