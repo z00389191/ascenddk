@@ -84,39 +84,39 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 	<td>人脸检测应用</td>
 </tr>
 <tr>
-	<td>scripts</td>
+	<td>travisci</td>
 	<td></td>
     <td></td>
 	<td>持续集成构建脚本</td>
 </tr>
 <tr>
 	<td></td>
-	<td>travis_scripts</td>
+	<td></td>
     <td></td>
 	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
-    <td>common</td>
+    <td></td>
 	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
-    <td>install</td>
+    <td></td>
 	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
-    <td>script</td>
+    <td></td>
 	<td></td>
 </tr>
 <tr>
 	<td></td>
 	<td></td>
-    <td>temp</td>
+    <td></td>
 	<td></td>
 </tr>
 </table>
