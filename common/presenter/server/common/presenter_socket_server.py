@@ -34,6 +34,7 @@
 #   =======================================================================
 #
 
+import time
 import threading
 import select
 import struct
@@ -139,7 +140,11 @@ class PresenterSocketServer():
         has_read_len = 0
         read_buf = SOCK_RECV_NULL
         total_buf = SOCK_RECV_NULL
+        recv_num = 0
         while has_read_len != read_len:
+            #Troubleshoot CPU problems when Network blocking
+            if recv_num % 10 == 5:
+                time.sleep(0.01)
             try:
                 read_buf = conn.recv(read_len - has_read_len)
             except socket.error:
@@ -149,6 +154,7 @@ class PresenterSocketServer():
                 return PRESENTER_ERR, None
             total_buf += read_buf
             has_read_len = len(total_buf)
+            recv_num += 1
 
         return PRESENTER_OK, total_buf
 
