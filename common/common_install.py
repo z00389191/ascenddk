@@ -270,6 +270,11 @@ def main():
                      "value": "rm -rf ./{scp_lib}".format(scp_lib=now_time),
                      "secure": False},
                     {"type": "expect",
+                     "value": PROMPT},
+                    {"type": "cmd",
+                     "value": "sudo ldconfig",
+                     "secure": False},
+                    {"type": "expect",
                      "value": PROMPT}]
     else:
         cmd_list = [{"type": "cmd",
@@ -289,6 +294,11 @@ def main():
                      "value": PROMPT},
                     {"type": "cmd",
                      "value": "rm -rf ./{scp_lib}".format(scp_lib=now_time),
+                     "secure": False},
+                    {"type": "expect",
+                     "value": PROMPT},
+                    {"type": "cmd",
+                     "value": "sudo ldconfig",
                      "secure": False},
                     {"type": "expect",
                      "value": PROMPT}]
