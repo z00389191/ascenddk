@@ -122,7 +122,7 @@ def scp_file_to_remote(user, ip, port, password, local_file, remote_file):
             process.sendline("yes")
             print(process.before)
             ret = process.expect("password")
-        if ret != 0 and ret != 1:
+        if ret != 0:
             return False
 
         process.sendline(password)
@@ -147,7 +147,7 @@ def ssh_to_remote(user, ip, port, password, cmd_list):
         if ret == 1:
             process.sendline("yes")
             ret = process.expect("password")
-        if ret != 0 and ret != 1:
+        if ret != 0:
             return False
 
         process.sendline(password)
