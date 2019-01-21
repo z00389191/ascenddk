@@ -211,7 +211,7 @@ def main():
         altasdk_ssh_user = "hisilicon"
 
     altasdk_ssh_pwd = getpass.getpass(
-        "Please input AltasDK SSH user password:")
+        "Please input Altas DK Development Board SSH user password:")
 
     altasdk_ssh_port = input("Please input Altas DK Development Board SSH port(default: 22):")
     if altasdk_ssh_port == "":
