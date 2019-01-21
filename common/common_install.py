@@ -198,7 +198,7 @@ def add_engine_setting(settings):
 def main():
     '''main function: install common so files'''
     while(True):
-        altasdk_ip = input("Please input AltasDK IP:")
+        altasdk_ip = input("Please input Altas DK Development Board IP:")
 
         if re.match(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", altasdk_ip):
             break
@@ -206,14 +206,14 @@ def main():
             print("Input IP: %s is invalid!" % altasdk_ip)
 
     altasdk_ssh_user = input(
-        "Please input AltasDK SSH user(default: hisilicon):")
+        "Please input Altas DK Development Board SSH user(default: hisilicon):")
     if altasdk_ssh_user == "":
         altasdk_ssh_user = "hisilicon"
 
     altasdk_ssh_pwd = getpass.getpass(
         "Please input AltasDK SSH user password:")
 
-    altasdk_ssh_port = input("Please input AltasDK SSH port(default: 22):")
+    altasdk_ssh_port = input("Please input Altas DK Development Board SSH port(default: 22):")
     if altasdk_ssh_port == "":
         altasdk_ssh_port = "22"
 
