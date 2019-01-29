@@ -605,7 +605,7 @@ int MainProcess::Run() {
     if ((running_time > (long long) timeout * kSecToMillisec)
         && (timeout != 0)) {
       cerr << "[INFO] Success to complete the task." << endl;
-      ASC_LOG_ERROR("Success to complete the task.");
+      ASC_LOG_INFO("Success to complete the task.");
       break;
     }
 
@@ -630,7 +630,7 @@ void MainProcess::ExitProcess(int ret) {
     // close camera
     cerr << "[INFO] Close camera [" << control_object_.camera->GetChannelId()
          << "]." << endl;
-    ASC_LOG_INFO("close camera[%d].", control_object_.camera->GetChannelId());
+    ASC_LOG_INFO("Close camera[%d].", control_object_.camera->GetChannelId());
   }
 
   // deal with the last frame.
