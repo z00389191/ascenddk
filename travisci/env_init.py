@@ -53,7 +53,7 @@ def main():
     code_branch = branch_info[0].split(" ")[1]
     cilog.print_in_color(code_branch, cilog.COLOR_F_YELLOW)
 
-    file_path = os.path.join(base_path, "../../.travis.yml")
+    file_path = os.path.join(base_path, "../.travis.yml")
 
     try:
         file_stream = open(file_path, 'r')
