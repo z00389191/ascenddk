@@ -1,8 +1,19 @@
 ifndef DDK_HOME
-DDK_HOME := /root/tools/che/ddk/ddk
+$(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
 CC := aarch64-linux-gnu-g++
+else ifeq ($(mode), ASIC)
+CC := g++
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
+
 
 LOCAL_MODULE_NAME := libpresenteragent.so
 
@@ -21,11 +32,7 @@ INC_DIR := \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I$(DDK_HOME)/include/third_party/protobuf/include \
 
-LNK_FLAGS := \
-	-Wl,-rpath-link=$(DDK_HOME)/device/lib/ \
-	-L$(DDK_HOME)/device/lib \
-	-lprotobuf \
-	-shared
+
 
 SRCS := $(patsubst $(LOCAL_DIR)/%.cpp, %.cpp, $(shell find $(LOCAL_DIR)/src -name *.cpp))
 OBJS := $(addprefix $(OBJ_DIR)/, $(patsubst %.cpp, %.o,$(SRCS)))
@@ -37,6 +44,12 @@ ALL_OBJS := $(OBJS) \
 	$(PROTO_OBJS) \
 
 CC_FLAGS := $(INC_DIR) -std=c++11 -Wall -fPIC -O2
+
+LNK_FLAGS := \
+	-Wl,-rpath-link=$(DDK_HOME)/host/lib/ \
+	-L$(DDK_HOME)/host/lib \
+	-lprotobuf \
+	-shared
 
 all: do_pre_build do_build
 
@@ -66,8 +79,12 @@ $(PROTO_OBJS) : proto/presenter_message.pb.cc | do_pre_build
 
 install: all
 	$(Q)echo [INSTALL] $@
-	$(Q)cp -R $(OUT_INC_DIR)/* $(DDK_HOME)/include/inc/
-	$(Q)cp -R $(OUT_DIR)/lib*.so $(DDK_HOME)/device/lib/
+	$(Q)mkdir -p $(HOME)/ascend_ddk/include
+	$(Q)mkdir -p $(HOME)/ascend_ddk/device/lib
+	$(Q)cp -R $(OUT_INC_DIR)/* $(HOME)/ascend_ddk/include/
+	$(Q)cp -R $(OUT_DIR)/lib*.so $(HOME)/ascend_ddk/device/lib/
+
+install pcie: 
 
 clean:
 	rm -rf $(OUT_DIR)

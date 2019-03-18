@@ -2,7 +2,7 @@ LOCAL_DIR      := $(patsubst %,%,$(CURDIR))
 
 # set DDK_HOME default value
 ifndef DDK_HOME
-DDK_HOME := /root/tools/che/ddk/ddk
+$(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 
 CC := aarch64-linux-gnu-g++
@@ -25,7 +25,8 @@ local_inc_dirs := \
 	$(DDK_HOME)/include/third_party/protobuf/include \
 	$(DDK_HOME)/include/third_party/cereal/include \
 	$(DDK_HOME)/include/libc_sec/include \
-    $(DDK_HOME)/include/inc/custom
+	$(DDK_HOME)/include/inc/custom \
+	$(HOME)/ascend_ddk/include
 
 local_shared_libs := \
 	c_sec \
@@ -60,6 +61,7 @@ FULL_CPP_OBJS         := $(patsubst $(LOCAL_DIR)/%.cpp,$(LOCAL_OBJ_PATH)/%.o, $(
 LNK_FLAGS := \
 	-Wl,-rpath-link=$(DDK_HOME)/device/lib/ \
 	-L$(DDK_HOME)/device/lib \
+	-L$(HOME)/ascend_ddk/device/lib \
 	$(SHARED_LIBRARIES)
 
 all: do_pre_build do_build

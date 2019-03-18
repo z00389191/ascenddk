@@ -64,6 +64,9 @@ google::protobuf::Message* PresentChannelInitHandler::CreateInitRequest() {
 
 bool PresentChannelInitHandler::CheckInitResponse(const Message& response) {
   error_code_ = PresenterMessageHelper::CheckOpenChannelResponse(response);
+  if (error_code_ != PresenterErrorCode::kNone) {
+    AGENT_LOG_ERROR("OpenChannel failed, error = %d", error_code_);
+  }
   return error_code_ == PresenterErrorCode::kNone;
 }
 

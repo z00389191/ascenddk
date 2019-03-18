@@ -95,11 +95,11 @@ class Connection {
   PresenterErrorCode SendTlvList(const std::vector<Tlv>& tlv_list);
 
   // max size of received message
-  static const int kMaxPacketSize = 1024;
+  static const int kBufferSize = 1024;
 
   std::unique_ptr<Socket> socket_;
 
-  char recv_buf_[kMaxPacketSize] = { 0 };
+  char recv_buf_[kBufferSize] = { 0 };
 
   std::mutex mtx_;
 

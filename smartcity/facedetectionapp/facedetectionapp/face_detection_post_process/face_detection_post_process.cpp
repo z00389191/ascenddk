@@ -39,7 +39,6 @@
 
 using hiai::Engine;
 using namespace ascend::presenter;
-using namespace ascend::osd;
 
 // register data type
 HIAI_REGISTER_DATA_TYPE("EngineTransT", EngineTransT);
@@ -65,7 +64,6 @@ const uint8_t kFaceLabelColorG = 255;
 const uint8_t kFaceLabelColorB = 0;
 
 // face label font
-const FontType kFaceLabelFont = kFontComplex;
 const double kFaceLabelFontSize = 0.7;
 const int kFaceLabelFontWidth = 2;
 
@@ -241,8 +239,8 @@ bool FaceDetectionPostProcess::IsSupportFormat(hiai::IMAGEFORMAT format) {
 }
 
 bool FaceDetectionPostProcess::IsInvalidResults(float attr, float score,
-                                                const Coordinate &anchor_lt,
-                                                const Coordinate &anchor_rb) {
+                                                const Point &point_lt,
+                                                const Point &point_rb) {
   // attribute is not face (background)
   if (std::abs(attr - kAttributeFaceLabelValue) > kAttributeFaceDeviation) {
     return true;
@@ -255,14 +253,14 @@ bool FaceDetectionPostProcess::IsInvalidResults(float attr, float score,
   }
 
   // rectangle position is a point or not: lt == rb
-  if ((anchor_lt.x == anchor_rb.x) && (anchor_lt.y == anchor_rb.y)) {
+  if ((point_lt.x == point_rb.x) && (point_lt.y == point_rb.y)) {
     return true;
   }
   return false;
 }
 
 int32_t FaceDetectionPostProcess::SendImage(uint32_t height, uint32_t width,
-                                            uint32_t size, u_int8_t *data) {
+                                            uint32_t size, u_int8_t *data, std::vector<DetectionResult>& detection_results) {
   // parameter
   int32_t status = kFdFunSuccess;
   ascend::utils::DvppToJpgPara dvpp_to_jpeg_para;
@@ -288,6 +286,8 @@ int32_t FaceDetectionPostProcess::SendImage(uint32_t height, uint32_t width,
     image_frame_para.height = height;
     image_frame_para.size = dvpp_output.size;
     image_frame_para.data = dvpp_output.buffer;
+    image_frame_para.detection_results = detection_results;
+
     PresenterErrorCode p_ret = PresentImage(presenter_channel_.get(),
                                             image_frame_para);
     // send to presenter failed
@@ -326,7 +326,8 @@ HIAI_StatusT FaceDetectionPostProcess::HandleOriginalImage(
     // call SendImage
     // 1. call DVPP to change YUV420SP image to JPEG
     // 2. send image to presenter
-    int32_t ret = SendImage(height, width, size, img_vec[ind].img.data.get());
+    vector<DetectionResult> detection_results;
+    int32_t ret = SendImage(height, width, size, img_vec[ind].img.data.get(), detection_results);
     if (ret == kFdFunFailed) {
       status = HIAI_ERROR;
       continue;
@@ -377,7 +378,7 @@ HIAI_StatusT FaceDetectionPostProcess::HandleResults(
 
     // every inference result needs 8 float
     // loop the result for every inference result
-    std::vector<RectangleLabelAttribute> rectangle_label_attr;
+    std::vector<DetectionResult> detection_results;
     float *ptr = result;
     for (int32_t k = 0; k < size - kEachResultSize; k += kEachResultSize) {
       ptr = result + k;
@@ -386,96 +387,38 @@ HIAI_StatusT FaceDetectionPostProcess::HandleResults(
       // confidence
       float score = ptr[kScoreIndex];
 
-      // rectangle position
-      RectanglePosition rectangle_position;
+      //Detection result
+      DetectionResult one_result;
       // left top
-      Coordinate anchor_lt;
-      anchor_lt.x = ptr[kAnchorLeftTopAxisIndexX] * width;
-      anchor_lt.y = ptr[kAnchorLeftTopAxisIndexY] * height;
-      rectangle_position.lt = anchor_lt;
+      Point point_lt, point_rb;
+      point_lt.x = ptr[kAnchorLeftTopAxisIndexX] * width;
+      point_lt.y = ptr[kAnchorLeftTopAxisIndexY] * height;
       // right bottom
-      Coordinate anchor_rb;
-      anchor_rb.x = ptr[kAnchorRightBottomAxisIndexX] * width;
-      anchor_rb.y = ptr[kAnchorRightBottomAxisIndexY] * height;
-      rectangle_position.rb = anchor_rb;
+      point_rb.x = ptr[kAnchorRightBottomAxisIndexX] * width;
+      point_rb.y = ptr[kAnchorRightBottomAxisIndexY] * height;
+
+      one_result.lt = point_lt;
+      one_result.rb = point_rb;
 
       // check results is valid
-      if (IsInvalidResults(attr, score, anchor_lt, anchor_rb)) {
+      if (IsInvalidResults(attr, score, point_lt, point_rb)) {
         continue;
       }
       HIAI_ENGINE_LOG(HIAI_DEBUG_INFO,
                       "score=%f, lt.x=%d, lt.y=%d, rb.x=%d, rb.y=%d", score,
-                      anchor_lt.x, anchor_lt.y, anchor_rb.x, anchor_rb.y);
-
-      // rectangle attribute
-      RectangleAttribute rectangle_attr;
-      rectangle_attr.position = rectangle_position;
-
-      // color
-      Color rect_color = { kFaceBoxColorR, kFaceBoxColorG, kFaceBoxColorB };
-      rectangle_attr.color = rect_color;
-      // thickness
-      rectangle_attr.thickness = kFaceBoxBorderWidth;
-
-      // label attribute
-      TextAttribute text_attr;
-      std::stringstream label_content;
-      int32_t score_percent = score * kScorePercent;  // percent
-      label_content << kFaceLabelTextPrefix << score_percent
-                    << kFaceLabelTextSuffix;
-      label_content >> text_attr.text;
-      // label position
-      Coordinate label_lb;
-      label_lb.x = anchor_lt.x;
-      label_lb.y = anchor_lt.y;
-      text_attr.position = label_lb;
-      // font type
-      text_attr.font_type = kFaceLabelFont;
-      // color
-      Color label_color =
-          { kFaceLabelColorR, kFaceLabelColorG, kFaceLabelColorB };
-      text_attr.color = label_color;
-      // font scale
-      text_attr.font_scale = kFaceLabelFontSize;
-      // thickness
-      text_attr.thickness = kFaceLabelFontWidth;
+                      point_lt.x, point_lt.y, point_rb.x, point_rb.y);
+      int32_t score_percent =  score * kScorePercent;
+      one_result.result_text.append(kFaceLabelTextPrefix);
+      one_result.result_text.append(to_string(score_percent));
+      one_result.result_text.append(kFaceLabelTextSuffix);
 
       // push back
-      RectangleLabelAttribute rect_label;
-      rect_label.rect_attr = rectangle_attr;
-      rect_label.text_attr = text_attr;
-      rectangle_label_attr.emplace_back(rect_label);
+      detection_results.emplace_back(one_result);
     }
 
     int32_t ret;
-    // no any satisfactory results
-    if (rectangle_label_attr.empty()) {
-      // using original image
-      // 1. call DVPP to change YUV420SP image to JPEG
-      // 2. send image to presenter
-      ret = SendImage(height, width, img_size, img_vec[ind].img.data.get());
-    } else {  // call OSD to draw rectangle and label
-      ImageAttribute src_img_attr;
-      src_img_attr.data = img_vec[ind].img.data;
-      src_img_attr.height = height;
-      src_img_attr.image_format = kYuv420spnv12;
-      src_img_attr.size = img_size;
-      src_img_attr.width = width;
+    ret = SendImage(height, width, img_size, img_vec[ind].img.data.get(), detection_results);
 
-      std::shared_ptr<u_int8_t> dst_img_buffer = std::shared_ptr<u_int8_t>(
-          new u_int8_t[img_size], std::default_delete<u_int8_t[]>());
-      int32_t osd_ret = DrawRectangleAndLabel(src_img_attr,
-                                              rectangle_label_attr,
-                                              dst_img_buffer);
-      // draw successfully, using OSD results
-      if (osd_ret == kOsdCallSuccess) {
-        ret = SendImage(height, width, img_size, dst_img_buffer.get());
-      } else {  // draw failed, using original image
-        HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                        "Failed to call OSD, ret=%d.", osd_ret);
-        ret = SendImage(height, width, img_size, img_vec[ind].img.data.get());
-      }
-    }
     // check send result
     if (ret == kFdFunFailed) {
       status = HIAI_ERROR;

@@ -40,6 +40,12 @@
 #include "ascenddk/presenter/agent/net/raw_socket_factory.h"
 #include "ascenddk/presenter/agent/util/byte_buffer.h"
 #include "ascenddk/presenter/agent/util/logging.h"
+#include "ascenddk/presenter/agent/util/mem_utils.h"
+
+
+namespace {
+  const uint32_t kMaxPacketSize = 1024 * 1024 * 10; //10MB
+}
 
 namespace ascend {
 namespace presenter {
@@ -126,10 +132,16 @@ PresenterErrorCode Connection::SendMessage(const Message& message) {
 
 PresenterErrorCode Connection::ReceiveMessage(
     unique_ptr<::google::protobuf::Message>& message) {
-  char *buf = (char *) recv_buf_;
   // read 4 bytes header
+  char *buf = recv_buf_;
   PresenterErrorCode error_code = socket_->Recv(
       buf, MessageCodec::kPacketLengthSize);
+
+  if (error_code == PresenterErrorCode::kSocketTimeout) {
+    AGENT_LOG_INFO("Read message header timeout");
+    return PresenterErrorCode::kSocketTimeout;
+  }
+
   if (error_code != PresenterErrorCode::kNone) {
     AGENT_LOG_ERROR("Failed to read message header");
     return error_code;
@@ -146,6 +158,16 @@ PresenterErrorCode Connection::ReceiveMessage(
   }
 
   int pack_size = static_cast<int>(remaining_size);
+  unique_ptr<char[]> unique_buf; // ensure release allocated buffer
+  if (remaining_size > kBufferSize) {
+    buf = memutils::NewArray<char>(remaining_size);
+    if (buf == nullptr) {
+      return PresenterErrorCode::kBadAlloc;
+    }
+
+    unique_buf.reset(memutils::NewArray<char>(remaining_size));
+  }
+
   // packSize must be within [1, MAX_PACKET_SIZE],
   // Recv() can not cause buffer overflow
   error_code = socket_->Recv(buf, pack_size);

@@ -46,8 +46,7 @@ import tornado.web
 import tornado.gen
 import tornado.websocket
 import face_detection.src.config_parser as config_parser
-import common.channel_manager as channel_manager
-
+from common.channel_manager import ChannelManager
 
 class WebApp:
     """
@@ -58,13 +57,11 @@ class WebApp:
         """
         init method
         """
-        self.channel_mgr = channel_manager.ChannelManager()
+        self.channel_mgr = ChannelManager(["image", "video"])
 
         self.request_list = set()
 
         self.lock = threading.Lock()
-
-
 
     def __new__(cls, *args, **kwargs):
 
@@ -72,9 +69,6 @@ class WebApp:
         if cls.__instance is None:
             cls.__instance = object.__new__(cls, *args, **kwargs)
         return cls.__instance
-
-
-
 
     def add_channel(self, channel_name):
         """
@@ -136,7 +130,6 @@ class WebApp:
             ret["ret"] = "success"
 
         return ret
-
 
     def del_channel(self, names):
         """
@@ -256,6 +249,7 @@ class WebApp:
 
         fps = 0    # fps for video
         image = None    # image for video & image
+        rectangle_list = None
         handler = self.channel_mgr.get_channel_handler_by_name(channel_name)
 
         if handler is not None:
@@ -270,6 +264,7 @@ class WebApp:
                 frame_info = handler.get_frame()
                 image = frame_info[0]
                 fps = frame_info[1]
+                rectangle_list = frame_info[4]
 
             status = "loading"
 
@@ -278,13 +273,9 @@ class WebApp:
                 status = "ok"
                 image = base64.b64encode(image).decode('utf-8')
 
-            return {'type': media_type, 'image':image, 'fps':fps, 'status':status}
+            return {'type': media_type, 'image':image, 'fps':fps, 'status':status, 'rectangle_list':rectangle_list}
         else:
             return {'type': 'unkown', 'image':None, 'fps':0, 'status':'loading'}
-
-
-G_WEBAPP = WebApp()
-
 
 # pylint: disable=abstract-method
 class BaseHandler(tornado.web.RequestHandler):
@@ -393,7 +384,6 @@ class WebSocket(tornado.websocket.WebSocketHandler):
         called when closed web socket
         """
 
-
     @tornado.web.asynchronous
     @tornado.gen.coroutine
     def on_message(self, message):
@@ -470,7 +460,7 @@ def start_webapp():
     http_server.listen(config.web_server_port, address=config.web_server_ip)
 
     print("Please visit http://" + config.web_server_ip + ":" +
-          str(config.web_server_port) + " for presenter server")
+          str(config.web_server_port) + " for face detection")
     tornado.ioloop.IOLoop.instance().start()
 
 
@@ -479,3 +469,6 @@ def stop_webapp():
     stop web app
     """
     tornado.ioloop.IOLoop.instance().stop()
+
+global G_WEBAPP
+G_WEBAPP = WebApp()

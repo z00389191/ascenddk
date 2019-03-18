@@ -34,11 +34,23 @@ enum ImageFormat {
     kImageFormatJpeg = 0;
 }
 
+message Coordinate {
+    uint32 x = 1;
+    uint32 y = 2;
+}
+
+message Rectangle_Attr {
+    Coordinate left_top = 1;
+    Coordinate right_bottom = 2;
+    string label_text = 3;
+}
+
 message PresentImageRequest {
      ImageFormat format = 1;
      uint32 width = 2;
      uint32 height = 3;
      bytes data = 4;
+     repeated Rectangle_Attr rectangle_list = 5;
 }
 
 enum PresentDataErrorCode {

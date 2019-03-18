@@ -1,8 +1,4 @@
-"""presenter server module"""
-
 #!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-#
 #   =======================================================================
 #
 # Copyright (C) 2018, Hisilicon Technologies Co., Ltd. All Rights Reserved.
@@ -34,73 +30,95 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
+
+"""presenter server module"""
+
 import os
 import sys
 import signal
+import argparse
 import logging
-from logging.config import fileConfig
-import face_detection.src.webapp as webapp
-from face_detection.src.config_parser import ConfigParser
-from common.presenter_socket_server import PresenterSocketServer
-from common.channel_manager import ChannelManager
 
-# global variable, SOCKET_SERVER is a thread server
-# for presenter agent communication
-SOCKET_SERVER = None
+WEB_SERVER = None
+APP_SERVER = None
+RUN_SERVER = None
+SERVER_TYPE = ""
 
-def config_log():
-    '''config log based on log config file'''
-    log_file_path = os.path.join(ConfigParser.root_path, "config/logging.conf")
-    fileConfig(log_file_path)
-    logging.getLogger('presenterserver')
+
+def arg_parse():
+    '''arg_parse'''
+    global WEB_SERVER
+    global APP_SERVER
+    global SERVER_TYPE
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--app', type=str, required=True,
+                        choices=['face_detection',
+                                 'facial_recognition',
+                                 'video_analysis'],
+                        help="Application type corresponding to Presenter Server.")
+    args = parser.parse_args()
+    SERVER_TYPE = args.app
+    if args.app == "face_detection":
+        WEB_SERVER = __import__("face_detection.src.web", fromlist=True)
+        APP_SERVER = __import__("face_detection.src.face_detection_server",
+                                fromlist=True)
+    elif args.app == "facial_recognition":
+        WEB_SERVER = __import__("facial_recognition.src.web", fromlist=True)
+        APP_SERVER = __import__("facial_recognition.src.facial_recognition_server",
+                                fromlist=True)
+    elif args.app == "video_analysis":
+        WEB_SERVER = __import__("video_analysis.src.web", fromlist=True)
+        APP_SERVER = __import__("video_analysis.src.video_analysis_server",
+                                fromlist=True)
+
+def start_app():
+    global RUN_SERVER
+    # start socket server for presenter agent communication
+    RUN_SERVER = APP_SERVER.run()
+    if RUN_SERVER is None:
+        return False
+
+    logging.info("presenter server starting, type: %s", SERVER_TYPE)
+    # start web ui
+    return WEB_SERVER.start_webapp()
+
+def stop_app():
+    WEB_SERVER.stop_webapp()
+    RUN_SERVER.stop_thread()
+
 
 def close_all_thread(signum, frame):
     '''close all thread of the process, and exit.'''
     logging.info("receive signal, signum:%s, frame:%s", signum, frame)
-    webapp.stop_webapp()
-    SOCKET_SERVER.stop_thread()
-    channel_manager = ChannelManager()
-    channel_manager.close_all_thread()
+    stop_app()
+
     logging.info("presenter server exit by Ctrl + c")
 
     sys.exit()
 
+def check_server_exist():
+    pid = os.getpid()
+    ppid = os.getppid()
+    cmd = "ps -ef|grep -v {}|grep -v {}|grep -w presenter_server|grep {}" \
+            .format(pid, ppid, SERVER_TYPE)
+    ret = os.system(cmd)
+    return ret
+
 def main_process():
     '''Main function entrance'''
+    arg_parse()
 
-    # read config file
-    config = ConfigParser()
-    if not config.config_verify():
-        return False
-
-    # config log
-    config_log()
-
-    # start socket server for presenter agent communication
-    global SOCKET_SERVER
-    SOCKET_SERVER = PresenterSocketServer((config.presenter_server_ip,
-                                           config.presenter_server_port))
-
-
+    if check_server_exist() == 0:
+        print("Presenter Server type \"%s\" already exist!" %(SERVER_TYPE))
+        return True
     # process signal, when receive "Ctrl + c" signal,
     # stop all thead and exit the progress.
     signal.signal(signal.SIGINT, close_all_thread)
     signal.signal(signal.SIGTERM, close_all_thread)
+    start_app()
 
-    logging.info("presenter server is starting...")
-
-    # start http server
-    webapp.start_webapp()
     return True
 
-def _module_name():
-    return __name__
-
-def main():
-    '''Main function entrance'''
-    module_name = _module_name()
-    if module_name == '__main__':
-        main_process()
-
-# start here
-main()
+if __name__ == "__main__":
+    main_process()

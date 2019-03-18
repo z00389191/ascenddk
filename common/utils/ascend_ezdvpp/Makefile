@@ -1,12 +1,22 @@
 TOPDIR      := $(patsubst %,%,$(CURDIR))
 
 ifndef DDK_HOME
-DDK_HOME := /root/tools/che/ddk/ddk
+$(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 
 LOCAL_MODULE_NAME := libascend_ezdvpp.so
 
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
 CC := aarch64-linux-gnu-g++
+else ifeq ($(mode), ASIC)
+CC := $(DDK_HOME)/uihost/toolchains/aarch64-linux-gcc6.3/bin/aarch64-linux-gnu-g++
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
 
 LOCAL_DIR  := .
 OUT_DIR = out
@@ -29,7 +39,6 @@ LNK_FLAGS := \
 	-Wl,-rpath-link=$(DDK_HOME)/device/lib/ \
 	-L$(DDK_HOME)/device/lib/ \
 	-lhiai_common \
-	-lmedia_mini \
 	-lDvpp_api \
 	-shared
 
@@ -60,8 +69,10 @@ $(OBJS): $(OBJ_DIR)/%.o : %.cpp | do_pre_build
 
 install: all
 	$(Q)echo [INSTALL] $@
-	$(Q)cp -R $(OUT_INC_DIR)/* $(DDK_HOME)/include/inc/
-	$(Q)cp -R $(OUT_DIR)/lib*.so $(DDK_HOME)/device/lib/
+	$(Q)mkdir -p $(HOME)/ascend_ddk/include
+	$(Q)mkdir -p $(HOME)/ascend_ddk/device/lib
+	$(Q)cp -R $(OUT_INC_DIR)/* $(HOME)/ascend_ddk/include/
+	$(Q)cp -R $(OUT_DIR)/lib*.so $(HOME)/ascend_ddk/device/lib/
 
 clean:
 	rm -rf $(TOPDIR)/out

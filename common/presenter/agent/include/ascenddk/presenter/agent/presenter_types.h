@@ -35,6 +35,7 @@
 
 #include <string>
 #include <cstdint>
+#include <vector>
 
 namespace ascend {
 namespace presenter {
@@ -74,6 +75,16 @@ struct OpenChannelParam {
   ContentType content_type;
 };
 
+struct Point {
+    std::uint32_t x;
+    std::uint32_t y;
+};
+
+struct DetectionResult {
+    Point lt;   //The coordinate of left top point
+    Point rb;   //The coordinate of the right bottom point
+    std::string result_text;  // Face:xx%
+};
 /**
  * ImageFrame
  */
@@ -83,6 +94,7 @@ struct ImageFrame {
   std::uint32_t height;
   std::uint32_t size;
   unsigned char *data;
+  std::vector<DetectionResult> detection_results;
 };
 
 } /* namespace presenter */

@@ -161,8 +161,8 @@ private:
    *          false: valid
    */
   bool IsInvalidResults(float attr, float score,
-                        const ascend::osd::Coordinate &anchor_lt,
-                        const ascend::osd::Coordinate &anchor_rb);
+                        const ascend::presenter::Point &point_lt,
+                        const ascend::presenter::Point &point_rb);
 
   /**
    * @brief: convert YUV420SP to JPEG, and then send to presenter
@@ -173,7 +173,7 @@ private:
    * @return: FD_FUN_FAILED or FD_FUN_SUCCESS
    */
   int32_t SendImage(uint32_t height, uint32_t width, uint32_t size,
-                    u_int8_t *data);
+                    u_int8_t *data, vector<ascend::presenter::DetectionResult>& detection_results);
 };
 
 #endif /* FACE_DETECTION_POST_PROCESS_H_ */
