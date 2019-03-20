@@ -73,18 +73,22 @@ function startViewVideo(){
                 $('#fpswapper').show();
                 rectangles = data['rectangle_list']
             }
-
+            var wantedWidth = 1024
             var img = new Image()
             img.src = src
             img.onload=function(){
                 canvas.setAttribute("width",img.width)
                     canvas.setAttribute("height",img.height)
-                    ctx.strokeStyle="blue"
+                    ctx.strokeStyle="yellow"
                     ctx.font="30px serif"
-                    ctx.fillStyle="blue"
-                    ctx.drawImage(img,0,0)
+                    ctx.fillStyle="yellow"
+                    scale_factor = wantedWidth/img.width
+                    ctx.drawImage(img,0,0, wantedWidth, img.height*scale_factor)
                     for (var index in rectangles){
-                        var pos= rectangles[index].slice(0,4)  // test data
+                        var pos= rectangles[index].slice(0,4)  //
+                        for (var i in pos){
+                            pos[i] = pos[i]*scale_factor 
+                        }
                         var msg = rectangles[index].slice(4,5)
                         //add space between msg and face
                         //if upper space is not enough show the msg at the bottom
