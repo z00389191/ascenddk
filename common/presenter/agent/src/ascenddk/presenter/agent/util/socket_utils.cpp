@@ -49,6 +49,9 @@ namespace {
 
 // no flag is need for now
 const int kSocketFlagNone = 0;
+  
+// socket closed
+const int kSocketClosed = 0;
 
 // connect timeout
 const int kDefaultTimeoutInSec = 3;
@@ -145,7 +148,7 @@ int Connect(int socket, const sockaddr_in& addr) {
   int ret = ::connect(socket, (sockaddr*) &addr, sizeof(addr));
   if (ret < 0) {
     if (errno != EINPROGRESS) {
-
+      AGENT_LOG_ERROR("connect() error: %s", strerror(errno));
       return kSocketError;
     }
 
@@ -186,7 +189,17 @@ int ReadN(int socket, char *buffer, int size) {
     char *write_ptr = buffer + received_cnt;
     int ret = ::recv(socket, write_ptr, size - received_cnt, kSocketFlagNone);  // [false alarm]: will never write over size
     if (ret == kSocketError) {
+      if (errno == EAGAIN || errno == EINTR) {
+        AGENT_LOG_INFO("recv() timeout. error = %s", strerror(errno));
+        return kSocketTimeout;
+      }
+
       AGENT_LOG_ERROR("recv() error. error = %s", strerror(errno));
+      return kSocketError;
+    }
+    
+    if (ret == kSocketClosed) {
+      AGENT_LOG_ERROR("socket closed");
       return kSocketError;
     }
 
@@ -204,6 +217,11 @@ int WriteN(int socket, const char *data, int size) {
     int ret = ::send(socket, read_ptr, size - sent_cnt, kSocketFlagNone);
     if (ret == kSocketError) {
       AGENT_LOG_ERROR("send() error. errno = %s", strerror(errno));
+      return kSocketError;
+    }
+    
+    if (ret == kSocketClosed) {
+      AGENT_LOG_ERROR("socket closed");
       return kSocketError;
     }
 

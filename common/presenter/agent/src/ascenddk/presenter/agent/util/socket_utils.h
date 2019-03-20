@@ -46,6 +46,9 @@ namespace socketutils {
 // indicating socket error
 const int kSocketError = -1;
 
+// indicating socket timeout
+const int kSocketTimeout = -11;
+
 /**
  * @brief SetSockAddr
  * @param [in] host_ip              host IP

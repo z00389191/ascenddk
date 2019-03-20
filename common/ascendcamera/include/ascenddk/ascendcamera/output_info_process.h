@@ -44,6 +44,7 @@ namespace ascendcamera {
 
 const unsigned long long kMinFreeDiskSpace = 100 * 1024 * 1024;
 const int kSystemCallReturnError = -1;
+const int kMaxOutputRetryNum = 30;
 
 // output mode : 1. save file to local; 2. send data to stdout;
 //               3. send data to presenter

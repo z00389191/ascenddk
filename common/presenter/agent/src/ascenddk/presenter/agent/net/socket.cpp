@@ -60,6 +60,8 @@ PresenterErrorCode Socket::Recv(char *buffer, int size) {
   int ret = DoRecv(buffer, size);
   if (ret == socketutils::kSocketError) {
     return PresenterErrorCode::kConnection;
+  } else if (ret == socketutils::kSocketTimeout) {
+    return PresenterErrorCode::kSocketTimeout;
   }
 
   // check size of received data

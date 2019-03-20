@@ -199,6 +199,8 @@ void DefaultChannel::SendHeartbeat() {
 
 PresenterErrorCode DefaultChannel::SendMessage(const Message& message) {
   PartialMessageWithTlvs msg;
+  string msg_name = message.GetDescriptor()->full_name();
+  AGENT_LOG_DEBUG("To send message: %s", msg_name.c_str());
   msg.message = &message;
   return SendMessage(msg);
 }
@@ -227,6 +229,7 @@ PresenterErrorCode DefaultChannel::SendMessage(
 
 PresenterErrorCode DefaultChannel::ReceiveMessage(
     unique_ptr<Message>& message) {
+  AGENT_LOG_DEBUG("To receive message");
   if (!open_) {
     AGENT_LOG_ERROR("Channel is not open, receive message failed");
     return PresenterErrorCode::kConnection;
@@ -235,8 +238,9 @@ PresenterErrorCode DefaultChannel::ReceiveMessage(
   PresenterErrorCode error_code = PresenterErrorCode::kOther;
   try {
     error_code = conn_->ReceiveMessage(message);
-    //connect error, set is_open to false, enable retry
-    if (error_code == PresenterErrorCode::kConnection) {
+    // connect error and codec error, set is_open to false, enable retry
+    if (error_code == PresenterErrorCode::kConnection
+        || error_code == PresenterErrorCode::kCodec) {
       open_ = false;
     }
 
@@ -251,6 +255,8 @@ PresenterErrorCode DefaultChannel::ReceiveMessage(
 PresenterErrorCode DefaultChannel::SendMessage(
     const google::protobuf::Message& message,
     std::unique_ptr<google::protobuf::Message> &response) {
+  string msg_name = message.GetDescriptor()->full_name();
+  AGENT_LOG_DEBUG("To send message: %s", msg_name.c_str());
   PresenterErrorCode error_code = SendMessage(message);
   if (error_code == PresenterErrorCode::kNone) {
     error_code = ReceiveMessage(response);
@@ -262,6 +268,8 @@ PresenterErrorCode DefaultChannel::SendMessage(
 PresenterErrorCode DefaultChannel::SendMessage(
     const PartialMessageWithTlvs& message,
     std::unique_ptr<google::protobuf::Message> &response) {
+  string msg_name = message.message->GetDescriptor()->full_name();
+  AGENT_LOG_DEBUG("To send message: %s", msg_name.c_str());
   PresenterErrorCode error_code = SendMessage(message);
   if (error_code == PresenterErrorCode::kNone) {
     error_code = ReceiveMessage(response);

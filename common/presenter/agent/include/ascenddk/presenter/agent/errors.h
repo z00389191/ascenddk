@@ -71,6 +71,9 @@ enum class PresenterErrorCode {
   // App returned error
   kAppDefinedError,
 
+  // Timeout
+  kSocketTimeout,
+
   // Uncategorized error
   kOther,
 };

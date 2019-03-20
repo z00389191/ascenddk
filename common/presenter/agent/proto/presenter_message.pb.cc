@@ -37,6 +37,16 @@ class HeartbeatMessageDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<HeartbeatMessage>
       _instance;
 } _HeartbeatMessage_default_instance_;
+class CoordinateDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<Coordinate>
+      _instance;
+} _Coordinate_default_instance_;
+class Rectangle_AttrDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<Rectangle_Attr>
+      _instance;
+} _Rectangle_Attr_default_instance_;
 class PresentImageRequestDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<PresentImageRequest>
@@ -114,6 +124,49 @@ void InitDefaultsHeartbeatMessage() {
   ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsHeartbeatMessageImpl);
 }
 
+void InitDefaultsCoordinateImpl() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
+#else
+  ::google::protobuf::internal::InitProtobufDefaults();
+#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  {
+    void* ptr = &::ascend::presenter::proto::_Coordinate_default_instance_;
+    new (ptr) ::ascend::presenter::proto::Coordinate();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::ascend::presenter::proto::Coordinate::InitAsDefaultInstance();
+}
+
+void InitDefaultsCoordinate() {
+  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
+  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsCoordinateImpl);
+}
+
+void InitDefaultsRectangle_AttrImpl() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
+#else
+  ::google::protobuf::internal::InitProtobufDefaults();
+#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  protobuf_presenter_5fmessage_2eproto::InitDefaultsCoordinate();
+  {
+    void* ptr = &::ascend::presenter::proto::_Rectangle_Attr_default_instance_;
+    new (ptr) ::ascend::presenter::proto::Rectangle_Attr();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::ascend::presenter::proto::Rectangle_Attr::InitAsDefaultInstance();
+}
+
+void InitDefaultsRectangle_Attr() {
+  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
+  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsRectangle_AttrImpl);
+}
+
 void InitDefaultsPresentImageRequestImpl() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -122,6 +175,7 @@ void InitDefaultsPresentImageRequestImpl() {
 #else
   ::google::protobuf::internal::InitProtobufDefaults();
 #endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  protobuf_presenter_5fmessage_2eproto::InitDefaultsRectangle_Attr();
   {
     void* ptr = &::ascend::presenter::proto::_PresentImageRequest_default_instance_;
     new (ptr) ::ascend::presenter::proto::PresentImageRequest();
@@ -156,7 +210,7 @@ void InitDefaultsPresentImageResponse() {
   ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsPresentImageResponseImpl);
 }
 
-::google::protobuf::Metadata file_level_metadata[5];
+::google::protobuf::Metadata file_level_metadata[7];
 const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[4];
 
 const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
@@ -180,6 +234,21 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::Coordinate, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::Coordinate, x_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::Coordinate, y_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::Rectangle_Attr, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::Rectangle_Attr, left_top_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::Rectangle_Attr, right_bottom_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::Rectangle_Attr, label_text_),
+  ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::PresentImageRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -188,6 +257,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::PresentImageRequest, width_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::PresentImageRequest, height_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::PresentImageRequest, data_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::PresentImageRequest, rectangle_list_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::proto::PresentImageResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -200,14 +270,18 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 0, -1, sizeof(::ascend::presenter::proto::OpenChannelRequest)},
   { 7, -1, sizeof(::ascend::presenter::proto::OpenChannelResponse)},
   { 14, -1, sizeof(::ascend::presenter::proto::HeartbeatMessage)},
-  { 19, -1, sizeof(::ascend::presenter::proto::PresentImageRequest)},
-  { 28, -1, sizeof(::ascend::presenter::proto::PresentImageResponse)},
+  { 19, -1, sizeof(::ascend::presenter::proto::Coordinate)},
+  { 26, -1, sizeof(::ascend::presenter::proto::Rectangle_Attr)},
+  { 34, -1, sizeof(::ascend::presenter::proto::PresentImageRequest)},
+  { 44, -1, sizeof(::ascend::presenter::proto::PresentImageResponse)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::proto::_OpenChannelRequest_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::proto::_OpenChannelResponse_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::proto::_HeartbeatMessage_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::proto::_Coordinate_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::proto::_Rectangle_Attr_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::proto::_PresentImageRequest_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::proto::_PresentImageResponse_default_instance_),
 };
@@ -228,7 +302,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 5);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 7);
 }
 
 void AddDescriptorsImpl() {
@@ -241,27 +315,33 @@ void AddDescriptorsImpl() {
       "n\n\023OpenChannelResponse\022@\n\nerror_code\030\001 \001"
       "(\0162,.ascend.presenter.proto.OpenChannelE"
       "rrorCode\022\025\n\rerror_message\030\002 \001(\t\"\022\n\020Heart"
-      "beatMessage\"w\n\023PresentImageRequest\0223\n\006fo"
-      "rmat\030\001 \001(\0162#.ascend.presenter.proto.Imag"
-      "eFormat\022\r\n\005width\030\002 \001(\r\022\016\n\006height\030\003 \001(\r\022\014"
-      "\n\004data\030\004 \001(\014\"o\n\024PresentImageResponse\022@\n\n"
-      "error_code\030\001 \001(\0162,.ascend.presenter.prot"
-      "o.PresentDataErrorCode\022\025\n\rerror_message\030"
-      "\002 \001(\t*\245\001\n\024OpenChannelErrorCode\022\031\n\025kOpenC"
-      "hannelErrorNone\020\000\022\"\n\036kOpenChannelErrorNo"
-      "SuchChannel\020\001\022)\n%kOpenChannelErrorChanne"
-      "lAlreadyOpened\020\002\022#\n\026kOpenChannelErrorOth"
-      "er\020\377\377\377\377\377\377\377\377\377\001*P\n\022ChannelContentType\022\034\n\030k"
-      "ChannelContentTypeImage\020\000\022\034\n\030kChannelCon"
-      "tentTypeVideo\020\001*#\n\013ImageFormat\022\024\n\020kImage"
-      "FormatJpeg\020\000*\244\001\n\024PresentDataErrorCode\022\031\n"
-      "\025kPresentDataErrorNone\020\000\022$\n kPresentData"
-      "ErrorUnsupportedType\020\001\022&\n\"kPresentDataEr"
-      "rorUnsupportedFormat\020\002\022#\n\026kPresentDataEr"
-      "rorOther\020\377\377\377\377\377\377\377\377\377\001b\006proto3"
+      "beatMessage\"\"\n\nCoordinate\022\t\n\001x\030\001 \001(\r\022\t\n\001"
+      "y\030\002 \001(\r\"\224\001\n\016Rectangle_Attr\0224\n\010left_top\030\001"
+      " \001(\0132\".ascend.presenter.proto.Coordinate"
+      "\0228\n\014right_bottom\030\002 \001(\0132\".ascend.presente"
+      "r.proto.Coordinate\022\022\n\nlabel_text\030\003 \001(\t\"\267"
+      "\001\n\023PresentImageRequest\0223\n\006format\030\001 \001(\0162#"
+      ".ascend.presenter.proto.ImageFormat\022\r\n\005w"
+      "idth\030\002 \001(\r\022\016\n\006height\030\003 \001(\r\022\014\n\004data\030\004 \001(\014"
+      "\022>\n\016rectangle_list\030\005 \003(\0132&.ascend.presen"
+      "ter.proto.Rectangle_Attr\"o\n\024PresentImage"
+      "Response\022@\n\nerror_code\030\001 \001(\0162,.ascend.pr"
+      "esenter.proto.PresentDataErrorCode\022\025\n\rer"
+      "ror_message\030\002 \001(\t*\245\001\n\024OpenChannelErrorCo"
+      "de\022\031\n\025kOpenChannelErrorNone\020\000\022\"\n\036kOpenCh"
+      "annelErrorNoSuchChannel\020\001\022)\n%kOpenChanne"
+      "lErrorChannelAlreadyOpened\020\002\022#\n\026kOpenCha"
+      "nnelErrorOther\020\377\377\377\377\377\377\377\377\377\001*P\n\022ChannelCont"
+      "entType\022\034\n\030kChannelContentTypeImage\020\000\022\034\n"
+      "\030kChannelContentTypeVideo\020\001*#\n\013ImageForm"
+      "at\022\024\n\020kImageFormatJpeg\020\000*\244\001\n\024PresentData"
+      "ErrorCode\022\031\n\025kPresentDataErrorNone\020\000\022$\n "
+      "kPresentDataErrorUnsupportedType\020\001\022&\n\"kP"
+      "resentDataErrorUnsupportedFormat\020\002\022#\n\026kP"
+      "resentDataErrorOther\020\377\377\377\377\377\377\377\377\377\001b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 987);
+      descriptor, 1239);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presenter_message.proto", &protobuf_RegisterTypes);
 }
@@ -1130,6 +1210,643 @@ void HeartbeatMessage::InternalSwap(HeartbeatMessage* other) {
 
 // ===================================================================
 
+void Coordinate::InitAsDefaultInstance() {
+}
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Coordinate::kXFieldNumber;
+const int Coordinate::kYFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Coordinate::Coordinate()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    ::protobuf_presenter_5fmessage_2eproto::InitDefaultsCoordinate();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:ascend.presenter.proto.Coordinate)
+}
+Coordinate::Coordinate(const Coordinate& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&x_, &from.x_,
+    static_cast<size_t>(reinterpret_cast<char*>(&y_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(y_));
+  // @@protoc_insertion_point(copy_constructor:ascend.presenter.proto.Coordinate)
+}
+
+void Coordinate::SharedCtor() {
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&y_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(y_));
+  _cached_size_ = 0;
+}
+
+Coordinate::~Coordinate() {
+  // @@protoc_insertion_point(destructor:ascend.presenter.proto.Coordinate)
+  SharedDtor();
+}
+
+void Coordinate::SharedDtor() {
+}
+
+void Coordinate::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Coordinate::descriptor() {
+  ::protobuf_presenter_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_presenter_5fmessage_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
+}
+
+const Coordinate& Coordinate::default_instance() {
+  ::protobuf_presenter_5fmessage_2eproto::InitDefaultsCoordinate();
+  return *internal_default_instance();
+}
+
+Coordinate* Coordinate::New(::google::protobuf::Arena* arena) const {
+  Coordinate* n = new Coordinate;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Coordinate::Clear() {
+// @@protoc_insertion_point(message_clear_start:ascend.presenter.proto.Coordinate)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&y_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(y_));
+  _internal_metadata_.Clear();
+}
+
+bool Coordinate::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:ascend.presenter.proto.Coordinate)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // uint32 x = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &x_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // uint32 y = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &y_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:ascend.presenter.proto.Coordinate)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:ascend.presenter.proto.Coordinate)
+  return false;
+#undef DO_
+}
+
+void Coordinate::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:ascend.presenter.proto.Coordinate)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint32 x = 1;
+  if (this->x() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->x(), output);
+  }
+
+  // uint32 y = 2;
+  if (this->y() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->y(), output);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  }
+  // @@protoc_insertion_point(serialize_end:ascend.presenter.proto.Coordinate)
+}
+
+::google::protobuf::uint8* Coordinate::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic; // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:ascend.presenter.proto.Coordinate)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint32 x = 1;
+  if (this->x() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->x(), target);
+  }
+
+  // uint32 y = 2;
+  if (this->y() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->y(), target);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ascend.presenter.proto.Coordinate)
+  return target;
+}
+
+size_t Coordinate::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:ascend.presenter.proto.Coordinate)
+  size_t total_size = 0;
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+  }
+  // uint32 x = 1;
+  if (this->x() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt32Size(
+        this->x());
+  }
+
+  // uint32 y = 2;
+  if (this->y() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt32Size(
+        this->y());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Coordinate::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:ascend.presenter.proto.Coordinate)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Coordinate* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const Coordinate>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:ascend.presenter.proto.Coordinate)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:ascend.presenter.proto.Coordinate)
+    MergeFrom(*source);
+  }
+}
+
+void Coordinate::MergeFrom(const Coordinate& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:ascend.presenter.proto.Coordinate)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.x() != 0) {
+    set_x(from.x());
+  }
+  if (from.y() != 0) {
+    set_y(from.y());
+  }
+}
+
+void Coordinate::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:ascend.presenter.proto.Coordinate)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Coordinate::CopyFrom(const Coordinate& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:ascend.presenter.proto.Coordinate)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Coordinate::IsInitialized() const {
+  return true;
+}
+
+void Coordinate::Swap(Coordinate* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Coordinate::InternalSwap(Coordinate* other) {
+  using std::swap;
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata Coordinate::GetMetadata() const {
+  protobuf_presenter_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_presenter_5fmessage_2eproto::file_level_metadata[kIndexInFileMessages];
+}
+
+
+// ===================================================================
+
+void Rectangle_Attr::InitAsDefaultInstance() {
+  ::ascend::presenter::proto::_Rectangle_Attr_default_instance_._instance.get_mutable()->left_top_ = const_cast< ::ascend::presenter::proto::Coordinate*>(
+      ::ascend::presenter::proto::Coordinate::internal_default_instance());
+  ::ascend::presenter::proto::_Rectangle_Attr_default_instance_._instance.get_mutable()->right_bottom_ = const_cast< ::ascend::presenter::proto::Coordinate*>(
+      ::ascend::presenter::proto::Coordinate::internal_default_instance());
+}
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Rectangle_Attr::kLeftTopFieldNumber;
+const int Rectangle_Attr::kRightBottomFieldNumber;
+const int Rectangle_Attr::kLabelTextFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Rectangle_Attr::Rectangle_Attr()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    ::protobuf_presenter_5fmessage_2eproto::InitDefaultsRectangle_Attr();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:ascend.presenter.proto.Rectangle_Attr)
+}
+Rectangle_Attr::Rectangle_Attr(const Rectangle_Attr& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  label_text_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.label_text().size() > 0) {
+    label_text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.label_text_);
+  }
+  if (from.has_left_top()) {
+    left_top_ = new ::ascend::presenter::proto::Coordinate(*from.left_top_);
+  } else {
+    left_top_ = NULL;
+  }
+  if (from.has_right_bottom()) {
+    right_bottom_ = new ::ascend::presenter::proto::Coordinate(*from.right_bottom_);
+  } else {
+    right_bottom_ = NULL;
+  }
+  // @@protoc_insertion_point(copy_constructor:ascend.presenter.proto.Rectangle_Attr)
+}
+
+void Rectangle_Attr::SharedCtor() {
+  label_text_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(&left_top_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&right_bottom_) -
+      reinterpret_cast<char*>(&left_top_)) + sizeof(right_bottom_));
+  _cached_size_ = 0;
+}
+
+Rectangle_Attr::~Rectangle_Attr() {
+  // @@protoc_insertion_point(destructor:ascend.presenter.proto.Rectangle_Attr)
+  SharedDtor();
+}
+
+void Rectangle_Attr::SharedDtor() {
+  label_text_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (this != internal_default_instance()) delete left_top_;
+  if (this != internal_default_instance()) delete right_bottom_;
+}
+
+void Rectangle_Attr::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Rectangle_Attr::descriptor() {
+  ::protobuf_presenter_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_presenter_5fmessage_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
+}
+
+const Rectangle_Attr& Rectangle_Attr::default_instance() {
+  ::protobuf_presenter_5fmessage_2eproto::InitDefaultsRectangle_Attr();
+  return *internal_default_instance();
+}
+
+Rectangle_Attr* Rectangle_Attr::New(::google::protobuf::Arena* arena) const {
+  Rectangle_Attr* n = new Rectangle_Attr;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Rectangle_Attr::Clear() {
+// @@protoc_insertion_point(message_clear_start:ascend.presenter.proto.Rectangle_Attr)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  label_text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == NULL && left_top_ != NULL) {
+    delete left_top_;
+  }
+  left_top_ = NULL;
+  if (GetArenaNoVirtual() == NULL && right_bottom_ != NULL) {
+    delete right_bottom_;
+  }
+  right_bottom_ = NULL;
+  _internal_metadata_.Clear();
+}
+
+bool Rectangle_Attr::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:ascend.presenter.proto.Rectangle_Attr)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // .ascend.presenter.proto.Coordinate left_top = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_left_top()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .ascend.presenter.proto.Coordinate right_bottom = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_right_bottom()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string label_text = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_label_text()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->label_text().data(), static_cast<int>(this->label_text().length()),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "ascend.presenter.proto.Rectangle_Attr.label_text"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:ascend.presenter.proto.Rectangle_Attr)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:ascend.presenter.proto.Rectangle_Attr)
+  return false;
+#undef DO_
+}
+
+void Rectangle_Attr::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:ascend.presenter.proto.Rectangle_Attr)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .ascend.presenter.proto.Coordinate left_top = 1;
+  if (this->has_left_top()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, *this->left_top_, output);
+  }
+
+  // .ascend.presenter.proto.Coordinate right_bottom = 2;
+  if (this->has_right_bottom()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, *this->right_bottom_, output);
+  }
+
+  // string label_text = 3;
+  if (this->label_text().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->label_text().data(), static_cast<int>(this->label_text().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "ascend.presenter.proto.Rectangle_Attr.label_text");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      3, this->label_text(), output);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  }
+  // @@protoc_insertion_point(serialize_end:ascend.presenter.proto.Rectangle_Attr)
+}
+
+::google::protobuf::uint8* Rectangle_Attr::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic; // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:ascend.presenter.proto.Rectangle_Attr)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .ascend.presenter.proto.Coordinate left_top = 1;
+  if (this->has_left_top()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        1, *this->left_top_, deterministic, target);
+  }
+
+  // .ascend.presenter.proto.Coordinate right_bottom = 2;
+  if (this->has_right_bottom()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        2, *this->right_bottom_, deterministic, target);
+  }
+
+  // string label_text = 3;
+  if (this->label_text().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->label_text().data(), static_cast<int>(this->label_text().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "ascend.presenter.proto.Rectangle_Attr.label_text");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->label_text(), target);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ascend.presenter.proto.Rectangle_Attr)
+  return target;
+}
+
+size_t Rectangle_Attr::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:ascend.presenter.proto.Rectangle_Attr)
+  size_t total_size = 0;
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+  }
+  // string label_text = 3;
+  if (this->label_text().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->label_text());
+  }
+
+  // .ascend.presenter.proto.Coordinate left_top = 1;
+  if (this->has_left_top()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSize(
+        *this->left_top_);
+  }
+
+  // .ascend.presenter.proto.Coordinate right_bottom = 2;
+  if (this->has_right_bottom()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSize(
+        *this->right_bottom_);
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Rectangle_Attr::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:ascend.presenter.proto.Rectangle_Attr)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Rectangle_Attr* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const Rectangle_Attr>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:ascend.presenter.proto.Rectangle_Attr)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:ascend.presenter.proto.Rectangle_Attr)
+    MergeFrom(*source);
+  }
+}
+
+void Rectangle_Attr::MergeFrom(const Rectangle_Attr& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:ascend.presenter.proto.Rectangle_Attr)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.label_text().size() > 0) {
+
+    label_text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.label_text_);
+  }
+  if (from.has_left_top()) {
+    mutable_left_top()->::ascend::presenter::proto::Coordinate::MergeFrom(from.left_top());
+  }
+  if (from.has_right_bottom()) {
+    mutable_right_bottom()->::ascend::presenter::proto::Coordinate::MergeFrom(from.right_bottom());
+  }
+}
+
+void Rectangle_Attr::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:ascend.presenter.proto.Rectangle_Attr)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Rectangle_Attr::CopyFrom(const Rectangle_Attr& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:ascend.presenter.proto.Rectangle_Attr)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Rectangle_Attr::IsInitialized() const {
+  return true;
+}
+
+void Rectangle_Attr::Swap(Rectangle_Attr* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Rectangle_Attr::InternalSwap(Rectangle_Attr* other) {
+  using std::swap;
+  label_text_.Swap(&other->label_text_);
+  swap(left_top_, other->left_top_);
+  swap(right_bottom_, other->right_bottom_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata Rectangle_Attr::GetMetadata() const {
+  protobuf_presenter_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_presenter_5fmessage_2eproto::file_level_metadata[kIndexInFileMessages];
+}
+
+
+// ===================================================================
+
 void PresentImageRequest::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -1137,6 +1854,7 @@ const int PresentImageRequest::kFormatFieldNumber;
 const int PresentImageRequest::kWidthFieldNumber;
 const int PresentImageRequest::kHeightFieldNumber;
 const int PresentImageRequest::kDataFieldNumber;
+const int PresentImageRequest::kRectangleListFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PresentImageRequest::PresentImageRequest()
@@ -1150,6 +1868,7 @@ PresentImageRequest::PresentImageRequest()
 PresentImageRequest::PresentImageRequest(const PresentImageRequest& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
+      rectangle_list_(from.rectangle_list_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   data_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
@@ -1208,6 +1927,7 @@ void PresentImageRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  rectangle_list_.Clear();
   data_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&format_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&height_) -
@@ -1280,6 +2000,17 @@ bool PresentImageRequest::MergePartialFromCodedStream(
         break;
       }
 
+      // repeated .ascend.presenter.proto.Rectangle_Attr rectangle_list = 5;
+      case 5: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_rectangle_list()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -1328,6 +2059,13 @@ void PresentImageRequest::SerializeWithCachedSizes(
       4, this->data(), output);
   }
 
+  // repeated .ascend.presenter.proto.Rectangle_Attr rectangle_list = 5;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->rectangle_list_size()); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, this->rectangle_list(static_cast<int>(i)), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -1365,6 +2103,14 @@ void PresentImageRequest::SerializeWithCachedSizes(
         4, this->data(), target);
   }
 
+  // repeated .ascend.presenter.proto.Rectangle_Attr rectangle_list = 5;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->rectangle_list_size()); i < n; i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        5, this->rectangle_list(static_cast<int>(i)), deterministic, target);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -1382,6 +2128,17 @@ size_t PresentImageRequest::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
+  // repeated .ascend.presenter.proto.Rectangle_Attr rectangle_list = 5;
+  {
+    unsigned int count = static_cast<unsigned int>(this->rectangle_list_size());
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSize(
+          this->rectangle_list(static_cast<int>(i)));
+    }
+  }
+
   // bytes data = 4;
   if (this->data().size() > 0) {
     total_size += 1 +
@@ -1438,6 +2195,7 @@ void PresentImageRequest::MergeFrom(const PresentImageRequest& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  rectangle_list_.MergeFrom(from.rectangle_list_);
   if (from.data().size() > 0) {
 
     data_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.data_);
@@ -1477,6 +2235,7 @@ void PresentImageRequest::Swap(PresentImageRequest* other) {
 }
 void PresentImageRequest::InternalSwap(PresentImageRequest* other) {
   using std::swap;
+  rectangle_list_.InternalSwap(&other->rectangle_list_);
   data_.Swap(&other->data_);
   swap(format_, other->format_);
   swap(width_, other->width_);

@@ -25,7 +25,8 @@
         <div class="video_fps" id='fpswapper' hidden><p><span> channel name: {{ channel_name }}    </span> <span>&nbsp;&nbsp;&nbsp;&nbsp;fps:</span><span id='fpsval'></span></p></div>
         <div class="video_inner">
             <img src="/static/images/loading.gif" id = "loading"   board = "1" alt=""/>
-            <img  id = "load_media" hidden   width = "1024px" board = "1" alt=""/>
+            <!-- <img  id = "load_media" hidden   width = "1024px" board = "1" alt=""/> -->
+            <canvas id="canvas"></canvas>
         </div>
     </div>
 </div>
@@ -33,9 +34,15 @@
 <script src="/static/js/jquery-1.10.2.min.js"></script>
 <script>
 
-
+var canvas=document.getElementById("canvas")
+var ctx=canvas.getContext("2d")
+$('#fpswapper').hide()
+$('#loading').hide()
 
 function startViewVideo(){
+    $('#loading').show()
+    $('#canvas').hide()
+
     var image = new Image();
     var wsProtocol = "ws://";
     if (window.location.protocol == "https:"){
@@ -52,15 +59,58 @@ function startViewVideo(){
     var timestart = 0;
 
     ws.onmessage = function (evt) {
+        $('#loading').hide()
+        $('#canvas').show()
         var data = JSON.parse(evt.data)
+        var rectangles = []
         if ('ok' == data['status']){
             $('#fpsval').text(data.fps);
             $('#loading').hide();
-            $('#load_media').show();
+            // $('#load_media').show();
             var src = "data:image/jpeg;base64," + data['image'];
-            $('#load_media').attr('src', src);
+            // $('#load_media').attr('src', src);
             if (data['type'] == 'video'){
                 $('#fpswapper').show();
+                rectangles = data['rectangle_list']
+            }
+
+            var img = new Image()
+            img.src = src
+            img.onload=function(){
+                canvas.setAttribute("width",img.width)
+                    canvas.setAttribute("height",img.height)
+                    ctx.strokeStyle="blue"
+                    ctx.font="30px serif"
+                    ctx.fillStyle="blue"
+                    ctx.drawImage(img,0,0)
+                    for (var index in rectangles){
+                        var pos= rectangles[index].slice(0,4)  // test data
+                        var msg = rectangles[index].slice(4,5)
+                        //add space between msg and face
+                        //if upper space is not enough show the msg at the bottom
+                        if(50>pos[1]){
+                            ctx.fillText(msg,pos[0],pos[3]+50)
+                        }
+                        else{
+                            ctx.fillText(msg,pos[0],pos[1]-10)
+                        }
+                        ctx.beginPath()
+                        // 1/3 space draw line
+                        ctx.moveTo(pos[0],pos[1])
+                        ctx.lineTo(pos[0],pos[3]/3+pos[1]*2/3)
+                        ctx.moveTo(pos[0],pos[3]*2/3+pos[1]/3)
+                        ctx.lineTo(pos[0],pos[3])
+                        ctx.lineTo(pos[0]*2/3+pos[2]/3,pos[3])
+                        ctx.moveTo(pos[0]/3+pos[2]*2/3,pos[3])
+                        ctx.lineTo(pos[2],pos[3])
+                        ctx.lineTo(pos[2],pos[3]*2/3+pos[1]/3)
+                        ctx.moveTo(pos[2],pos[3]/3+pos[1]*2/3)
+                        ctx.lineTo(pos[2],pos[1])
+                        ctx.lineTo(pos[2]*2/3+pos[0]/3,pos[1])
+                        ctx.moveTo(pos[0]*2/3+pos[2]/3,pos[1])
+                        ctx.lineTo(pos[0],pos[1])
+                        ctx.stroke()
+                    }
             }
            }
         ws.send('next');

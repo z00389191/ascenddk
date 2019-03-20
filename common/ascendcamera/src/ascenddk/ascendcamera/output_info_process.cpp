@@ -212,16 +212,31 @@ int OutputInfoProcess::OutputToPresenter(unsigned char *buf, int size) {
   image_para.size = size;
 
   // send data to presenter.
-  ret = static_cast<int>(ascend::presenter::PresentImage(presenter_channel_,
+  for (int count = 0; count < kMaxOutputRetryNum; count++) {
+    ret = static_cast<int>(ascend::presenter::PresentImage(presenter_channel_,
                                                          image_para));
+    
+    if (ret == static_cast<int>(ascend::presenter::PresenterErrorCode::kNone)
+        || ret == static_cast<int>(
+          ascend::presenter::PresenterErrorCode::kInvalidParam)) {
+      break;
+    }
+  
+    ASC_LOG_WARN(
+        "Fail to send data to presenter,ret = %d,parameter format:%d "
+        "width:%d height:%d size:%d retry times:%d", ret, image_para.format,
+        image_para.width, image_para.height, image_para.size, count);
+    
+    sleep(1); // sleep 1 second and then retry  
+  }
+        
   if (ret != static_cast<int>(ascend::presenter::PresenterErrorCode::kNone)) {
     ASC_LOG_ERROR(
-        "Failed to send presenter,ret = %d,parameter is format:%d "
+        "Fail to send data to presenter,ret = %d,parameter format:%d "
         "width:%d height:%d size:%d", ret, image_para.format, image_para.width,
         image_para.height, image_para.size);
-
-    // delete presenter channel
-    delete presenter_channel_;
+    
+    delete presenter_channel_; // delete presenter channel
     presenter_channel_ = nullptr;
   }
 

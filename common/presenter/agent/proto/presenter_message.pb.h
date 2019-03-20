@@ -37,7 +37,7 @@ namespace protobuf_presenter_5fmessage_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[5];
+  static const ::google::protobuf::internal::ParseTable schema[7];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -49,6 +49,10 @@ void InitDefaultsOpenChannelResponseImpl();
 void InitDefaultsOpenChannelResponse();
 void InitDefaultsHeartbeatMessageImpl();
 void InitDefaultsHeartbeatMessage();
+void InitDefaultsCoordinateImpl();
+void InitDefaultsCoordinate();
+void InitDefaultsRectangle_AttrImpl();
+void InitDefaultsRectangle_Attr();
 void InitDefaultsPresentImageRequestImpl();
 void InitDefaultsPresentImageRequest();
 void InitDefaultsPresentImageResponseImpl();
@@ -57,6 +61,8 @@ inline void InitDefaults() {
   InitDefaultsOpenChannelRequest();
   InitDefaultsOpenChannelResponse();
   InitDefaultsHeartbeatMessage();
+  InitDefaultsCoordinate();
+  InitDefaultsRectangle_Attr();
   InitDefaultsPresentImageRequest();
   InitDefaultsPresentImageResponse();
 }
@@ -64,6 +70,9 @@ inline void InitDefaults() {
 namespace ascend {
 namespace presenter {
 namespace proto {
+class Coordinate;
+class CoordinateDefaultTypeInternal;
+extern CoordinateDefaultTypeInternal _Coordinate_default_instance_;
 class HeartbeatMessage;
 class HeartbeatMessageDefaultTypeInternal;
 extern HeartbeatMessageDefaultTypeInternal _HeartbeatMessage_default_instance_;
@@ -79,6 +88,9 @@ extern PresentImageRequestDefaultTypeInternal _PresentImageRequest_default_insta
 class PresentImageResponse;
 class PresentImageResponseDefaultTypeInternal;
 extern PresentImageResponseDefaultTypeInternal _PresentImageResponse_default_instance_;
+class Rectangle_Attr;
+class Rectangle_AttrDefaultTypeInternal;
+extern Rectangle_AttrDefaultTypeInternal _Rectangle_Attr_default_instance_;
 }  // namespace proto
 }  // namespace presenter
 }  // namespace ascend
@@ -495,6 +507,239 @@ class HeartbeatMessage : public ::google::protobuf::Message /* @@protoc_insertio
 };
 // -------------------------------------------------------------------
 
+class Coordinate : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ascend.presenter.proto.Coordinate) */ {
+ public:
+  Coordinate();
+  virtual ~Coordinate();
+
+  Coordinate(const Coordinate& from);
+
+  inline Coordinate& operator=(const Coordinate& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  Coordinate(Coordinate&& from) noexcept
+    : Coordinate() {
+    *this = ::std::move(from);
+  }
+
+  inline Coordinate& operator=(Coordinate&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Coordinate& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Coordinate* internal_default_instance() {
+    return reinterpret_cast<const Coordinate*>(
+               &_Coordinate_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    3;
+
+  void Swap(Coordinate* other);
+  friend void swap(Coordinate& a, Coordinate& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Coordinate* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Coordinate* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const Coordinate& from);
+  void MergeFrom(const Coordinate& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(Coordinate* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // uint32 x = 1;
+  void clear_x();
+  static const int kXFieldNumber = 1;
+  ::google::protobuf::uint32 x() const;
+  void set_x(::google::protobuf::uint32 value);
+
+  // uint32 y = 2;
+  void clear_y();
+  static const int kYFieldNumber = 2;
+  ::google::protobuf::uint32 y() const;
+  void set_y(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:ascend.presenter.proto.Coordinate)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::uint32 x_;
+  ::google::protobuf::uint32 y_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_presenter_5fmessage_2eproto::TableStruct;
+  friend void ::protobuf_presenter_5fmessage_2eproto::InitDefaultsCoordinateImpl();
+};
+// -------------------------------------------------------------------
+
+class Rectangle_Attr : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ascend.presenter.proto.Rectangle_Attr) */ {
+ public:
+  Rectangle_Attr();
+  virtual ~Rectangle_Attr();
+
+  Rectangle_Attr(const Rectangle_Attr& from);
+
+  inline Rectangle_Attr& operator=(const Rectangle_Attr& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  Rectangle_Attr(Rectangle_Attr&& from) noexcept
+    : Rectangle_Attr() {
+    *this = ::std::move(from);
+  }
+
+  inline Rectangle_Attr& operator=(Rectangle_Attr&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Rectangle_Attr& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Rectangle_Attr* internal_default_instance() {
+    return reinterpret_cast<const Rectangle_Attr*>(
+               &_Rectangle_Attr_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    4;
+
+  void Swap(Rectangle_Attr* other);
+  friend void swap(Rectangle_Attr& a, Rectangle_Attr& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Rectangle_Attr* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Rectangle_Attr* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const Rectangle_Attr& from);
+  void MergeFrom(const Rectangle_Attr& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(Rectangle_Attr* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string label_text = 3;
+  void clear_label_text();
+  static const int kLabelTextFieldNumber = 3;
+  const ::std::string& label_text() const;
+  void set_label_text(const ::std::string& value);
+  #if LANG_CXX11
+  void set_label_text(::std::string&& value);
+  #endif
+  void set_label_text(const char* value);
+  void set_label_text(const char* value, size_t size);
+  ::std::string* mutable_label_text();
+  ::std::string* release_label_text();
+  void set_allocated_label_text(::std::string* label_text);
+
+  // .ascend.presenter.proto.Coordinate left_top = 1;
+  bool has_left_top() const;
+  void clear_left_top();
+  static const int kLeftTopFieldNumber = 1;
+  const ::ascend::presenter::proto::Coordinate& left_top() const;
+  ::ascend::presenter::proto::Coordinate* release_left_top();
+  ::ascend::presenter::proto::Coordinate* mutable_left_top();
+  void set_allocated_left_top(::ascend::presenter::proto::Coordinate* left_top);
+
+  // .ascend.presenter.proto.Coordinate right_bottom = 2;
+  bool has_right_bottom() const;
+  void clear_right_bottom();
+  static const int kRightBottomFieldNumber = 2;
+  const ::ascend::presenter::proto::Coordinate& right_bottom() const;
+  ::ascend::presenter::proto::Coordinate* release_right_bottom();
+  ::ascend::presenter::proto::Coordinate* mutable_right_bottom();
+  void set_allocated_right_bottom(::ascend::presenter::proto::Coordinate* right_bottom);
+
+  // @@protoc_insertion_point(class_scope:ascend.presenter.proto.Rectangle_Attr)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr label_text_;
+  ::ascend::presenter::proto::Coordinate* left_top_;
+  ::ascend::presenter::proto::Coordinate* right_bottom_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_presenter_5fmessage_2eproto::TableStruct;
+  friend void ::protobuf_presenter_5fmessage_2eproto::InitDefaultsRectangle_AttrImpl();
+};
+// -------------------------------------------------------------------
+
 class PresentImageRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ascend.presenter.proto.PresentImageRequest) */ {
  public:
   PresentImageRequest();
@@ -530,7 +775,7 @@ class PresentImageRequest : public ::google::protobuf::Message /* @@protoc_inser
                &_PresentImageRequest_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    3;
+    5;
 
   void Swap(PresentImageRequest* other);
   friend void swap(PresentImageRequest& a, PresentImageRequest& b) {
@@ -577,6 +822,18 @@ class PresentImageRequest : public ::google::protobuf::Message /* @@protoc_inser
 
   // accessors -------------------------------------------------------
 
+  // repeated .ascend.presenter.proto.Rectangle_Attr rectangle_list = 5;
+  int rectangle_list_size() const;
+  void clear_rectangle_list();
+  static const int kRectangleListFieldNumber = 5;
+  const ::ascend::presenter::proto::Rectangle_Attr& rectangle_list(int index) const;
+  ::ascend::presenter::proto::Rectangle_Attr* mutable_rectangle_list(int index);
+  ::ascend::presenter::proto::Rectangle_Attr* add_rectangle_list();
+  ::google::protobuf::RepeatedPtrField< ::ascend::presenter::proto::Rectangle_Attr >*
+      mutable_rectangle_list();
+  const ::google::protobuf::RepeatedPtrField< ::ascend::presenter::proto::Rectangle_Attr >&
+      rectangle_list() const;
+
   // bytes data = 4;
   void clear_data();
   static const int kDataFieldNumber = 4;
@@ -613,6 +870,7 @@ class PresentImageRequest : public ::google::protobuf::Message /* @@protoc_inser
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::ascend::presenter::proto::Rectangle_Attr > rectangle_list_;
   ::google::protobuf::internal::ArenaStringPtr data_;
   int format_;
   ::google::protobuf::uint32 width_;
@@ -658,7 +916,7 @@ class PresentImageResponse : public ::google::protobuf::Message /* @@protoc_inse
                &_PresentImageResponse_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    4;
+    6;
 
   void Swap(PresentImageResponse* other);
   friend void swap(PresentImageResponse& a, PresentImageResponse& b) {
@@ -890,6 +1148,195 @@ inline void OpenChannelResponse::set_allocated_error_message(::std::string* erro
 
 // -------------------------------------------------------------------
 
+// Coordinate
+
+// uint32 x = 1;
+inline void Coordinate::clear_x() {
+  x_ = 0u;
+}
+inline ::google::protobuf::uint32 Coordinate::x() const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.proto.Coordinate.x)
+  return x_;
+}
+inline void Coordinate::set_x(::google::protobuf::uint32 value) {
+  
+  x_ = value;
+  // @@protoc_insertion_point(field_set:ascend.presenter.proto.Coordinate.x)
+}
+
+// uint32 y = 2;
+inline void Coordinate::clear_y() {
+  y_ = 0u;
+}
+inline ::google::protobuf::uint32 Coordinate::y() const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.proto.Coordinate.y)
+  return y_;
+}
+inline void Coordinate::set_y(::google::protobuf::uint32 value) {
+  
+  y_ = value;
+  // @@protoc_insertion_point(field_set:ascend.presenter.proto.Coordinate.y)
+}
+
+// -------------------------------------------------------------------
+
+// Rectangle_Attr
+
+// .ascend.presenter.proto.Coordinate left_top = 1;
+inline bool Rectangle_Attr::has_left_top() const {
+  return this != internal_default_instance() && left_top_ != NULL;
+}
+inline void Rectangle_Attr::clear_left_top() {
+  if (GetArenaNoVirtual() == NULL && left_top_ != NULL) {
+    delete left_top_;
+  }
+  left_top_ = NULL;
+}
+inline const ::ascend::presenter::proto::Coordinate& Rectangle_Attr::left_top() const {
+  const ::ascend::presenter::proto::Coordinate* p = left_top_;
+  // @@protoc_insertion_point(field_get:ascend.presenter.proto.Rectangle_Attr.left_top)
+  return p != NULL ? *p : *reinterpret_cast<const ::ascend::presenter::proto::Coordinate*>(
+      &::ascend::presenter::proto::_Coordinate_default_instance_);
+}
+inline ::ascend::presenter::proto::Coordinate* Rectangle_Attr::release_left_top() {
+  // @@protoc_insertion_point(field_release:ascend.presenter.proto.Rectangle_Attr.left_top)
+  
+  ::ascend::presenter::proto::Coordinate* temp = left_top_;
+  left_top_ = NULL;
+  return temp;
+}
+inline ::ascend::presenter::proto::Coordinate* Rectangle_Attr::mutable_left_top() {
+  
+  if (left_top_ == NULL) {
+    left_top_ = new ::ascend::presenter::proto::Coordinate;
+  }
+  // @@protoc_insertion_point(field_mutable:ascend.presenter.proto.Rectangle_Attr.left_top)
+  return left_top_;
+}
+inline void Rectangle_Attr::set_allocated_left_top(::ascend::presenter::proto::Coordinate* left_top) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete left_top_;
+  }
+  if (left_top) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      left_top = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, left_top, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  left_top_ = left_top;
+  // @@protoc_insertion_point(field_set_allocated:ascend.presenter.proto.Rectangle_Attr.left_top)
+}
+
+// .ascend.presenter.proto.Coordinate right_bottom = 2;
+inline bool Rectangle_Attr::has_right_bottom() const {
+  return this != internal_default_instance() && right_bottom_ != NULL;
+}
+inline void Rectangle_Attr::clear_right_bottom() {
+  if (GetArenaNoVirtual() == NULL && right_bottom_ != NULL) {
+    delete right_bottom_;
+  }
+  right_bottom_ = NULL;
+}
+inline const ::ascend::presenter::proto::Coordinate& Rectangle_Attr::right_bottom() const {
+  const ::ascend::presenter::proto::Coordinate* p = right_bottom_;
+  // @@protoc_insertion_point(field_get:ascend.presenter.proto.Rectangle_Attr.right_bottom)
+  return p != NULL ? *p : *reinterpret_cast<const ::ascend::presenter::proto::Coordinate*>(
+      &::ascend::presenter::proto::_Coordinate_default_instance_);
+}
+inline ::ascend::presenter::proto::Coordinate* Rectangle_Attr::release_right_bottom() {
+  // @@protoc_insertion_point(field_release:ascend.presenter.proto.Rectangle_Attr.right_bottom)
+  
+  ::ascend::presenter::proto::Coordinate* temp = right_bottom_;
+  right_bottom_ = NULL;
+  return temp;
+}
+inline ::ascend::presenter::proto::Coordinate* Rectangle_Attr::mutable_right_bottom() {
+  
+  if (right_bottom_ == NULL) {
+    right_bottom_ = new ::ascend::presenter::proto::Coordinate;
+  }
+  // @@protoc_insertion_point(field_mutable:ascend.presenter.proto.Rectangle_Attr.right_bottom)
+  return right_bottom_;
+}
+inline void Rectangle_Attr::set_allocated_right_bottom(::ascend::presenter::proto::Coordinate* right_bottom) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete right_bottom_;
+  }
+  if (right_bottom) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      right_bottom = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, right_bottom, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  right_bottom_ = right_bottom;
+  // @@protoc_insertion_point(field_set_allocated:ascend.presenter.proto.Rectangle_Attr.right_bottom)
+}
+
+// string label_text = 3;
+inline void Rectangle_Attr::clear_label_text() {
+  label_text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Rectangle_Attr::label_text() const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.proto.Rectangle_Attr.label_text)
+  return label_text_.GetNoArena();
+}
+inline void Rectangle_Attr::set_label_text(const ::std::string& value) {
+  
+  label_text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ascend.presenter.proto.Rectangle_Attr.label_text)
+}
+#if LANG_CXX11
+inline void Rectangle_Attr::set_label_text(::std::string&& value) {
+  
+  label_text_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ascend.presenter.proto.Rectangle_Attr.label_text)
+}
+#endif
+inline void Rectangle_Attr::set_label_text(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  label_text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ascend.presenter.proto.Rectangle_Attr.label_text)
+}
+inline void Rectangle_Attr::set_label_text(const char* value, size_t size) {
+  
+  label_text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ascend.presenter.proto.Rectangle_Attr.label_text)
+}
+inline ::std::string* Rectangle_Attr::mutable_label_text() {
+  
+  // @@protoc_insertion_point(field_mutable:ascend.presenter.proto.Rectangle_Attr.label_text)
+  return label_text_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Rectangle_Attr::release_label_text() {
+  // @@protoc_insertion_point(field_release:ascend.presenter.proto.Rectangle_Attr.label_text)
+  
+  return label_text_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Rectangle_Attr::set_allocated_label_text(::std::string* label_text) {
+  if (label_text != NULL) {
+    
+  } else {
+    
+  }
+  label_text_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), label_text);
+  // @@protoc_insertion_point(field_set_allocated:ascend.presenter.proto.Rectangle_Attr.label_text)
+}
+
+// -------------------------------------------------------------------
+
 // PresentImageRequest
 
 // .ascend.presenter.proto.ImageFormat format = 1;
@@ -987,6 +1434,36 @@ inline void PresentImageRequest::set_allocated_data(::std::string* data) {
   // @@protoc_insertion_point(field_set_allocated:ascend.presenter.proto.PresentImageRequest.data)
 }
 
+// repeated .ascend.presenter.proto.Rectangle_Attr rectangle_list = 5;
+inline int PresentImageRequest::rectangle_list_size() const {
+  return rectangle_list_.size();
+}
+inline void PresentImageRequest::clear_rectangle_list() {
+  rectangle_list_.Clear();
+}
+inline const ::ascend::presenter::proto::Rectangle_Attr& PresentImageRequest::rectangle_list(int index) const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.proto.PresentImageRequest.rectangle_list)
+  return rectangle_list_.Get(index);
+}
+inline ::ascend::presenter::proto::Rectangle_Attr* PresentImageRequest::mutable_rectangle_list(int index) {
+  // @@protoc_insertion_point(field_mutable:ascend.presenter.proto.PresentImageRequest.rectangle_list)
+  return rectangle_list_.Mutable(index);
+}
+inline ::ascend::presenter::proto::Rectangle_Attr* PresentImageRequest::add_rectangle_list() {
+  // @@protoc_insertion_point(field_add:ascend.presenter.proto.PresentImageRequest.rectangle_list)
+  return rectangle_list_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::ascend::presenter::proto::Rectangle_Attr >*
+PresentImageRequest::mutable_rectangle_list() {
+  // @@protoc_insertion_point(field_mutable_list:ascend.presenter.proto.PresentImageRequest.rectangle_list)
+  return &rectangle_list_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::ascend::presenter::proto::Rectangle_Attr >&
+PresentImageRequest::rectangle_list() const {
+  // @@protoc_insertion_point(field_list:ascend.presenter.proto.PresentImageRequest.rectangle_list)
+  return rectangle_list_;
+}
+
 // -------------------------------------------------------------------
 
 // PresentImageResponse
@@ -1061,6 +1538,10 @@ inline void PresentImageResponse::set_allocated_error_message(::std::string* err
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

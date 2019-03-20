@@ -63,6 +63,18 @@ class DvppProcess {
    */
   DvppProcess(const DvppToYuvPara &para);
 
+  /**
+   * @brief class constructor
+   * @param [in] DvppCropOrResizePara para: instance crop or resize object
+   */
+  DvppProcess(const DvppCropOrResizePara &para);
+
+  /**
+   * @brief class constructor
+   * @param [in] DvppJpegDInPara para: instance jpeg decode object
+   */
+  DvppProcess(const DvppJpegDInPara &para);
+
   //class destructor
   virtual ~DvppProcess();
 
@@ -76,8 +88,18 @@ class DvppProcess {
    * @param [out]DvppOutput *output_data :dvpp output buffer and size
    * @return  enum DvppErrorCode
    */
-  int DvppOperationProc(char *input_buf, int input_size,
+  int DvppOperationProc(const char *input_buf, int input_size,
                         DvppOutput *output_data);
+
+  /**
+   * @brief Dvpp decode jpeg and change jpeg to yuv
+   * @param [in] char *input_buf: jpeg data buffer
+   * @param [in] int input_size  : size of jpeg data buffer
+   * @param [out]DvppJpegDOutput *output_data :dvpp output buffer and size
+   * @return  enum DvppErrorCode
+   */
+  int DvppJpegDProc(const char *input_buf, int input_size,
+                    DvppJpegDOutput *output_data);
 
   /**
    * @brief get a error message according to error code.
@@ -100,7 +122,7 @@ class DvppProcess {
    * @param [out]sJpegeOut *output_data :dvpp output buffer and size
    * @return  enum DvppErrorCode
    */
-  int DvppYuvChangeToJpeg(char *input_buf, int input_size,
+  int DvppYuvChangeToJpeg(const char *input_buf, int input_size,
                           sJpegeOut *output_data);
 
   /**
@@ -120,7 +142,7 @@ class DvppProcess {
    *        and size
    * @return  enum DvppErrorCode
    */
-  int DvppYuvChangeToH264(char *input_buf, int input_size,
+  int DvppYuvChangeToH264(const char *input_buf, int input_size,
                           shared_ptr<AutoBuffer> *output_buf);
 
   /**
@@ -132,8 +154,30 @@ class DvppProcess {
    * @param [out] output_buf: image data after conversion
    * @return enum DvppErrorCode
    */
-  int DvppBgrChangeToYuv(char *input_buf, int input_size, int output_size,
+  int DvppBgrChangeToYuv(const char *input_buf, int input_size, int output_size,
                          unsigned char *output_buf);
+
+  /**
+   * @brief crop or resize origin image
+   * @param [in] input_buf:input image data
+   *             (dvpp need char *,so pInputBuf do not use const)
+   * @param [in] input_size: input image data size
+   * @param [in] output_size: output image data size
+   * @param [out] output_buf: image data after conversion
+   * @return enum DvppErrorCode
+   */
+  int DvppCropOrResize(const char *input_buf, int input_size, int output_size,
+                       unsigned char *output_buf);
+
+  /**
+   * @brief change jpeg image to yuv
+   * @param [in] input_buf:input image data
+   * @param [in] input_size: input image data size
+   * @param [out] jpegd_output_data: image data after jpegd
+   * @return enum DvppErrorCode
+   */
+  int DvppJpegChangeToYuv(const char *input_buf, int input_size,
+                          jpegd_yuv_data_info *jpegd_output_data);
 
   // used for storage attributes of dvpp class
   struct DvppPara dvpp_instance_para_;

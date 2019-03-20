@@ -87,6 +87,18 @@ bool PresenterMessageHelper::InitPresentImageRequest(
 
     request.set_width(image.width);
     request.set_height(image.height);
+
+    // set the rectangle attr
+    proto::Rectangle_Attr *rectangle_attr = nullptr;
+    for (int i = 0; i < image.detection_results.size(); i++)
+    {
+	rectangle_attr = request.add_rectangle_list();
+	rectangle_attr->mutable_left_top()-> set_x(image.detection_results[i].lt.x);
+	rectangle_attr->mutable_left_top()-> set_y(image.detection_results[i].lt.y);
+	rectangle_attr->mutable_right_bottom()->set_x(image.detection_results[i].rb.x);
+        rectangle_attr->mutable_right_bottom()->set_y(image.detection_results[i].rb.y);
+	rectangle_attr->set_label_text(image.detection_results[i].result_text);
+    }
     // image.data may be too large to affect performance, so it is not set here
     return true;
 }

@@ -1,7 +1,3 @@
-"""presenter config parser module"""
-
-# -*- coding: UTF-8 -*-
-#
 #   =======================================================================
 #
 # Copyright (C) 2018, Hisilicon Technologies Co., Ltd. All Rights Reserved.
@@ -33,30 +29,33 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 #
-import configparser
+
+"""face detection config parser module"""
+
 import os
+import configparser
+import common.parameter_validation as validate
 
 class ConfigParser():
     """ parse configuration from the config.conf"""
     __instance = None
 
     def __init__(self):
-        pass
+        """init"""
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls):
         """ensure class object is a single instance"""
         if cls.__instance is None:
-            cls.__instance = object.__new__(cls, *args, **kwargs)
+            cls.__instance = object.__new__(cls)
             cls.config_parser()
         return cls.__instance
 
     def config_verify(self):
-        """verify ip and port, ip:0.0.0.0 and port:0 are invalid"""
-        if ConfigParser.presenter_server_ip == '0.0.0.0' or \
-           ConfigParser.presenter_server_port == 0 or \
-           ConfigParser.web_server_ip == '0.0.0.0' or \
-           ConfigParser.web_server_port == 0:
-            print("Not support ip addr 0.0.0.0 or port 0.")
+        '''Verify configuration Parameters '''
+        if not validate.validate_ip(ConfigParser.web_server_ip) or \
+           not validate.validate_ip(ConfigParser.presenter_server_ip) or \
+           not validate.validate_port(ConfigParser.web_server_port) or \
+           not validate.validate_port(ConfigParser.presenter_server_port):
             return False
         return True
 
@@ -67,15 +66,18 @@ class ConfigParser():
         cls.root_path = ConfigParser.get_rootpath()
         config_file = os.path.join(cls.root_path, "config/config.conf")
         config_parser.read(config_file)
-        cls.presenter_server_ip = config_parser.get('baseconf', 'presenter_server_ip')
         cls.web_server_ip = config_parser.get('baseconf', 'web_server_ip')
-        cls.presenter_server_port = int(config_parser.get('baseconf', 'presenter_server_port'))
-        cls.web_server_port = int(config_parser.get('baseconf', 'web_server_port'))
+        cls.presenter_server_ip = \
+            config_parser.get('baseconf', 'presenter_server_ip')
+        cls.web_server_port = config_parser.get('baseconf', 'web_server_port')
+        cls.presenter_server_port = \
+            config_parser.get('baseconf', 'presenter_server_port')
+
 
     @staticmethod
     def get_rootpath():
         """get presenter server's root directory."""
         path = __file__
-        idx = path.find("src")
+        idx = path.rfind("src")
 
         return path[0:idx]
