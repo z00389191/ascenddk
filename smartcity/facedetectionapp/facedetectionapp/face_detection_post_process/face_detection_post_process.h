@@ -39,7 +39,6 @@
 #include "hiaiengine/data_type_reg.h"
 #include "hiaiengine/engine.h"
 #include "ascenddk/presenter/agent/presenter_channel.h"
-#include "ascenddk/osd/osd_api.h"
 #include "ascenddk/ascend_ezdvpp/dvpp_process.h"
 
 #define INPUT_SIZE 1
