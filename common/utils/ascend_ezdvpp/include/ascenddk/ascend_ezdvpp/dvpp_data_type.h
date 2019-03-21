@@ -235,8 +235,8 @@ struct DvppCropOrResizePara {
   int vert_max = 0;  // The maximum deviation from the origin in vert direction
   int vert_min = 0;  // The minimum deviation from the origin in vert direction
   ResolutionRatio dest_resolution;  // dest image resolution
-  bool is_input_align = false;  // false:input image is aligned
-// true:input image is not aligned
+  bool is_input_align = false;  // false:input image is not aligned
+// true:input image is aligned
   bool is_output_align = true;  //true:output image need alignment
 //false:output image does not need alignment
 };
