@@ -737,8 +737,6 @@ int DvppProcess::DvppCropOrResize(const char *input_buf, int input_size,
   vpc_in_msg.high = dvpp_instance_para_.crop_or_resize_para.src_resolution
       .height;
 
-  // 128 byte memory alignment in width direction of image
-  vpc_in_msg.stride = ALIGN_UP(vpc_in_msg.width, kVpcWidthAlign);
   vpc_in_msg.hmax = resize_out_param.hmax;
   vpc_in_msg.hmin = resize_out_param.hmin;
   vpc_in_msg.vmax = resize_out_param.vmax;
@@ -760,16 +758,20 @@ int DvppProcess::DvppCropOrResize(const char *input_buf, int input_size,
   // The flag whether input image is aligned
   bool is_input_align = dvpp_instance_para_.crop_or_resize_para.is_input_align;
 
+  int width_stride = 0;
+
   // alloc input buffer
   ret = dvpp_utils.AllocBuffer(input_buf, input_size, is_input_align,
                                vpc_in_msg.format, vpc_in_msg.width,
-                               vpc_in_msg.high, in_buffer_size, &in_buffer);
+                               vpc_in_msg.high, width_stride, in_buffer_size,
+                               &in_buffer);
 
   if (ret != kDvppOperationOk) {
     DestroyDvppApi(pi_dvpp_api);
     return ret;
   }
 
+  vpc_in_msg.stride = width_stride;
   vpc_in_msg.in_buffer = in_buffer;
   vpc_in_msg.in_buffer_size = in_buffer_size;
 

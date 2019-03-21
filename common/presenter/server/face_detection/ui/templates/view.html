@@ -77,12 +77,15 @@ function startViewVideo(){
             var img = new Image()
             img.src = src
             img.onload=function(){
-                canvas.setAttribute("width",img.width)
-                    canvas.setAttribute("height",img.height)
+                    scale_factor = wantedWidth/img.width
+                    canvas.setAttribute("width",1024)
+                    canvas.setAttribute("height",img.height*scale_factor)
                     ctx.strokeStyle="yellow"
                     ctx.font="30px serif"
                     ctx.fillStyle="yellow"
-                    scale_factor = wantedWidth/img.width
+                    ctx.strokeStyle="yellow"
+                    ctx.font="30px serif"
+                    ctx.fillStyle="yellow"
                     ctx.drawImage(img,0,0, wantedWidth, img.height*scale_factor)
                     for (var index in rectangles){
                         var pos= rectangles[index].slice(0,4)  //

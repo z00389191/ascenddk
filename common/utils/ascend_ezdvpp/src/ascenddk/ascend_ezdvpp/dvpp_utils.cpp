@@ -119,7 +119,8 @@ int DvppUtils::CheckImageNeedAlign(int width, int high) {
 
 int DvppUtils::AllocBuffer(const char * src_data, int input_size,
                            bool is_input_align, int format, int width, int high,
-                           int &buffer_size, char **dest_data) {
+                           int &width_stride, int &buffer_size,
+                           char **dest_data) {
   // height of image need 16-byte alignment
   int align_high = ALIGN_UP(high, kVpcHeightAlign);
   int ret = kDvppOperationOk;
@@ -128,6 +129,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
     case kVpcYuv420SemiPlannar: {
       // width of image need 128-byte alignment
       int align_width = ALIGN_UP(width, kVpcWidthAlign);
+      width_stride = align_width;
 
       // The memory size of yuv420 image is 1.5 times width * height
       buffer_size = align_width * align_high * DVPP_YUV420SP_SIZE_MOLECULE
@@ -146,6 +148,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
     case kVpcYuv422SemiPlannar: {
       // width of image need 128-byte alignment
       int align_width = ALIGN_UP(width, kVpcWidthAlign);
+      width_stride = align_width;
 
       // The memory size of yuv422 image is 2 times width * height
       buffer_size = align_width * align_high * kYuv422SPWidthMul;
@@ -164,6 +167,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
       // y channel width of yuv444sp equals to image width and need 128-byte
       // alignment
       int y_align_width = ALIGN_UP(width, kVpcWidthAlign);
+      width_stride = y_align_width;
 
       // uv channel width of yuv444sp is 2 times image width and need 128-byte
       // alignment
@@ -189,6 +193,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
 
       // The memory size of each row need 128-byte alignment
       int align_width = ALIGN_UP(yuv422_packed_width, kVpcWidthAlign);
+      width_stride = align_width;
 
       // memory size of yuv422 packed
       buffer_size = align_width * align_high;
@@ -209,6 +214,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
 
       // The memory size of each row need 128-byte alignment
       int align_width = ALIGN_UP(yuv444_packed_width, kVpcWidthAlign);
+      width_stride = align_width;
 
       // memory size of yuv444 packed
       buffer_size = align_width * align_high;
@@ -229,6 +235,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
 
       // The memory size of each row need 128-byte alignment
       int align_width = ALIGN_UP(rgb888_width, kVpcWidthAlign);
+      width_stride = align_width;
 
       // memory size of rgb888 packed
       buffer_size = align_width * align_high;
@@ -250,6 +257,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
 
       // The memory size of each row need 128-byte alignment
       int align_width = ALIGN_UP(xrgb8888_width, kVpcWidthAlign);
+      width_stride = align_width;
 
       // memory size of xrgb8888 packed
       buffer_size = align_width * align_high;
@@ -268,6 +276,7 @@ int DvppUtils::AllocBuffer(const char * src_data, int input_size,
 
       // The memory size of each row need 128-byte alignment
       int align_width = ALIGN_UP(width, kVpcWidthAlign);
+      width_stride = align_width;
 
       // yuv400sp image apply for the same size space as yuv420sp image
       buffer_size = align_width * align_high * DVPP_YUV420SP_SIZE_MOLECULE
