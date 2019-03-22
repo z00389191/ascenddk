@@ -36,14 +36,45 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
+data_source=$2
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/func_presenter.sh
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-main()
+function main()
 {
-
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command."
+        exit 1
+    fi
+    
+    bash -x ${script_path}/prepare_param.sh ${remote_host} ${data_source}
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+    
+    #start presenter
+    #cd {common_path}/script
+    
+    parse_remote_port
+    
+    #start app
+    iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp"`
+    echo $iRet
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: change excution mode ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp failed, please check /var/log/slog for details."
+        exit 1
+    fi
+    
+    iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/;./ascend_facedetectionapp"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp failed, please check /var/log/slog for details."
+        exit 1
+    fi
+    exit 0
 }
 
 main

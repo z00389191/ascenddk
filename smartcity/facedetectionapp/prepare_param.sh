@@ -36,18 +36,37 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
+data_source=$2
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/func_deploy.sh
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-main()
+function main()
 {
-    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
+    check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command."
         exit 1
     fi
-    echo "Finish to deploy facedetectionapp."
+
+    if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
+        echo "ERROR: invalid data_source, please input Channel-1 or Channel-2."
+        exit 1
+    fi
+    echo "Prepare app configuration..."
+    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/graph.config
+    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/graph.config
+    
+    parse_remote_port
+    
+    upload_file ${script_path}/facedetectionapp/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/slog for details."
+        exit 1
+    fi
+    echo "Finish to prepare facedetectionapp params."
     exit 0
 }
 

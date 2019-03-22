@@ -24,51 +24,8 @@
 # Description:  check ip valid or not
 # $1: ip
 # ******************************************************************************
-function check_ip_addr()
+function get_presenter_atlasdk_ip()
 {
-    ip_addr=$1
-    echo ${ip_addr} | grep "^[0-9]\{1,3\}\.\([0-9]\{1,3\}\.\)\{2\}[0-9]\{1,3\}$" > /dev/null
-    if [ $? -ne 0 ]
-    then
-        return 1
-    fi
-
-    for num in `echo ${ip_addr} | sed "s/./ /g"`
-    do
-        if [ $num -gt 255 ] || [ $num -lt 0 ]
-        then
-            return 1
-        fi
-   done
-   return 0
-}
-
-# ************************check ip in same segment or not****************************************
-# Description:  check ip in same segment or not
-# $1: checked ip
-# $2: compared ip
-# $3: compared net mask
-# ******************************************************************************
-function check_ips_in_same_segment()
-{
-    ip=$1
-    mask=$2
-    remote_host=$3
-    
-    OLD_IFS_IP="${IFS}"
-    IFS="."
-    remote_host_attr=(${remote_host})
-    ip_attr=(${ip})
-    mask_attr=(${mask})
-    IFS=${OLD_IFS_IP}
-    for i in `seq 0 3`
-    do
-        ((calc_remote=${remote_host_attr[${i}]}&${mask_attr[${i}]}))
-        ((calc_ip=${ip_attr[${i}]}&${mask_attr[${i}]}))
-        
-        if [[ calc_remote -ne calc_ip ]];then
-            return 1
-        fi
-    done
-    return 0
+    app_name=$1
+    grep "presenter_server_ip" 
 }

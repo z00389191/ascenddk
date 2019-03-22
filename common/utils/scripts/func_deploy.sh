@@ -220,7 +220,7 @@ function deploy_app()
     #deploy dataset
     if [ -d ${app_path}/MyDataset ];then
         echo "[Step] Deploy dataset..."
-        upload_path ${app_path}/MyDataset "~/HIAI_DATANDMODELSET/workspace_mind_studio"
+        upload_path ${app_path}/MyDataset "~/HIAI_DATANDMODELSET/ascend_workspace"
         if [[ $? -ne 0 ]];then
             return 1
         fi
@@ -229,7 +229,7 @@ function deploy_app()
     #deploy models
     if [ -d ${app_path}/MyModel ];then
         echo "[Step] Deploy models..."
-        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/workspace_mind_studio" "true"
+        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/ascend_workspace" "true"
         if [[ $? -ne 0 ]];then
             return 1
         fi
@@ -238,7 +238,7 @@ function deploy_app()
     #deploy app
     if [ -d ${app_path}/out ];then
         echo "[Step] Deploy app libs..."
-        upload_path ${app_path}/out "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
+        upload_path ${app_path}/out "~/HIAI_PROJECTS/ascend_workspace/${app_name}/out"
         if [[ $? -ne 0 ]];then
             return 1
         fi
@@ -246,7 +246,7 @@ function deploy_app()
 
     if [ -d ${app_path}/${app_name}/out ];then
         echo "[Step] Deploy app libs..."
-        upload_path ${app_path}/${app_name}/out "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
+        upload_path ${app_path}/${app_name}/out "~/HIAI_PROJECTS/ascend_workspace/${app_name}/out"
         if [[ $? -ne 0 ]];then
             return 1
         fi

@@ -29,27 +29,42 @@ remote_host=$2
 presenter_atlasdk_ip=""
 presenter_view_ip=""
 
-function get_presenter_altasdk_ip()
+
+function parse_presenter_altasdk_ip()
 {
+    OLD_IFS_PRESENTER="${IFS}"
+    IFS=$'\n'
+    
+    valid_ips=""
     for ip_info in `/sbin/ifconfig | grep "inet addr"`
     do
+        IFS=${OLD_IFS_PRESENTER}
         for each_ip in ${ip_info}
         do
             key=`echo ${each_ip} | awk -F ':' '{print $1}'`
             value=`echo ${each_ip} | awk -F ':' '{print $2}'`
-            if [[ ${key} == "inet addr" ]];then
+            if [[ ${key} == "addr" ]];then
                 ip=${value}
+                valid_ips="${valid_ips}\t${value}\n"
             elif [[ ${key} == "Mask" ]];then
                 mask=${value}
             fi
         done
-        
+        if [[ ${ip}"X" == "X" ]];then
+            IFS=$'\n'
+            continue
+        fi
         check_ips_in_same_segment ${ip} ${mask} ${remote_host}
         if [[ $? -eq 0 ]];then
             presenter_atlasdk_ip=${ip}
+            echo "Find ${presenter_atlasdk_ip} which is in the same segment with ${remote_host}."
             break
         fi
+        IFS=$'\n'
     done
+    IFS="${OLD_IFS_PRESENTER}"
+
+    
     if [[ ${presenter_atlasdk_ip}"X" != "X" ]];then
         return 0
     fi
@@ -57,10 +72,12 @@ function get_presenter_altasdk_ip()
     echo "Can not find ip in the same segment with ${remote_host}."
     while [[ ${presenter_atlasdk_ip}"X" == "X" ]]
     do
-        read -p "Please input your env ip which can connect to Atlas DK Developerment Board:" presenter_atlasdk_ip
+        echo -en "Current enviroment valid ip list:\n${valid_ips}Please choose one which can connect to Atlas DK Developerment Board:"
+        read presenter_atlasdk_ip
         if [[ ${presenter_atlasdk_ip}"X" != "X" ]];then
             check_ip_addr ${presenter_atlasdk_ip}
             if [[ $? -ne 0 ]];then
+                echo "Invlid ip, please choose again..."
                 presenter_atlasdk_ip=""
             else
                 ret=`/sbin/ifconfig | grep ${presenter_atlasdk_ip}`
@@ -73,53 +90,64 @@ function get_presenter_altasdk_ip()
     return 0
 }
 
-function get_presenter_view_ip()
+function parse_presenter_view_ip()
 {
+    OLD_IFS_PRESENTER="${IFS}"
+    IFS=$'\n'
+    
     valid_view_ips=""
     for ip_info in `/sbin/ifconfig | grep "inet addr"`
     do
+        IFS=${OLD_IFS_PRESENTER}
         for each_ip in ${ip_info}
         do
             key=`echo ${each_ip} | awk -F ':' '{print $1}'`
             value=`echo ${each_ip} | awk -F ':' '{print $2}'`
-            if [[ ${key} == "inet addr" ]];then
+            if [[ ${key} == "addr" ]];then
                 if [[ ${value} != ${presenter_atlasdk_ip} ]];then
                     valid_view_ips="${valid_view_ips}\t${value}\n"
                     break
                 fi
             fi
         done
+        IFS=$'\n'
     done
+    IFS=${OLD_IFS_PRESENTER}
     
     while [[ ${presenter_view_ip}"X" == "X" ]]
     do
-        read -p "Current enviroment valid ip list:\n${valid_view_ips}Please choose one to show the presenter in browser:" presenter_view_ip
+        echo -en "Current enviroment valid ip list:\n${valid_view_ips}Please choose one to show the presenter in browser(default: 127.0.0.1):"
+        read presenter_view_ip
         
         if [[ ${presenter_view_ip}"X" != "X" ]];then
             check_ip_addr ${presenter_view_ip}
             if [[ $? -ne 0 ]];then
+                echo "Invlid ip, please choose again..."
                 presenter_view_ip=""
             else
                 ret=`/sbin/ifconfig | grep ${presenter_view_ip}`
                 if [[ $? -ne 0 ]];then
+                    echo "Invlid ip, please choose again..."
                     presenter_view_ip=""
                 fi
             fi
+        else
+            presenter_view_ip="127.0.0.1"
         fi
     done
     return 0
 }
 
-main()
+function main()
 {
-    get_presenter_altasdk_ip
-    get_presenter_view_ip
+    parse_presenter_altasdk_ip
+    parse_presenter_view_ip
     
-    echo "Use ${presenter_atlasdk_ip} to connect with Atlas DK Developerment Board..."
-    sed "s/presenter_server_ip=[0-9.]/presenter_server_ip=${presenter_atlasdk_ip}" ${script_path}/common/presenter/server/${app_name}/config/config.conf
+    echo "Use ${presenter_atlasdk_ip} to connect to Atlas DK Developerment Board..."
+    sed -i "s/presenter_server_ip=[0-9.]*/presenter_server_ip=${presenter_atlasdk_ip}/g" ${script_path}/presenter/server/${app_name}/config/config.conf
     
     echo "Use ${presenter_view_ip} to show information in browser..."
-    sed "s/web_server_ip=[0-9.]/web_server_ip=${presenter_view_ip}" ${script_path}/common/presenter/server/${app_name}/config/config.conf
+    sed -i "s/web_server_ip=[0-9.]*/web_server_ip=${presenter_view_ip}/g" ${script_path}/presenter/server/${app_name}/config/config.conf
     echo "Finish to prepare presenter server for ${app_name}."
 }
 

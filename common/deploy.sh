@@ -41,8 +41,9 @@ compilation_target=$2
 HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
 DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
 
-. ${script_path}/util/scripts/func_libraries.sh
-. ${script_path}/util/scripts/func_deploy.sh
+. ${script_path}/utils/scripts/func_libraries.sh
+. ${script_path}/utils/scripts/func_deploy.sh
+. ${script_path}/utils/scripts/func_util.sh
 
 function deploy()
 {
@@ -71,6 +72,11 @@ function deploy()
 
 main()
 {
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command."
+        exit 1
+    fi
     #deploy
     libs=`get_compilation_targets ${compilation_target}`
     if [[ $? -ne 0 ]];then

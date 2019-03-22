@@ -8,7 +8,7 @@ CC := aarch64-linux-gnu-g++
 CPP := aarch64-linux-gnu-g++
 
 
-LOCAL_MODULE_NAME := workspace_mind_studio_facedetectionapp
+LOCAL_MODULE_NAME := ascend_facedetectionapp
 CC_FLAGS := -std=c++11
 
 local_src_files := \
