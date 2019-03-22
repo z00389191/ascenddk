@@ -35,56 +35,45 @@
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-remote_host=$1
-compilation_target=$2
-
-HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
-DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
-
-. ${script_path}/func_libraries.sh
-. ${script_path}/func_deploy.sh
-
-function deploy()
-{
-    libs=$1
-    for lib_name in ${libs}
-    do
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${HOST_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${DEVICE_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-    done
-    echo "Finish to upload libs."
-    return 0
-}
-
 main()
 {
-    #deploy
-    libs=`get_compilation_targets ${compilation_target}`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command."
+    if [ ! -n ${DDK_HOME} ];then
+        echo "Can not find DDK_HOME env, please set it in environment!."
         exit 1
     fi
 
-    #parse remote port
-    parse_remote_port
+    export LD_LIBRARY_PATH=${DDK_HOME}/uihost/lib/
 
-    deploy "${libs}"
-    if [[ $? -ne 0 ]];then
+    echo "Clear app build path..."
+    rm -rf ${script_path}/facedetectionapp/out
+
+    echo "Build main..."
+    make -C ${script_path}/facedetectionapp 1>/dev/null
+    if [ $? -ne 0 ];then
         exit 1
     fi
+
+    for file in `find ${script_path}/facedetectionapp -name "Makefile"`
+    do
+        if [ ${file} == "${script_path}/facedetectionapp/Makefile" ];then
+            continue
+        fi
+        path=`dirname ${file}`
+        lib_path_name=`basename ${path}`
+        echo "Build ${lib_path_name} lib..."
+        make clean -C ${path} 1>/dev/null
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+        make install -C ${path} 1>/dev/null
+
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+    done
+    
+    cp -r ${script_path}/facedetectionapp/graph_template.config ${script_path}/facedetectionapp/out/graph.config
+    echo "Finish to Build app."
     exit 0
 }
 

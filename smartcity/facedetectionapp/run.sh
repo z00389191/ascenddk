@@ -36,56 +36,14 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-compilation_target=$2
 
-HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
-DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
+common_path="${script_path}/../../common"
 
-. ${script_path}/func_libraries.sh
-. ${script_path}/func_deploy.sh
-
-function deploy()
-{
-    libs=$1
-    for lib_name in ${libs}
-    do
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${HOST_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${DEVICE_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-    done
-    echo "Finish to upload libs."
-    return 0
-}
+. ${common_path}/func_presenter.sh
 
 main()
 {
-    #deploy
-    libs=`get_compilation_targets ${compilation_target}`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command."
-        exit 1
-    fi
 
-    #parse remote port
-    parse_remote_port
-
-    deploy "${libs}"
-    if [[ $? -ne 0 ]];then
-        exit 1
-    fi
-    exit 0
 }
 
 main

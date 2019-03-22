@@ -77,6 +77,7 @@ function upload_file()
 # Description:  upload a file
 # $1: local file(absolute)
 # $2: remote path
+# $3: is_uncompress(true/false, default:true)
 # ******************************************************************************
 function upload_tar_gz_file()
 {
@@ -89,14 +90,16 @@ function upload_tar_gz_file()
     upload_file ${local_file} ${remote_path}
 
     #uncompress tar.gz file
-    ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -zxvf ${remote_file} -C ${remote_path}/"`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: uncompress ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
-    fi
+    if [[ ${is_uncompress}"X" != "falseX" ]];then
+        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -zxvf ${remote_file} -C ${remote_path}/"`
+        if [[ $? -ne 0 ]];then
+            echo "ERROR: uncompress ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
+        fi
 
-    ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "rm ${remote_file}"`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: delete ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
+        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "rm ${remote_file}"`
+        if [[ $? -ne 0 ]];then
+            echo "ERROR: delete ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
+        fi
     fi
 
 }
@@ -105,24 +108,55 @@ function upload_tar_gz_file()
 # Description:  upload a file
 # $1: local path(absolute)
 # $2: remote path
+# $3: ignore_local_path(true/false, default=false)
+#    #${local_path}
+#    #      |-----path1
+#    #              |-----path11
+#    #                        |----file1
+#    #      |-----path2
+#    #              |-----file2
+#    #true: upload file1 to ${remote_path}/file1
+#    #      upload file2 to ${remote_path}/file2
+#    #false/empty: upload file1 upload to ${remote_path}/path1/path11/file1
+#    #             upload file2 to ${remote_path}/path2/file2
+# $4: is_uncompress(true/fase, default:true)
 # ******************************************************************************
 function upload_path()
 {
     local_path=$1
     remote_path=$2
+    ignore_local_path=$3
+    is_uncompress=$4
+
     file_list=`find ${local_path} -name "*"`
     for file in ${file_list}
     do
-        remote_file=`echo ${file} | sed 's/${local_path}/${remote_path}'`
-        remote_file_path=`dirname ${remote_file}`
-        file_extension="${remote_file##*.}"
+        if [[ -d ${file} ]];then
+            continue
+        fi
+        file_extension="${file##*.}"
+        
+        if [[ ${ignore_local_path}"X" == "trueX" ]];then
+            remote_file_path=${remote_path}
+        else
+            remote_file=`echo ${file} | sed "s#${local_path}#${remote_path}#g"`
+            remote_file_path=`dirname ${remote_file}`
+        fi
 
         if [[ ${file_extension} == "tar.gz" ]];then
-            upload_tar_gz_file ${file} ${remote_file_path}
+            upload_tar_gz_file ${file} ${remote_file_path} ${is_uncompress}
+            if [[ $? -ne 0 ]];then
+                return 1
+            fi
         else
             upload_file ${file} ${remote_file_path}
+            if [[ $? -ne 0 ]];then
+                return 1
+            fi
         fi
     done
+    
+    return 0
 }
 
 # ************************deploy ***********************************************
@@ -131,7 +165,7 @@ function upload_path()
 # $2: common path(absolute)
 # $3: remote_host(host ip)
 # $4: remote port(IDE-daemon-client port)
-# $5: model_version(none-no need to do model, empty-do with local model, 1.1.T8.xxxx-download from internet)
+# $5: model_mode(none-no need to do model, local-do with local model, internet-download model based on ddk version)
 # ******************************************************************************
 function deploy_app()
 {
@@ -139,32 +173,45 @@ function deploy_app()
     app_path=$2
     common_path=$3
     remote_host=$4
-    model_version=$5
+    model_mode=$5
 
     #set remote_port
     parse_remote_port
 
     #build common
+    echo "[Step] Build common libs..."
     bash ${common_path}/build.sh
     if [[ $? -ne 0 ]];then
         return 1
     fi
 
     #build app
+    echo "[Step] Build app libs..."
     bash ${app_path}/build.sh
     if [[ $? -ne 0 ]];then
         return 1
     fi
 
     #prepare_model.sh: model_mode
-    if [[ ${model_version} != "none" ]];then
-        bash ${app_path}/prepare_model.sh ${mode_version}
+    if [[ ${model_mode} != "none" ]];then
+        echo "[Step] Prepare models..."
+        if [[ ${model_mode} == "local" ]];then
+            model_version=""
+        else
+            model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
+            if [[ $? -ne 0 ]];then
+                echo "ERROR: can not get version in ${DDK_HOME}/ddk_info, please check your env."
+                return 1
+            fi
+        fi
+        bash ${app_path}/prepare_model.sh ${model_version}
         if [[ $? -ne 0 ]];then
             return 1
         fi
     fi
 
-    #deploy commonmodel_version
+    #deploy common libs
+    echo "[Step] Deploy common libs..."
     bash ${common_path}/deploy.sh ${remote_host}
     if [[ $? -ne 0 ]];then
         return 1
@@ -172,6 +219,7 @@ function deploy_app()
 
     #deploy dataset
     if [ -d ${app_path}/MyDataset ];then
+        echo "[Step] Deploy dataset..."
         upload_path ${app_path}/MyDataset "~/HIAI_DATANDMODELSET/workspace_mind_studio"
         if [[ $? -ne 0 ]];then
             return 1
@@ -180,7 +228,8 @@ function deploy_app()
 
     #deploy models
     if [ -d ${app_path}/MyModel ];then
-        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/workspace_mind_studio"
+        echo "[Step] Deploy models..."
+        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/workspace_mind_studio" "true"
         if [[ $? -ne 0 ]];then
             return 1
         fi
@@ -188,25 +237,18 @@ function deploy_app()
 
     #deploy app
     if [ -d ${app_path}/out ];then
+        echo "[Step] Deploy app libs..."
         upload_path ${app_path}/out "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
         if [[ $? -ne 0 ]];then
             return 1
         fi
     fi
 
-    if [-d ${app_path}/${app_name}/out ];then
+    if [ -d ${app_path}/${app_name}/out ];then
+        echo "[Step] Deploy app libs..."
         upload_path ${app_path}/${app_name}/out "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
         if [[ $? -ne 0 ]];then
             return 1
         fi
-    fi
-
-    #deploy graph
-    if [ -f ${app_path}/graph.config ];then
-        upload_file ${app_path}/graph.config "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
-    fi
-
-    if [ -f ${app_path}/${app_name}/graph.config ];then
-        upload_file ${app_path}/${app_name}/graph.config "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
     fi
 }
