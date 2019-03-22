@@ -7,7 +7,7 @@ function check_remote_file()
     filePath=$1
     if [ ! -n ${filePath} ];then
         return 1
-    fi  
+    fi
     ret=`IDE-daemon-client --host $remote_host:$remote_port --hostcmd "wc -l ${filePath}"`
     if [[ $? -ne 0 ]];then
         return 1
@@ -32,7 +32,7 @@ function upload_file()
 
     #check remote path
     check_remote_file ${remote_file}
-    
+
     #check whether overwrite remote file
     if [[ $? -eq 0 ]];then
         if [[ ${is_overwrite} == "false" ]];then
@@ -52,7 +52,7 @@ function upload_file()
         echo "ERROR: mkdir ${remote_host}:${remote_path} failed, please check /var/log/syslog for details."
         return 1
     fi
-            
+
     #copy to remote path
     ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --sync ${local_file} ${remote_path}`
     if [[ $? -ne 0 ]];then
@@ -74,18 +74,18 @@ function upload_tar_gz_file()
     remote_file="${remote_path}/${file_name}"
 
     upload_file ${local_file} ${remote_path}
-    
+
     #uncompress tar.gz file
     ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -zxvf ${remote_file} -C ${remote_path}/"`
     if [[ $? -ne 0 ]];then
         echo "ERROR: uncompress ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
     fi
-    
+
     ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "rm ${remote_file}"`
     if [[ $? -ne 0 ]];then
         echo "ERROR: delete ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
     fi
-    
+
 }
 
 # ************************uplooad path****************************************
@@ -103,7 +103,7 @@ function upload_path()
         remote_file=`echo ${file} | sed 's/${local_path}/${remote_path}'`
         remote_file_path=`dirname ${remote_file}`
         file_extension="${remote_file##*.}"
-        
+
         if [[ ${file_extension} == "tar.gz" ]];then
             upload_tar_gz_file ${file} ${remote_file_path}
         else
@@ -128,17 +128,17 @@ function deploy_app()
     remote_host=$4
     model_version=$5
     remote_port=$6
-    
+
     if [ ! -n ${remote_port} ];then
         remote_port="22118"
     fi
-    
+
     #build common
     bash ${common_path}/build.sh
     if [[ $? -ne 0 ]];then
         return 1
     fi
-    
+
     #build app
     bash ${app_path}/build.sh
     if [[ $? -ne 0 ]];then
@@ -158,7 +158,7 @@ function deploy_app()
     if [[ $? -ne 0 ]];then
         return 1
     fi
-    
+
     #deploy dataset
     if [ -d ${app_path}/MyDataset ];then
         upload_path ${app_path}/MyDataset "~/HIAI_DATANDMODELSET/workspace_mind_studio"
@@ -174,7 +174,7 @@ function deploy_app()
             return 1
         fi
     fi
-    
+
     #deploy app
     if [ -d ${app_path}/out ];then
         upload_path ${app_path}/out "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
@@ -182,14 +182,14 @@ function deploy_app()
             return 1
         fi
     fi
-    
+
     if [-d ${app_path}/${app_name}/out ];then
         upload_path ${app_path}/${app_name}/out "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"
         if [[ $? -ne 0 ]];then
             return 1
         fi
     fi
-    
+
     #deploy graph
     if [ -f ${app_path}/graph.config ];then
         upload_file ${app_path}/graph.config "~/HIAI_PROJECTS/workspace_mind_studio/${app_name}/out"

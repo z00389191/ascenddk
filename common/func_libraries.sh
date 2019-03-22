@@ -39,7 +39,7 @@ function get_compilation_targets()
         echo "${host_libraries[@]} ${device_libraries}"
         return 0
     fi
-    
+
     denpendency_libs=""
     host_libs=`echo "${host_libraries[@]}" | grep "${compilation_target}"`
     host_running=$?
@@ -49,11 +49,11 @@ function get_compilation_targets()
     fi
     device_libs=`echo "${device_libraries[@]}" | grep "${compilation_target}"`
     device_running=$?
-    if [[ device_running -eq 0 ]];then    
+    if [[ device_running -eq 0 ]];then
         libs=`echo "${device_libraries[@]}" | awk -F '$compilation_target' '{print $1}'`
         denpendency_libs="${denpendency_libs} ${libs}"
     fi
-    
+
     if [[ host_running -ne 0 && device_running -ne 0 ]];then
         return 1
     fi

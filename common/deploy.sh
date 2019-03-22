@@ -62,9 +62,9 @@ function deploy()
                 return 1
             fi
         fi
-        
+
         echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then            
+        if [ $? -eq 0 ];then
             upload_file "${DEVICE_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
             if [ $? -ne 0 ];then
                 return 1
@@ -79,7 +79,7 @@ main()
 {
     #build libaries
     bash ${script_path}/build.sh ${compilation_target}
-    
+
     #deploy
     libs=`get_compilation_targets ${compilation_target}`
     if [[ $? -ne 0 ]];then

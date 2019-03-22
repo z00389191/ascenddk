@@ -60,7 +60,7 @@ function compile()
                 return 1
             fi
         fi
-        
+
         echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
         if [ $? -eq 0 ];then
             lib_path=${device_map[${lib_name}]}
@@ -85,12 +85,12 @@ main()
         echo "ERROR: unknown compilation target, please check your command."
         exit 1
     fi
-    
+
     atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
     if [[ $? -ne 0 ]];then
         echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
     fi
-    
+
     #remove blank
     atlas_target=`echo ${atlas_target} | sed 's/ //g' `
     compile "${libs}" ${atlas_target}
