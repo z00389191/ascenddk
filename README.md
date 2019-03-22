@@ -25,12 +25,6 @@ Ascend Developer Kit（缩写：Ascend DK）是基于华为公司自研的人工
 </tr>
 <tr>
 	<td></td>
-	<td>osd</td>
-    <td></td>
-	<td>推理结果图像后处理公共API</td>
-</tr>
-<tr>
-	<td></td>
 	<td>presenter</td>
     <td></td>
 	<td>推理结果可视化实现样例</td>

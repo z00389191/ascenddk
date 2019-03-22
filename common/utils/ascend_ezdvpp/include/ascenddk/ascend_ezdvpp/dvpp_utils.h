@@ -157,13 +157,14 @@ class DvppUtils {
    * @param [in] format: input image format
    * @param [in] width: image width
    * @param [in] high: image high
+   * @param [out] width_stride: image stride in width direction
    * @param [out] buffer_size: image data size after align
    * @param [out] dest_data: image data after align
    * @return enum DvppErrorCode
    */
   int AllocBuffer(const char * src_data, int input_size, bool is_input_align,
-                  int format, int width, int high, int &buffer_size,
-                  char **dest_data);
+                  int format, int width, int high, int &width_stride,
+                  int &buffer_size, char **dest_data);
 
   /**
    * @brief alloc buffer for yuv420_sp image
