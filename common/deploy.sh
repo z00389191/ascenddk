@@ -37,7 +37,6 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
 compilation_target=$2
-remote_port=$3
 
 if [[ ${remote_port}"X" == "X" ]];then
     remote_port="22118"
@@ -86,6 +85,10 @@ main()
         echo "ERROR: unknown compilation target, please check your command."
         exit 1
     fi
+
+    #parse remote port
+    parse_remote_port
+
     deploy "${libs}"
     if [[ $? -ne 0 ]];then
         exit 1

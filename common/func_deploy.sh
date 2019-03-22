@@ -1,3 +1,16 @@
+
+# ************************parse remote port****************************************
+# Description:  parse remote port
+# ******************************************************************************
+function parse_remote_port()
+{
+    remote_port=`grep HOST_PORT ~/ide_daemon/ide_daemon.cfg | awk -F '=' '{print $2}'`
+
+    if [[ ${remote_port}"X" == "X" ]];then
+        remote_port="22118"
+    fi
+}
+
 # ************************check remote file****************************************
 # Description:  upload a file
 # $1: remote file(relative ~/xxxxx)
@@ -8,7 +21,7 @@ function check_remote_file()
     if [ ! -n ${filePath} ];then
         return 1
     fi
-    ret=`IDE-daemon-client --host $remote_host:$remote_port --hostcmd "wc -l ${filePath}"`
+    ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "wc -l ${filePath}"`
     if [[ $? -ne 0 ]];then
         return 1
     fi
@@ -127,11 +140,9 @@ function deploy_app()
     common_path=$3
     remote_host=$4
     model_version=$5
-    remote_port=$6
 
-    if [ ! -n ${remote_port} ];then
-        remote_port="22118"
-    fi
+    #set remote_port
+    parse_remote_port
 
     #build common
     bash ${common_path}/build.sh
@@ -154,7 +165,7 @@ function deploy_app()
     fi
 
     #deploy commonmodel_version
-    bash ${common_path}/deploy.sh ${remote_host} ${remote_port}
+    bash ${common_path}/deploy.sh ${remote_host}
     if [[ $? -ne 0 ]];then
         return 1
     fi
