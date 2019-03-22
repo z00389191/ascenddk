@@ -39,7 +39,7 @@ remote_host=$1
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/func_deploy.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
 main()
 {

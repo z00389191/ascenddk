@@ -41,8 +41,8 @@ compilation_target=$2
 HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
 DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
 
-. ${script_path}/func_libraries.sh
-. ${script_path}/func_deploy.sh
+. ${script_path}/util/scripts/func_libraries.sh
+. ${script_path}/util/scripts/func_deploy.sh
 
 function deploy()
 {

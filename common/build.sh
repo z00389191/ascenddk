@@ -37,7 +37,7 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 compilation_target=$1
 
-. ${script_path}/func_libraries.sh
+. ${script_path}/utils/scripts/func_libraries.sh
 
 function compile()
 {
