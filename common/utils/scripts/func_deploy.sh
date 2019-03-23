@@ -161,10 +161,10 @@ function upload_path()
 
 # ************************deploy ***********************************************
 # Description:  upload a file
-# $1: app path(absolute)
-# $2: common path(absolute)
-# $3: remote_host(host ip)
-# $4: remote port(IDE-daemon-client port)
+# $1: app_name
+# $2: app path(absolute)
+# $3: common path(absolute)
+# $4: remote_host(host ip)
 # $5: model_mode(none-no need to do model, local-do with local model, internet-download model based on ddk version)
 # ******************************************************************************
 function deploy_app()
