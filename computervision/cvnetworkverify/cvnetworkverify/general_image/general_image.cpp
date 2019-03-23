@@ -84,7 +84,8 @@ void GeneralImage::GetAllFiles(const string &path, vector<string> &file_vec) {
   for (string every_path : path_vector) {
     // check path exist or not
     if (!IsPathExist(path)) {
-      ERROR_LOG("Failed to deal empty path=%s.", every_path.c_str());
+      ERROR_LOG("Failed to deal path=%s. Reason: not exist or can not access.",
+                every_path.c_str());
       continue;
     }
 
