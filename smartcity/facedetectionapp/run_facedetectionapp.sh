@@ -81,7 +81,7 @@ function main()
     #start app
     iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/;./ascend_facedetectionapp"`
     if [[ $? -ne 0 ]];then
-        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp failed, please check /var/log/slog for details."
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp failed, please check /var/log/syslog and board running log from IDE Log Module for details."
         exit 1
     fi
     exit 0
