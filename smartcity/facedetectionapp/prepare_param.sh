@@ -35,66 +35,38 @@
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-compilation_target=$1
+remote_host=$1
+data_source=$2
 
-. ${script_path}/utils/scripts/func_libraries.sh
+common_path="${script_path}/../../common"
 
-function compile()
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
+
+function main()
 {
-    libs=$1
-    atlas_target=$2
-    for lib_name in ${libs}
-    do
-        echo "Build ${lib_name}..."
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            lib_path=${host_map[${lib_name}]}
-            make clean mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-            make install mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            lib_path=${device_map[${lib_name}]}
-            make clean mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-            make install mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-        fi
-    done
-}
-
-main()
-{
-    libs=`get_compilation_targets ${compilation_target}`
+    check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command."
+        echo "ERROR: invalid host ip, please check your command."
         exit 1
     fi
 
-    atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
+    if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
+        echo "ERROR: invalid data_source, please input Channel-1 or Channel-2."
+        exit 1
     fi
-
-    #remove blank
-    atlas_target=`echo ${atlas_target} | sed 's/ //g' `
-    compile "${libs}" ${atlas_target}
-    echo "Finish to build common libs."
+    echo "Prepare app configuration..."
+    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/out/graph.config
+    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/out/graph.config
+    
+    parse_remote_port
+    
+    upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/slog for details."
+        exit 1
+    fi
+    echo "Finish to prepare facedetectionapp params."
     exit 0
 }
 

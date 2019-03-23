@@ -35,66 +35,30 @@
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-compilation_target=$1
+remote_host=$1
+model_mode=$2
 
-. ${script_path}/utils/scripts/func_libraries.sh
+common_path="${script_path}/../../common"
 
-function compile()
-{
-    libs=$1
-    atlas_target=$2
-    for lib_name in ${libs}
-    do
-        echo "Build ${lib_name}..."
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            lib_path=${host_map[${lib_name}]}
-            make clean mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-            make install mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            lib_path=${device_map[${lib_name}]}
-            make clean mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-            make install mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-        fi
-    done
-}
+. ${common_path}/utils/scripts/func_deploy.sh
+. ${common_path}/utils/scripts/func_util.sh
 
 main()
 {
-    libs=`get_compilation_targets ${compilation_target}`
+    check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command."
+        echo "ERROR: invalid host ip, please check your command."
         exit 1
     fi
-
-    atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
+    
+    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
+        exit 1
     fi
-
-    #remove blank
-    atlas_target=`echo ${atlas_target} | sed 's/ //g' `
-    compile "${libs}" ${atlas_target}
-    echo "Finish to build common libs."
+    
+    echo "[Step] Prepare presenter server information and graph.confg..."
+    bash ${script_path}/prepare_graph.sh ${remote_host}
+    echo "Finish to deploy facedetectionapp."
     exit 0
 }
 

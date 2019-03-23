@@ -35,66 +35,55 @@
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-compilation_target=$1
+remote_host=$1
+data_source=$2
 
-. ${script_path}/utils/scripts/func_libraries.sh
+common_path="${script_path}/../../common"
 
-function compile()
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
+
+function kill_remote_running()
 {
-    libs=$1
-    atlas_target=$2
-    for lib_name in ${libs}
-    do
-        echo "Build ${lib_name}..."
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            lib_path=${host_map[${lib_name}]}
-            make clean mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-            make install mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            lib_path=${device_map[${lib_name}]}
-            make clean mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-            make install mode=${atlas_target} -C ${lib_path} 1>/dev/null
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: compile ${lib_name} failed, please check the env."
-                return 1
-            fi
-        fi
-    done
+    echo -e "\nrun.sh exit, kill ${remote_host}:ascend_facedetectionapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_facedetectionapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_facedetectionapp running failed, please login to kill it manually."
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    exit
 }
 
-main()
+trap 'kill_remote_running' 2 15
+
+function main()
 {
-    libs=`get_compilation_targets ${compilation_target}`
+    check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command."
+        echo "ERROR: invalid host ip, please check your command."
         exit 1
     fi
 
-    atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
+    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
+        exit 1
     fi
 
-    #remove blank
-    atlas_target=`echo ${atlas_target} | sed 's/ //g' `
-    compile "${libs}" ${atlas_target}
-    echo "Finish to build common libs."
+    #start presenter
+    #cd {common_path}/script
+
+    parse_remote_port
+
+    echo "[Step] run ${remote_host}:ascend_facedetectionapp..."
+
+    #start app
+    iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/;./ascend_facedetectionapp"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp failed, please check /var/log/slog for details."
+        exit 1
+    fi
     exit 0
 }
 
