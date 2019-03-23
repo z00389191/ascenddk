@@ -96,6 +96,11 @@ function deploy_cvverify()
         if [[ $? -ne 0 ]];then
             return 1
         fi
+        iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/cvnetworkverify/out/ascend_cvnetworkverify"`
+        if [[ $? -ne 0 ]];then
+            echo "ERROR: change excution mode ${remote_host}:./HIAI_PROJECTS/ascend_workspace/cvnetworkverify/out/* failed, please check /var/log/syslog for details."
+            return 1
+        fi
     fi
 }
 
