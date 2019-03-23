@@ -68,7 +68,7 @@ function main()
     echo "Modify presenter server configuration..."
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_graph.sh host_ip."
         exit 1
     fi
     bash ${common_path}/prepare_presenter_server.sh "face_detection" ${remote_host}

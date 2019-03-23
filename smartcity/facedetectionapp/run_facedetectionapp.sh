@@ -62,7 +62,7 @@ function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command."
+        echo "ERROR: invalid host ip, please check your command format: ./run_facedetectionapp.sh host_ip channel_name."
         exit 1
     fi
 
