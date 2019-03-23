@@ -43,6 +43,21 @@ common_path="${script_path}/../../common"
 . ${common_path}/utils/scripts/func_util.sh
 . ${common_path}/utils/scripts/func_deploy.sh
 
+function kill_remote_running()
+{
+    echo -e "\nrun.sh exit, kill remote ascend_facedetectionapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_facedetectionapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_facedetectionapp running failed, please login to kill it manually."
+        exit 1
+    fi
+    echo "$iRet in ${remote_host}."
+    exit 0
+}
+
+trap 'kill_remote_running' INT TERM
+
 function main()
 {
     check_ip_addr ${remote_host}
@@ -51,7 +66,7 @@ function main()
         exit 1
     fi
     
-    bash -x ${script_path}/prepare_param.sh ${remote_host} ${data_source}
+    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source}
     if [[ $? -ne 0 ]];then
         exit 1
     fi
@@ -61,6 +76,7 @@ function main()
     
     parse_remote_port
     
+    echo "[Step] run ${remote_host}:ascend_facedetectionapp..."
     #start app
     iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp"`
     echo $iRet

@@ -124,7 +124,7 @@ function upload_tar_gz_file()
 function upload_path()
 {
     local_path=$1
-    remote_path=$2
+    remote_supper_path=$2
     ignore_local_path=$3
     is_uncompress=$4
 
@@ -137,9 +137,9 @@ function upload_path()
         file_extension="${file##*.}"
         
         if [[ ${ignore_local_path}"X" == "trueX" ]];then
-            remote_file_path=${remote_path}
+            remote_file_path=${remote_supper_path}
         else
-            remote_file=`echo ${file} | sed "s#${local_path}#${remote_path}#g"`
+            remote_file=`echo ${file} | sed "s#${local_path}#${remote_supper_path}#g"`
             remote_file_path=`dirname ${remote_file}`
         fi
 

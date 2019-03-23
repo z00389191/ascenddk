@@ -56,12 +56,12 @@ function main()
         exit 1
     fi
     echo "Prepare app configuration..."
-    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/graph.config
-    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/graph.config
+    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/out/graph.config
+    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/out/graph.config
     
     parse_remote_port
     
-    upload_file ${script_path}/facedetectionapp/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
+    upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
     if [[ $? -ne 0 ]];then
         echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/slog for details."
         exit 1

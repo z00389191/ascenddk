@@ -71,8 +71,7 @@ main()
             exit 1
         fi
     done
-    
-    cp -r ${script_path}/facedetectionapp/graph_template.config ${script_path}/facedetectionapp/out/graph.config
+
     echo "Finish to Build app."
     exit 0
 }

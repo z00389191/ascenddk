@@ -46,13 +46,13 @@ function modify_graph()
 {
     echo "Modify presenter server information in graph.config..."
     cp -r ${script_path}/facedetectionapp/graph_template.config ${script_path}/facedetectionapp/graph_deploy.config
-    presenter_ip=`grep presenter_server_ip ${common_path}/presenter/server/face_detection/config/config.conf | awk -F '=' '{print $2}'`
+    presenter_ip=`grep presenter_server_ip ${common_path}/presenter/server/face_detection/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9.]//g'`
     if [[ $? -ne 0 ]];then
         echo "ERROR: get presenter server ip failed, please check ${common_path}/presenter/server/face_detection/config/config.conf."
         return 1
     fi
     
-    presenter_port=`grep presenter_server_port ${common_path}/presenter/server/face_detection/config/config.conf | awk -F '=' '{print $2}'`
+    presenter_port=`grep presenter_server_port ${common_path}/presenter/server/face_detection/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9]//g'`
     if [[ $? -ne 0 ]];then
         echo "ERROR: get presenter server port failed, please check ${common_path}/presenter/server/face_detection/config/config.conf."
         return 1
