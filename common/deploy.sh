@@ -74,13 +74,13 @@ main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command."
+        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [lib_name]."
         exit 1
     fi
     #deploy
     libs=`get_compilation_targets ${compilation_target}`
     if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command."
+        echo "ERROR: unknown compilation target, please check your command format: ./deploy.sh host_ip [lib_name]."
         exit 1
     fi
 

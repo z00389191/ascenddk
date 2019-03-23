@@ -47,12 +47,12 @@ function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name."
         exit 1
     fi
 
     if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
-        echo "ERROR: invalid data_source, please input Channel-1 or Channel-2."
+        echo "ERROR: invalid channel name, please input Channel-1 or Channel-2."
         exit 1
     fi
     echo "Prepare app configuration..."
