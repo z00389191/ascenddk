@@ -235,20 +235,17 @@ function deploy_app()
         fi
     fi
 
-    #deploy app
-    if [ -d ${app_path}/out ];then
-        echo "[Step] Deploy app libs..."
-        upload_path ${app_path}/out "~/HIAI_PROJECTS/ascend_workspace/${app_name}/out"
-        if [[ $? -ne 0 ]];then
-            return 1
-        fi
-    fi
-
     if [ -d ${app_path}/${app_name}/out ];then
         echo "[Step] Deploy app libs..."
         upload_path ${app_path}/${app_name}/out "~/HIAI_PROJECTS/ascend_workspace/${app_name}/out"
         if [[ $? -ne 0 ]];then
             return 1
         fi
+        iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/${app_name}/out/*"`
+        if [[ $? -ne 0 ]];then
+            echo "ERROR: change excution mode ${remote_host}:./HIAI_PROJECTS/ascend_workspace/${app_name}/out/* failed, please check /var/log/slog for details."
+            return 1
+        fi
     fi
+    return 0
 }

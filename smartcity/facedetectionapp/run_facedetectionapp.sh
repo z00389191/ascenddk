@@ -35,42 +35,55 @@
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-main()
+remote_host=$1
+data_source=$2
+
+common_path="${script_path}/../../common"
+
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
+
+function kill_remote_running()
 {
-    if [ ! -n ${DDK_HOME} ];then
-        echo "Can not find DDK_HOME env, please set it in environment!."
+    echo -e "\nrun.sh exit, kill ${remote_host}:ascend_facedetectionapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_facedetectionapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_facedetectionapp running failed, please login to kill it manually."
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    exit
+}
+
+trap 'kill_remote_running' 2 15
+
+function main()
+{
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command."
         exit 1
     fi
 
-    echo "Clear app build path..."
-    rm -rf ${script_path}/facedetectionapp/out
-
-    echo "Build main..."
-    make -C ${script_path}/facedetectionapp 1>/dev/null
-    if [ $? -ne 0 ];then
+    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source}
+    if [[ $? -ne 0 ]];then
         exit 1
     fi
 
-    for file in `find ${script_path}/facedetectionapp -name "Makefile"`
-    do
-        if [ ${file} == "${script_path}/facedetectionapp/Makefile" ];then
-            continue
-        fi
-        path=`dirname ${file}`
-        lib_path_name=`basename ${path}`
-        echo "Build ${lib_path_name} lib..."
-        make clean -C ${path} 1>/dev/null
-        if [ $? -ne 0 ];then
-            exit 1
-        fi
-        make install -C ${path} 1>/dev/null
+    #start presenter
+    #cd {common_path}/script
 
-        if [ $? -ne 0 ];then
-            exit 1
-        fi
-    done
+    parse_remote_port
 
-    echo "Finish to Build app."
+    echo "[Step] run ${remote_host}:ascend_facedetectionapp..."
+
+    #start app
+    iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/;./ascend_facedetectionapp"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp failed, please check /var/log/slog for details."
+        exit 1
+    fi
     exit 0
 }
 
