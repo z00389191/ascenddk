@@ -118,25 +118,6 @@ void serialize(Archive& ar, BatchImageParaScale& data) {
 }
 
 /**
- * @brief: custom data type: BatchPreProcessedImageT
- *         defined for preProcess and inference
- */
-struct BatchPreProcessedImageT {
-  hiai::BatchInfo batch_info;
-  std::vector<NewImageParaT> original_imgs;
-  std::vector<NewImageParaT> processed_imgs;
-};
-
-/**
- * @brief: serialize for BatchPreProcessedImageT
- *         engine uses it to transfer data between host and device
- */
-template<class Archive>
-void serialize(Archive &ar, BatchPreProcessedImageT &data) {
-  ar(data.batch_info, data.original_imgs, data.processed_imgs);
-}
-
-/**
  * @brief: custom data type: OutputT
  *         defined for results output data
  */
