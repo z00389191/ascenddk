@@ -144,7 +144,8 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
    * 2.crop_up and crop_down should be set to zero.
    */
   dvpp_basic_vpc_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV; // nv12
-  dvpp_basic_vpc_para.src_resolution = src_img.width * src_img.height;
+  dvpp_basic_vpc_para.src_resolution.width = src_img.width;
+  dvpp_basic_vpc_para.src_resolution.height = src_img.height;
 
   int crop_horz_min = bbox.lt_x % 2 == 0 ? bbox.lt_x : bbox.lt_x + 1;
   int crop_horz_max = bbox.rb_x % 2 == 0 ? bbox.rb_x - 1 : bbox.rb_x;
@@ -164,8 +165,8 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
   int dest_resolution_width = dest_width % 2 == 0 ? dest_width : dest_width + 1;
   int dest_resolutiont_height =
       dest_height % 2 == 0 ? dest_height : dest_height + 1;
-  dvpp_basic_vpc_para.dest_resolution = dest_resolution_width
-      * dest_resolutiont_height;
+  dvpp_basic_vpc_para.dest_resolution.width = dest_resolution_width;
+  dvpp_basic_vpc_para.dest_resolution.height = dest_resolutiont_height;
   // DVPP limits crop_left should be even number
   dvpp_basic_vpc_para.crop_left = crop_horz_min;
   // DVPP limits crop_right should be Odd number

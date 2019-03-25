@@ -119,8 +119,10 @@ HIAI_StatusT ObjectDetectionInferenceEngine::ImagePreProcess(
    * 2.crop_up and crop_down should be set to zero.
    */
   dvpp_basic_vpc_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV; // nv12
-  dvpp_basic_vpc_para.src_resolution = src_img.width * src_img.height;
-  dvpp_basic_vpc_para.dest_resolution = kInputWidth * kInputHeight;
+  dvpp_basic_vpc_para.src_resolution.width = (int) src_img.width;
+  dvpp_basic_vpc_para.src_resolution.height = (int) src_img.height;
+  dvpp_basic_vpc_para.dest_resolution.width = kInputWidth;
+  dvpp_basic_vpc_para.dest_resolution.height = kInputHeight;
   // DVPP limits crop_left should be even number
   dvpp_basic_vpc_para.crop_left =
       src_img.width % 2 == 0 ? src_img.width : src_img.width - 1;

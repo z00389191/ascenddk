@@ -180,8 +180,10 @@ void PedestrianAttrInference::BatchImageResize(
      * 2.crop_up and crop_down should be set to zero.
      */
     dvpp_basic_vpc_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV; // nv12
-    dvpp_basic_vpc_para.src_resolution = iter->img.width * iter->img.height;
-    dvpp_basic_vpc_para.dest_resolution = kDestImageWidth * kDestImageHeight;
+    dvpp_basic_vpc_para.src_resolution.width = (int) iter->img.width;
+    dvpp_basic_vpc_para.src_resolution.height = (int) iter->img.height;
+    dvpp_basic_vpc_para.dest_resolution.width = kDestImageWidth;
+    dvpp_basic_vpc_para.dest_resolution.height = kDestImageHeight;
     // DVPP limits crop_left should be even number
     dvpp_basic_vpc_para.crop_left =
         iter->img.width % 2 == 0 ? iter->img.width : iter->img.width - 1;
