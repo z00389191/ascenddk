@@ -73,7 +73,7 @@ do_build: $(LOCAL_LIBRARY) | do_pre_build
 
 $(LOCAL_LIBRARY): $(FULL_C_OBJS) $(FULL_CPP_OBJS) | do_pre_build
 	$(Q)echo [LD] $@
-	$(Q)$(CPP) $(CC_FLAGS) -o $(LOCAL_LIBRARY) $(FULL_C_OBJS) $(FULL_CPP_OBJS) -Wl,--whole-archive  -Wl,--no-whole-archive -Wl,--start-group  -Wl,--end-group $(SHARED_LIBRARIES_DIRS) $(SHARED_LIBRARIES) -Wl,-rpath-link=$(DDK_HOME)/host/lib -wl,-rpath='$$ORIGIN/../../../ascend_lib'
+	$(Q)$(CPP) $(CC_FLAGS) -o $(LOCAL_LIBRARY) $(FULL_C_OBJS) $(FULL_CPP_OBJS) -Wl,--whole-archive  -Wl,--no-whole-archive -Wl,--start-group  -Wl,--end-group $(SHARED_LIBRARIES_DIRS) $(SHARED_LIBRARIES) -Wl,-rpath-link=$(DDK_HOME)/host/lib -Wl,-rpath='$$ORIGIN/../../../ascend_lib'
 
 $(FULL_C_OBJS): $(LOCAL_OBJ_PATH)/%.o : $(TOPDIR)/%.c $(TOPDIR)/%.h  | do_pre_build
 	$(Q)echo [CC] $@

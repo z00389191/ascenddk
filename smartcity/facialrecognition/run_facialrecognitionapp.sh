@@ -67,7 +67,7 @@ function main()
         exit 1
     fi
 
-    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source}
+    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source} ${presenter_view_app_name}
     if [[ $? -ne 0 ]];then
         exit 1
     fi

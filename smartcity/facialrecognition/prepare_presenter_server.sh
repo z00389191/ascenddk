@@ -34,14 +34,14 @@ function main()
     while [ ${presenter_server_storage_path}"X" == "X" ]
     do
         read -p "Please input a absolute path to storage facial recognition data:" presenter_server_storage_path
-        make -p ${presenter_server_storage_path}
+        mkdir -p ${presenter_server_storage_path}
         if [ $? -ne 0 ];then
             echo "ERROR: invalid path: ${prepare_presenter_server}, please input a valid path."
         fi
 
     done
     echo "Use ${presenter_server_storage_path} to store facial recognition data..."
-    sed -i "s#^storage_dir=.*$#storage_dir=${presenter_server_storage_path}/g" ${common_path}/presenter/server/facial_recognition/config/config.conf
+    sed -i "s#^storage_dir=.*\$#storage_dir=${presenter_server_storage_path}#g" ${common_path}/presenter/server/facial_recognition/config/config.conf
     
 
     echo "Finish to prepare facial recognition presenter server configuration."

@@ -64,6 +64,7 @@ function main()
     echo "Prepare app configuration..."
     cp -r ${script_path}/facialrecognitionapp/graph_deploy.config ${script_path}/facialrecognitionapp/out/graph.config
     sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facialrecognitionapp/out/graph.config
+    sed -i "s/\${template_app_name}/${presenter_view_app_name}/g" ${script_path}/facialrecognitionapp/out/graph.config
     
     parse_remote_port
     
