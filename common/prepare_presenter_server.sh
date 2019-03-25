@@ -148,7 +148,7 @@ function main()
     
     echo "Use ${presenter_view_ip} to show information in browser..."
     sed -i "s/web_server_ip=[0-9.]*/web_server_ip=${presenter_view_ip}/g" ${script_path}/presenter/server/${app_name}/config/config.conf
-    echo "Finish to prepare presenter server for ${app_name}."
+    echo "Finish to prepare ${app_name} presenter server ip configuration."
 }
 
 main

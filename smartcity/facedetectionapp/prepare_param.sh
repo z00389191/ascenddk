@@ -63,7 +63,7 @@ function main()
     
     upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
     if [[ $? -ne 0 ]];then
-        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/slog for details."
+        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/syslog for details."
         exit 1
     fi
     echo "Finish to prepare facedetectionapp params."
