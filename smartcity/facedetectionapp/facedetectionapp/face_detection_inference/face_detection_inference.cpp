@@ -38,10 +38,12 @@
 #include "ascenddk/ascend_ezdvpp/dvpp_data_type.h"
 #include "ascenddk/ascend_ezdvpp/dvpp_process.h"
 
-using hiai::Engine;
-using ascend::utils::DvppBasicVpcParam;
-using ascend::utils::DvppVpcOutput;
+using ascend::utils::DvppBasicVpcPara;
 using ascend::utils::DvppProcess;
+using ascend::utils::DvppVpcOutput;
+using hiai::Engine;
+using hiai::ImageData;
+using hiai::IMAGEFORMAT;
 
 namespace {
 // output port (engine port begin with 0)
@@ -118,7 +120,8 @@ HIAI_StatusT FaceDetectionInference::ImagePreProcess(
   }
 
   // assemble resize param struct
-  DvppBasicVpcParam dvpp_resize_param;
+  DvppBasicVpcPara dvpp_resize_para;
+  dvpp_resize_param.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;
   dvpp_resize_param.src_resolution.height = src_img.height;
   dvpp_resize_param.src_resolution.width = src_img.width;
 
@@ -166,14 +169,24 @@ HIAI_IMPL_ENGINE_PROCESS("face_detection_inference",
     return HIAI_ERROR;
   }
 
-  // initialize as zero
-  uint32_t all_input_size = 0;
   std::shared_ptr<BatchImageParaWithScaleT> image_handle =
       std::static_pointer_cast<BatchImageParaWithScaleT>(arg0);
-  for (uint32_t i = 0; i < image_handle->batch_info.batch_size; i++) {
-    // get all input size
-    all_input_size += image_handle->v_img[i].img.size
-        * sizeof(uint8_t);
+
+  // initialize as zero
+  uint32_t all_input_size = 0;
+  vector<ImageData<u_int8_t>> processed_imgs;
+  for (uint32_t i = 0; i < image_handle->b_info.batch_size; i++) {
+    // image pre process
+    ImageData<u_int8_t> resized_img;
+    HIAI_StatusT vpc_ret =
+        ImagePreProcess(image_handle->v_img[i].img, resized_img);
+    if(vpc_ret != HIAI_OK){
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "image pre process error");
+      continue;
+    }
+    all_input_size += resized_img.size * sizeof(uint8_t);
+    processed_imgs.push_back(resized_img);
   }
   // input size is less than zero, do not need to inference
   if (all_input_size <= 0) {
@@ -185,29 +198,21 @@ HIAI_IMPL_ENGINE_PROCESS("face_detection_inference",
 
   // copy original data
   std::shared_ptr<EngineTransT> trans_data = std::make_shared<EngineTransT>();
-  trans_data->b_info = image_handle->batch_info;
+  trans_data->b_info = image_handle->b_info;
   trans_data->imgs = image_handle->v_img;
 
   // copy image data
   std::shared_ptr<uint8_t> temp = std::shared_ptr<uint8_t>(
       new uint8_t[all_input_size], std::default_delete<uint8_t[]>());
   uint32_t last_size = 0;
-  for (uint32_t i = 0; i < image_handle->batch_info.batch_size; i++) {
+  for (uint32_t i = 0; i < processed_imgs.size(); i++) {
 
-    //image preprocess
-    ImageData<u_int8_t> resized_img;
-    HIAI_StatusT vpc_ret=PreProcess(image_handle->v_img[i].img,resized_img);
-    if(vpc_ret != HIAI_OK){
-      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                      "image pre process error");
-      return HIAI_ERROR;
-    }
     // copy memory according to each size
-    uint32_t each_size = resized_img.size * sizeof(uint8_t);
+    uint32_t each_size = processed_imgs[i].size * sizeof(uint8_t);
     HIAI_ENGINE_LOG("each input image size: %u", each_size);
     errno_t mem_ret = memcpy_s(temp.get() + last_size,
                                all_input_size - last_size,
-                               resized_img.data.get(),
+                               processed_imgs[i].data.get(),
                                each_size);
     // memory copy failed, no need to inference, send original image
     if (mem_ret != EOK) {
