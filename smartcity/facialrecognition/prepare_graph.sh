@@ -36,37 +36,51 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-data_source=$2
 
 common_path="${script_path}/../../common"
 
 . ${common_path}/utils/scripts/func_util.sh
-. ${common_path}/utils/scripts/func_deploy.sh
+
+function modify_graph()
+{
+    echo "Modify presenter server information in graph.config..."
+    cp -r ${script_path}/facialrecognitionapp/graph_template.config ${script_path}/facialrecognitionapp/graph_deploy.config
+    presenter_ip=`grep presenter_server_ip ${common_path}/presenter/server/facial_recognition/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9.]//g'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: get presenter server ip failed, please check ${common_path}/presenter/server/facial_recognition/config/config.conf."
+        return 1
+    fi
+    
+    presenter_port=`grep presenter_server_port ${common_path}/presenter/server/facial_recognition/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9]//g'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: get presenter server port failed, please check ${common_path}/presenter/server/facial_recognition/config/config.conf."
+        return 1
+    fi
+    
+    sed -i "s/\${template_presenter_ip}/${presenter_ip}/g" ${script_path}/facialrecognitionapp/graph_deploy.config
+    sed -i "s/\${template_presenter_port}/${presenter_port}/g" ${script_path}/facialrecognitionapp/graph_deploy.config
+    return 0
+}
 
 function main()
 {
+    echo "Modify presenter server configuration..."
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_graph.sh host_ip."
         exit 1
     fi
-
-    if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
-        echo "ERROR: invalid channel name, please input Channel-1 or Channel-2."
-        exit 1
-    fi
-    echo "Prepare app configuration..."
-    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/out/graph.config
-    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/out/graph.config
-    
-    parse_remote_port
-    
-    upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
+    bash ${script_path}/prepare_presenter_server.sh ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/syslog for details."
         exit 1
     fi
-    echo "Finish to prepare facedetectionapp params."
+    
+    modify_graph
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+    
+    echo "Finish to prepare facialrecognitionapp graph."
     exit 0
 }
 

@@ -37,36 +37,51 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
 data_source=$2
+presenter_view_app_name=$3
 
 common_path="${script_path}/../../common"
 
 . ${common_path}/utils/scripts/func_util.sh
 . ${common_path}/utils/scripts/func_deploy.sh
 
+function kill_remote_running()
+{
+    echo -e "\nrun.sh exit, kill ${remote_host}:ascend_facialrecognitionapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_facialrecognitionapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_facialrecognitionapp running failed, please login to kill it manually."
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    exit
+}
+
+trap 'kill_remote_running' 2 15
+
 function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name."
+        echo "ERROR: invalid host ip, please check your command format: ./run_facialrecognitionapp.sh host_ip channel_name."
         exit 1
     fi
 
-    if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
-        echo "ERROR: invalid channel name, please input Channel-1 or Channel-2."
-        exit 1
-    fi
-    echo "Prepare app configuration..."
-    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/out/graph.config
-    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/out/graph.config
-    
-    parse_remote_port
-    
-    upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
+    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source} ${presenter_view_app_name}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/syslog for details."
         exit 1
     fi
-    echo "Finish to prepare facedetectionapp params."
+
+    parse_remote_port
+
+    echo "[Step] run ${remote_host}:ascend_facialrecognitionapp..."
+
+    #start app
+    iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/facialrecognitionapp/out/;./ascend_facialrecognitionapp"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facialrecognitionapp/out/ascend_facialrecognitionapp failed, please check /var/log/syslog and board running log from IDE Log Module for details."
+        exit 1
+    fi
     exit 0
 }
 
