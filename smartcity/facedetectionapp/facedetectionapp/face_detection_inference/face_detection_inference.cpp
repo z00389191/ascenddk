@@ -120,7 +120,7 @@ HIAI_StatusT FaceDetectionInference::ImagePreProcess(
   }
 
   // assemble resize param struct
-  DvppBasicVpcPara dvpp_resize_para;
+  DvppBasicVpcPara dvpp_resize_param;
   dvpp_resize_param.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;
   dvpp_resize_param.src_resolution.height = src_img.height;
   dvpp_resize_param.src_resolution.width = src_img.width;
