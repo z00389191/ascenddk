@@ -49,6 +49,8 @@
 
 #include "hiaiengine/log.h"
 #include "hiaiengine/data_type_reg.h"
+#include "dvpp/dvpp_config.h"
+#include "dvpp/Vpc.h"
 
 using namespace std;
 
@@ -317,56 +319,38 @@ void CallVpcGetYuvImage(FRAME* frame, void* hiai_data) {
     return;
   }
 
-  vpc_in_msg vpc_in_msg;
-  vpc_in_msg.format = 0;  // "0" means image format is yuv420_semi_plannar
+  // constructing input image configuration
+  shared_ptr<VpcUserImageConfigure> image_configure(new VpcUserImageConfigure);
+  image_configure->widthStride = frame->width;
+  image_configure->heightStride = frame->height;
 
   // check image format is nv12
   if (strcmp(frame->image_format, kImageFormatNv12.c_str()) == kCompareEqual) {
-    // rank=1:the out format is same with the input. nv12->nv12; nv21->nv21
-    vpc_in_msg.rank = 1;
+    image_configure->inputFormat = INPUT_YUV420_SEMI_PLANNER_UV;
   } else {  // check image format is nv21
-    // rank=0:the out format is opposite of the input. nv12->nv21; nv21->nv12
-    vpc_in_msg.rank = 0;
+    image_configure->inputFormat = INPUT_YUV420_SEMI_PLANNER_VU;
   }
 
-  // set frame info for vpc input message
-  vpc_in_msg.bitwidth = frame->bitdepth;
-  vpc_in_msg.width = frame->width;
-  vpc_in_msg.high = frame->height;
-  vpc_in_msg.stride = vpc_in_msg.width;
-
-  shared_ptr<AutoBuffer> auto_out_buffer = make_shared<AutoBuffer>();
-
-  vpc_in_msg.in_buffer = (char*) frame->buffer;
-  vpc_in_msg.in_buffer_size = frame->buffer_size;
-
-  vpc_in_msg.rdma.luma_head_addr =
-      (long) (frame->buffer + frame->offset_head_y);
-  vpc_in_msg.rdma.chroma_head_addr = (long) (frame->buffer
+  image_configure->outputFormat = OUTPUT_YUV420SP_UV;
+  image_configure->isCompressData = true;
+  image_configure->compressDataConfigure.lumaHeadAddr = (long) (frame->buffer
+      + frame->offset_head_y);
+  image_configure->compressDataConfigure.chromaHeadAddr = (long) (frame->buffer
       + frame->offset_head_c);
-
-  vpc_in_msg.rdma.luma_payload_addr = (long) (frame->buffer
+  image_configure->compressDataConfigure.lumaHeadStride = frame->stride_head;
+  image_configure->compressDataConfigure.chromaHeadStride = frame->stride_head;
+  image_configure->compressDataConfigure.lumaPayloadAddr = (long) (frame->buffer
       + frame->offset_payload_y);
-  vpc_in_msg.rdma.chroma_payload_addr = (long) (frame->buffer
-      + frame->offset_payload_c);
-
-  vpc_in_msg.rdma.luma_head_stride = frame->stride_head;
-  vpc_in_msg.rdma.chroma_head_stride = frame->stride_head;
-  vpc_in_msg.rdma.luma_payload_stride = frame->stride_payload;
-  vpc_in_msg.rdma.chroma_payload_stride = frame->stride_payload;
-  vpc_in_msg.cvdr_or_rdma = 0;   // cvdr:1; rdma:0
-
-  vpc_in_msg.hmax = frame->realWidth - 1;  // The max deviation from the origin
-  vpc_in_msg.hmin = 0; // The min deviation from 0
-  vpc_in_msg.vmax = frame->realHeight - 1;  // The max deviation from the origin
-  vpc_in_msg.vmin = 0; // The min deviation from 0
-  vpc_in_msg.vinc = 1;  // Vertical scaling,
-  vpc_in_msg.hinc = 1;  // Horizontal scaling
-  vpc_in_msg.auto_out_buffer_1 = auto_out_buffer;
+  image_configure->compressDataConfigure.chromaPayloadAddr = (long) (frame
+      ->buffer + frame->offset_payload_c);
+  image_configure->compressDataConfigure.lumaPayloadStride = frame
+      ->stride_payload;
+  image_configure->compressDataConfigure.chromaPayloadStride = frame
+      ->stride_payload;
 
   dvppapi_ctl_msg dvpp_api_ctl_msg;
-  dvpp_api_ctl_msg.in = (void*) (&vpc_in_msg);
-  dvpp_api_ctl_msg.in_size = sizeof(vpc_in_msg);
+  dvpp_api_ctl_msg.in = static_cast<void *>(image_configure.get());
+  dvpp_api_ctl_msg.in_size = sizeof(VpcUserImageConfigure);
 
   // call vpc and check the result
   if (DvppCtl(dvpp_api, DVPP_CTL_VPC_PROC, &dvpp_api_ctl_msg)
@@ -458,7 +442,7 @@ void VideoDecode::SetDictForRtsp(const string& channel_value,
     av_dict_set(&avdic, kBufferSize.c_str(), kMaxBufferSize.c_str(), kNoFlag);
     av_dict_set(&avdic, kMaxDelayStr.c_str(), kMaxDelayValue.c_str(), kNoFlag);
     av_dict_set(&avdic, kTimeoutStr.c_str(), kTimeoutValue.c_str(), kNoFlag);
-    av_dict_set(&avdic, kReorderQueueSize.c_str(), 
+    av_dict_set(&avdic, kReorderQueueSize.c_str(),
                 kReorderQueueSizeValue.c_str(), kNoFlag);
     av_dict_set(&avdic, kPktSize.c_str(), kPktSizeValue.c_str(), kNoFlag);
   }
@@ -475,8 +459,8 @@ bool VideoDecode::OpenVideoFromInputChannel(
 
   if (ret_open_input_video < kHandleSuccessful) { // check open video result
     char buf_error[kErrorBufferSize];
-	av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
-	
+    av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
+
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "Could not open video:%s, "
                     "result of avformat_open_input:%d, error info:%s",
                     channel_value.c_str(), ret_open_input_video, buf_error);
@@ -500,8 +484,8 @@ bool VideoDecode::InitVideoParams(int videoindex, VideoType &video_type,
                                   AVBSFContext* &bsf_ctx) {
   // check video type, only support h264 and h265
   if (!CheckVideoType(videoindex, av_format_context, video_type)) {
-	avformat_close_input(&av_format_context);
-	
+    avformat_close_input(&av_format_context);
+
     return false;
   }
 
@@ -544,11 +528,11 @@ bool VideoDecode::InitVideoParams(int videoindex, VideoType &video_type,
 void VideoDecode::UnpackVideo2Image(const string &channel_id) {
   char thread_name_log[kThreadNameLength];
   string thread_name = kThreadNameHead + channel_id;
-  prctl(PR_SET_NAME, (unsigned long)thread_name.c_str());
-  prctl(PR_GET_NAME, (unsigned long)thread_name_log);
-  HIAI_ENGINE_LOG("Unpack video to image from:%s, thread name:%s", 
-                   channel_id.c_str(), thread_name_log);
-  			   
+  prctl(PR_SET_NAME, (unsigned long) thread_name.c_str());
+  prctl(PR_GET_NAME, (unsigned long) thread_name_log);
+  HIAI_ENGINE_LOG("Unpack video to image from:%s, thread name:%s",
+                  channel_id.c_str(), thread_name_log);
+
   string channel_value = GetChannelValue(channel_id);
   AVFormatContext* av_format_context = avformat_alloc_context();
 
@@ -602,7 +586,7 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
 
   if (strcpy_result != EOK) { // check strcpy result
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to call strcpy_s, result:%d, channel id:%s", 
+                    "Fail to call strcpy_s, result:%d, channel id:%s",
                     strcpy_result, channel_id.c_str());
     return;
   }
@@ -619,7 +603,7 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
       if (av_bsf_send_packet(bsf_ctx, &av_packet) != kHandleSuccessful) {
         HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                         "Fail to call av_bsf_send_packet, channel id:%s",
-                          channel_id.c_str());
+                        channel_id.c_str());
       }
 
       // receive single frame from ffmpeg
@@ -673,9 +657,9 @@ bool VideoDecode::VerifyVideoWithUnpack(const string &channel_value) {
                                                  &avdic);
   if (ret_open_input_video < kHandleSuccessful) { // check open video result
     char buf_error[kErrorBufferSize];
-	av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
-	
-	HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "Could not open video:%s, "
+    av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
+
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "Could not open video:%s, "
                     "result of avformat_open_input:%d, error info:%s",
                     channel_value.c_str(), ret_open_input_video, buf_error);
 
@@ -696,7 +680,7 @@ bool VideoDecode::VerifyVideoWithUnpack(const string &channel_value) {
         HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
         "Video index is -1, current media stream has no video info:%s",
         channel_value.c_str());
-		
+
     avformat_close_input(&av_format_context);
     return false;
   }
@@ -704,7 +688,7 @@ bool VideoDecode::VerifyVideoWithUnpack(const string &channel_value) {
   VideoType video_type = kInvalidTpye;
   bool is_valid = CheckVideoType(video_index, av_format_context, video_type);
   avformat_close_input(&av_format_context);
-  
+
   return is_valid;
 }
 
@@ -725,9 +709,9 @@ void VideoDecode::MultithreadHandleVideo() {
   if (!IsEmpty(channel1_, kStrChannelId1)
       && !IsEmpty(channel2_, kStrChannelId2)) {
     thread thread_channel_1(&VideoDecode::UnpackVideo2Image, this,
-	                        kStrChannelId1);
+                            kStrChannelId1);
     thread thread_channel_2(&VideoDecode::UnpackVideo2Image, this,
-	                        kStrChannelId2);
+                            kStrChannelId2);
 
     thread_channel_1.join();
     thread_channel_2.join();
