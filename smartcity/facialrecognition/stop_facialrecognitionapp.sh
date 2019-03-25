@@ -36,61 +36,48 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-compilation_target=$2
 
-HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
-DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
+common_path="${script_path}/../../common"
 
-. ${script_path}/utils/scripts/func_libraries.sh
-. ${script_path}/utils/scripts/func_deploy.sh
-. ${script_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-function deploy()
+function kill_remote_running()
 {
-    libs=$1
-    for lib_name in ${libs}
-    do
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${HOST_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${DEVICE_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-    done
-    echo "Finish to upload libs."
+    echo -e "run.sh exit, kill ${remote_host}:ascend_facialrecognitionapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_facialrecognitionapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_facialrecognitionapp running failed, please login to kill it manually."
+        return 1
+    else
+        echo "$iRet in ${remote_host}."
+    fi
     return 0
 }
 
-main()
+function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [lib_name]."
-        exit 1
-    fi
-    #deploy
-    libs=`get_compilation_targets ${compilation_target}`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command format: ./deploy.sh host_ip [lib_name]."
+        echo "ERROR: invalid host ip, please check your command format: ./stop_facialrecognitionapp.sh host_ip."
         exit 1
     fi
 
-    #parse remote port
+    running_pid=`ps -ef | grep "run_facialrecognitionapp\.sh" | awk -F ' ' '{print $2}'`
+
+    if [[ ${running_pid}"X" != "X" ]];then
+        echo "kill local runn_face run_facialrecognitionapp.sh ${running_pid}"
+        kill -9 ${running_pid}
+    fi
+
     parse_remote_port
 
-    deploy "${libs}"
+    kill_remote_running
     if [[ $? -ne 0 ]];then
         exit 1
     fi
+
     exit 0
 }
 

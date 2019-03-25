@@ -31,66 +31,78 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
 
-# ************************Variable*********************************************
+app_type=$1
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-remote_host=$1
-compilation_target=$2
+# define supported type
+declare -A type_flag=()
+type_flag["classfication"]="CLASSFICATION"
+type_flag["faster_rcnn"]="FASTER_RCNN"
 
-HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
-DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
-
-. ${script_path}/utils/scripts/func_libraries.sh
-. ${script_path}/utils/scripts/func_deploy.sh
-. ${script_path}/utils/scripts/func_util.sh
-
-function deploy()
-{
-    libs=$1
-    for lib_name in ${libs}
+function get_cc_flag(){
+    for key in ${!type_flag[@]}
     do
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${HOST_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${DEVICE_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
+        if [[ $1"X" == $key"X" ]]; then
+            echo ${type_flag[$key]}
+            break
         fi
     done
-    echo "Finish to upload libs."
-    return 0
 }
 
 main()
 {
-    check_ip_addr ${remote_host}
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [lib_name]."
+    # check app_type
+    cc_flag=`get_cc_flag $app_type`
+    if [[ $cc_flag"X" == "X" ]]; then
+        echo "please input correct app_type: [${!type_flag[@]}]"
         exit 1
     fi
-    #deploy
-    libs=`get_compilation_targets ${compilation_target}`
+    
+    # check DDK_HOME
+    if [ ! -n ${DDK_HOME} ];then
+        echo "Can not find DDK_HOME env, please set it in environment!."
+        exit 1
+    fi
+    
+    # get target
+    atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
     if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command format: ./deploy.sh host_ip [lib_name]."
+        echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
+        exit 1
+    fi
+    # remove blank
+    atlas_target=`echo ${atlas_target} | sed 's/ //g' `
+
+    echo "Clear app build path..."
+    rm -rf ${script_path}/cvnetworkverify/out
+
+    echo "Build main..."
+    make mode=${atlas_target} -C ${script_path}/cvnetworkverify 1>/dev/null
+    if [ $? -ne 0 ];then
         exit 1
     fi
 
-    #parse remote port
-    parse_remote_port
+    for file in `find ${script_path}/cvnetworkverify -name "Makefile"`
+    do
+        if [ ${file} == "${script_path}/cvnetworkverify/Makefile" ];then
+            continue
+        fi
+        path=`dirname ${file}`
+        lib_path_name=`basename ${path}`
+        echo "Build ${lib_path_name} lib..."
+        make install mode=${atlas_target} CC_OPTS=${cc_flag} -C ${path} 1>/dev/null
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+    done
+    
+    # copy other file to out
+    cp ${script_path}/run_classfication.py ${script_path}/cvnetworkverify/out
+    cp ${script_path}/run_object_detection_faster_rcnn.py ${script_path}/cvnetworkverify/out
+    cp ${script_path}/cvnetworkverify/graph.template ${script_path}/cvnetworkverify/out
 
-    deploy "${libs}"
-    if [[ $? -ne 0 ]];then
-        exit 1
-    fi
+    echo "Finish to Build app."
     exit 0
 }
 

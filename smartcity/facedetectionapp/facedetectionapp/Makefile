@@ -1,9 +1,14 @@
 TOPDIR      := $(patsubst %,%,$(CURDIR))
+
+ifndef DDK_HOME
+$(error "Can not find DDK_HOME env, please set it in environment!.")
+endif
+
 CC := aarch64-linux-gnu-g++
 CPP := aarch64-linux-gnu-g++
 
 
-LOCAL_MODULE_NAME := ascend_facialrecognitionapp
+LOCAL_MODULE_NAME := ascend_facedetectionapp
 CC_FLAGS := -std=c++11
 
 local_src_files := \

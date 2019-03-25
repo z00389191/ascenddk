@@ -36,61 +36,29 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-compilation_target=$2
+model_mode=$2
 
-HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
-DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
+common_path="${script_path}/../../common"
 
-. ${script_path}/utils/scripts/func_libraries.sh
-. ${script_path}/utils/scripts/func_deploy.sh
-. ${script_path}/utils/scripts/func_util.sh
-
-function deploy()
-{
-    libs=$1
-    for lib_name in ${libs}
-    do
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${HOST_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${DEVICE_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-    done
-    echo "Finish to upload libs."
-    return 0
-}
+. ${common_path}/utils/scripts/func_deploy.sh
+. ${common_path}/utils/scripts/func_util.sh
 
 main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [lib_name]."
+        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [model_mode(local/internet)]."
         exit 1
     fi
-    #deploy
-    libs=`get_compilation_targets ${compilation_target}`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command format: ./deploy.sh host_ip [lib_name]."
-        exit 1
-    fi
-
-    #parse remote port
-    parse_remote_port
-
-    deploy "${libs}"
+    
+    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
     if [[ $? -ne 0 ]];then
         exit 1
     fi
+    
+    echo "[Step] Prepare presenter server information and graph.confg..."
+    bash ${script_path}/prepare_graph.sh ${remote_host}
+    echo "Finish to deploy facedetectionapp."
     exit 0
 }
 

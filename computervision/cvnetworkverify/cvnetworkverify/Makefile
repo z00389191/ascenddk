@@ -1,9 +1,24 @@
 TOPDIR      := $(patsubst %,%,$(CURDIR))
+
+ifndef DDK_HOME
+$(error "Can not find DDK_HOME env, please set it in environment!.")
+endif
+
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
 CC := aarch64-linux-gnu-g++
 CPP := aarch64-linux-gnu-g++
+else ifeq ($(mode), ASIC)
+CC := g++
+CPP := g++
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
 
-
-LOCAL_MODULE_NAME := ascend_facialrecognitionapp
+LOCAL_MODULE_NAME := ascend_cvnetworkverify
 CC_FLAGS := -std=c++11
 
 local_src_files := \
@@ -11,6 +26,7 @@ local_src_files := \
 	
 local_inc_dirs := \
 	$(TOPDIR) \
+	$(TOPDIR)/common/include \
 	$(DDK_HOME)/include/inc \
 	$(DDK_HOME)/include/third_party/protobuf/include \
 	$(DDK_HOME)/include/third_party/cereal/include \

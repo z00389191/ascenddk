@@ -37,7 +37,7 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 compilation_target=$1
 
-. ${script_path}/func_libraries.sh
+. ${script_path}/utils/scripts/func_libraries.sh
 
 function compile()
 {
@@ -82,7 +82,7 @@ main()
 {
     libs=`get_compilation_targets ${compilation_target}`
     if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command."
+        echo "ERROR: unknown compilation target, please check your command format: ./build.sh [lib_name]."
         exit 1
     fi
 

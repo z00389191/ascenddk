@@ -36,59 +36,52 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-compilation_target=$2
+data_source=$2
 
-HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
-DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
+common_path="${script_path}/../../common"
 
-. ${script_path}/utils/scripts/func_libraries.sh
-. ${script_path}/utils/scripts/func_deploy.sh
-. ${script_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-function deploy()
+function kill_remote_running()
 {
-    libs=$1
-    for lib_name in ${libs}
-    do
-        echo "${host_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${HOST_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-
-        echo "${device_libraries[@]}" | grep "${lib_name}" 1>/dev/null
-        if [ $? -eq 0 ];then
-            upload_file "${DEVICE_LIB_PATH}/${lib_name}" "~/HIAI_PROJECTS/ascend_lib"
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-        fi
-    done
-    echo "Finish to upload libs."
-    return 0
+    echo -e "\nrun.sh exit, kill ${remote_host}:ascend_facedetectionapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_facedetectionapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_facedetectionapp running failed, please login to kill it manually."
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    exit
 }
 
-main()
+trap 'kill_remote_running' 2 15
+
+function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [lib_name]."
-        exit 1
-    fi
-    #deploy
-    libs=`get_compilation_targets ${compilation_target}`
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: unknown compilation target, please check your command format: ./deploy.sh host_ip [lib_name]."
+        echo "ERROR: invalid host ip, please check your command format: ./run_facedetectionapp.sh host_ip channel_name."
         exit 1
     fi
 
-    #parse remote port
+    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source}
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+
+    #start presenter
+    #cd {common_path}/script
+
     parse_remote_port
 
-    deploy "${libs}"
+    echo "[Step] run ${remote_host}:ascend_facedetectionapp..."
+
+    #start app
+    iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/;./ascend_facedetectionapp"`
     if [[ $? -ne 0 ]];then
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out/ascend_facedetectionapp failed, please check /var/log/syslog and board running log from IDE Log Module for details."
         exit 1
     fi
     exit 0

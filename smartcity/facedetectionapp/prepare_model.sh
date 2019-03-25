@@ -39,7 +39,7 @@ tools_version=$1
 function check()
 {
     model_name=$1
-    
+
     if [ -f "${script_path}/${model_name}.om" ];then
         return 0
     fi
@@ -79,7 +79,7 @@ function prepare()
         echo "${model_name} already exsits, finish to prepare successfully."
         return 0
     fi
-    
+
     check ${model_name}
     if [ $? -eq 0 ];then
         echo "${model_name} is already downloaded, skip to prepare it."
@@ -90,7 +90,7 @@ function prepare()
             echo "Please try: "
             echo "\tPrepare models automatically, excute:./prepare_model.sh tools_version"
             echo "\tDownload models to current path manually, and excute: ./prepare_model.sh"
-            
+
             return 1
         fi
         download ${model_name} ${model_remote_path}
@@ -98,7 +98,7 @@ function prepare()
             return 1
         fi
     fi
-    
+
     mkdir -p ${script_path}/MyModel/${model_name}/device
     cp ${script_path}/${model_name}.om ${script_path}/MyModel/${model_name}/device/
     echo "${model_name} finish to prepare successfully."
