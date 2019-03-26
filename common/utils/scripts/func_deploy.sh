@@ -186,7 +186,7 @@ function upload_path()
 # $2: app path(absolute)
 # $3: common path(absolute)
 # $4: remote_host(host ip)
-# $5: model_mode(none-no need to do model, local-do with local model, internet-download model based on ddk version)
+# $5: download_mode(none-skip download, local-do with local data, internet-download data from internet)
 # ******************************************************************************
 function deploy_app()
 {
@@ -194,7 +194,7 @@ function deploy_app()
     app_path=$2
     common_path=$3
     remote_host=$4
-    model_mode=$5
+    download_mode=$5
 
     #set remote_port
     parse_remote_port
@@ -213,10 +213,10 @@ function deploy_app()
         return 1
     fi
 
-    #prepare_model.sh: model_mode
-    if [[ ${model_mode} != "none" ]];then
+    #prepare_model.sh: download_mode
+    if [[ ${download_mode} != "none" ]];then
         echo "[Step] Prepare models..."
-        if [[ ${model_mode} == "local" ]];then
+        if [[ ${download_mode} == "local" ]];then
             model_version=""
         else
             model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
@@ -250,7 +250,7 @@ function deploy_app()
     #deploy models
     if [ -d ${app_path}/MyModel ];then
         echo "[Step] Deploy models..."
-        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/ascend_workspace" "true"
+        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/ascend_workspace"
         if [[ $? -ne 0 ]];then
             return 1
         fi

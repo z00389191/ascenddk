@@ -57,7 +57,7 @@ main()
     fi
     
     echo "[Step] Prepare presenter server information and graph.confg..."
-    bash ${script_path}/prepare_graph.sh ${remote_host}
+    bash ${script_path}/prepare_graph.sh ${remote_host} ${download_mode}
     echo "Finish to deploy facedetectionapp."
     exit 0
 }

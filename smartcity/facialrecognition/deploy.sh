@@ -36,7 +36,7 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-model_mode=$2
+dowload_mode=$2
 
 common_path="${script_path}/../../common"
 
@@ -47,17 +47,17 @@ main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [model_mode(local/internet)]."
+        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [download_mode(local/internet)]."
         exit 1
     fi
     
-    deploy_app "facialrecognitionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
+    deploy_app "facialrecognitionapp" ${script_path} ${common_path} ${remote_host} ${download_mode}
     if [[ $? -ne 0 ]];then
         exit 1
     fi
     
     echo "[Step] Prepare presenter server information and graph.confg..."
-    bash ${script_path}/prepare_graph.sh ${remote_host}
+    bash ${script_path}/prepare_graph.sh ${remote_host} ${download_mode}
     echo "Finish to deploy facialrecognitionapp."
     exit 0
 }
