@@ -282,7 +282,28 @@ void SendKeyFrameData(const VpcUserRoiOutputConfigure* vpc_output_config,
     return;
   }
 
-  image_data.data.reset(vpc_output_config->addr,
+  unsigned char* output_image_buffer = new (nothrow) unsigned char[image_data
+      .size];
+  if (output_image_buffer == nullptr) { // check new result
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Fail to new data when handle vpc output!");
+    return;
+  }
+
+  int memcpy_result = memcpy_s(output_image_buffer, image_data.size,
+                               vpc_output_config->addr,
+                               vpc_output_config->bufferSize);
+  if (memcpy_result != EOK) { // check memcpy_s result
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Fail to copy vpc output image buffer, memcpy_s result:%d",
+                    memcpy_result);
+    free(vpc_output_config->addr); // free vpc result memory
+    return;
+  }
+
+  free(vpc_output_config->addr); // free vpc result memory
+
+  image_data.data.reset(output_image_buffer,
                         default_delete<unsigned char[]>());
   shared_ptr<VideoImageParaT> video_image_para = make_shared<VideoImageParaT>();
   video_image_para->img = image_data;
