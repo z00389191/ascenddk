@@ -86,9 +86,7 @@ struct FrameInfo {
   std::string face_id = "";  // registered face id
   // original image format and rank using for org_img addition
   // IMAGEFORMAT defined by HIAI engine does not satisfy the dvpp condition
-  ascend::utils::DvppVpcImageType org_img_format =
-      ascend::utils::kVpcYuv420SemiPlannar;
-  ascend::utils::DvppVpcImageRankType org_img_rank = ascend::utils::kVpcNv21;
+  VpcInputFormat org_img_format = INPUT_YUV420_SEMI_PLANNER_UV;
   bool img_aligned = false; // original image already aligned or not
   unsigned char *original_jpeg_pic_buffer; // ouput buffer
   unsigned int original_jpeg_pic_size; // size of output buffer
@@ -101,7 +99,8 @@ struct FrameInfo {
 template<class Archive>
 void serialize(Archive& ar, FrameInfo& data) {
   ar(data.frame_id, data.channel_id, data.timestamp, data.image_source,
-     data.face_id, data.org_img_format, data.org_img_rank);
+     data.face_id, data.org_img_format, data.img_aligned,
+     data.original_jpeg_pic_buffer, data.original_jpeg_pic_size);
 }
 
 /**

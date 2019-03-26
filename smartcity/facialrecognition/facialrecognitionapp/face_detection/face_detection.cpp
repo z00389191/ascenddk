@@ -192,29 +192,28 @@ bool FaceDetection::PreProcess(
   }
 
   // call ez_dvpp to resize image
-  DvppCropOrResizePara resize_para;
-  resize_para.image_type = image_handle->frame.org_img_format;
-  resize_para.rank = image_handle->frame.org_img_rank;
-
-
+  DvppBasicVpcPara resize_para;
+  resize_para.input_image_type = image_handle->frame.org_img_format;
 
   // get original image size and set to resize parameter
   int32_t width = image_handle->org_img.width;
   int32_t height = image_handle->org_img.height;
 
-  // set from 0 to width_max(width_max should be even)
-  resize_para.horz_min = 0;
-  resize_para.horz_max = width - 1;
-
-  // set from 0 to height_max(height_max should be even)
-  resize_para.vert_min = 0;
-  resize_para.vert_max = height - 1;
-
   // set source resolution ratio
   resize_para.src_resolution.width = width;
   resize_para.src_resolution.height = height;
 
-  // set destination resolution ratio
+  // crop parameters, only resize, no need crop, so set original image size
+  // set crop left-top point (need even number)
+  resize_para.crop_left = 0;
+  resize_para.crop_up = 0;
+  // set crop right-bottom point (need odd number)
+  uint32_t crop_right = ((width >> 1) << 1) - 1;
+  uint32_t crop_down = ((height >> 1) << 1) - 1;
+  resize_para.crop_right = crop_right;
+  resize_para.crop_down = crop_down;
+
+  // set destination resolution ratio (need even number)
   resize_para.dest_resolution.width = kResizeWidth;
   resize_para.dest_resolution.height = kResizeHeight;
 
@@ -223,10 +222,9 @@ bool FaceDetection::PreProcess(
 
   // call
   DvppProcess dvpp_resize_img(resize_para);
-  DvppOutput dvpp_output;
-  int ret = dvpp_resize_img.DvppOperationProc(
-              reinterpret_cast<char*>(image_handle->org_img.data.get()), img_size,
-              &dvpp_output);
+  DvppVpcOutput dvpp_output;
+  int ret = dvpp_resize_img.DvppBasicVpcProc(image_handle->org_img.data.get(),
+                                             img_size, &dvpp_output);
   if (ret != kDvppOperationOk) {
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                     "call ez_dvpp failed, failed to resize image.");

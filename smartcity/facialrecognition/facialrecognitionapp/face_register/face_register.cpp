@@ -234,7 +234,6 @@ bool FaceRegister::DoRegisterProcess() {
       pobj->frame.image_source = 1;
       pobj->frame.face_id = face_register_req->id();
       pobj->frame.org_img_format = dvpp_out_data.image_format;
-      pobj->frame.org_img_rank = ascend::utils::kVpcNv12;
       // true indicate the image is aligned
       pobj->frame.img_aligned = true;
 
