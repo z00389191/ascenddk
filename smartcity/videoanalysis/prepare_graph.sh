@@ -32,22 +32,55 @@
 #   =======================================================================
 
 # ************************Variable*********************************************
+
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-tools_version=$1
+remote_host=$1
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/utils/scripts/func_model.sh
+. ${common_path}/utils/scripts/func_util.sh
 
-main()
+function modify_graph()
 {
-    model_name="face_detection"
-    model_remote_path="computer_vision/object_detect"
-    prepare ${model_name} ${model_remote_path}
-    if [ $? -ne 0 ];then
+    echo "Modify presenter server information in graph.config..."
+    cp -r ${script_path}/videoanalysisapp/graph_template.config ${script_path}/videoanalysisapp/graph_deploy.config
+    presenter_ip=`grep presenter_server_ip ${common_path}/presenter/server/video_analysis/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9.]//g'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: get presenter server ip failed, please check ${common_path}/presenter/server/video_analysis/config/config.conf."
+        return 1
+    fi
+    
+    presenter_port=`grep presenter_server_port ${common_path}/presenter/server/video_analysis/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9]//g'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: get presenter server port failed, please check ${common_path}/presenter/server/video_analysis/config/config.conf."
+        return 1
+    fi
+    
+    sed -i "s/\${template_presenter_ip}/${presenter_ip}/g" ${script_path}/videoanalysisapp/graph_deploy.config
+    sed -i "s/\${template_presenter_port}/${presenter_port}/g" ${script_path}/videoanalysisapp/graph_deploy.config
+    return 0
+}
+
+function main()
+{
+    echo "Modify presenter server configuration..."
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_graph.sh host_ip."
         exit 1
     fi
+    bash ${script_path}/prepare_presenter_server.sh ${remote_host}
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+    
+    modify_graph
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+    
+    echo "Finish to prepare videoanalysisapp graph."
     exit 0
 }
 

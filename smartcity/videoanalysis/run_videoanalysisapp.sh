@@ -32,20 +32,54 @@
 #   =======================================================================
 
 # ************************Variable*********************************************
+
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-tools_version=$1
+remote_host=$1
+data_source=$2
+presenter_view_app_name=$3
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/utils/scripts/func_model.sh
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-main()
+function kill_remote_running()
 {
-    model_name="face_detection"
-    model_remote_path="computer_vision/object_detect"
-    prepare ${model_name} ${model_remote_path}
-    if [ $? -ne 0 ];then
+    echo -e "\nrun.sh exit, kill ${remote_host}:ascend_videoanalysisapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_videoanalysisapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_videoanalysisapp running failed, please login to kill it manually."
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    exit
+}
+
+trap 'kill_remote_running' 2 15
+
+function main()
+{
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command format: ./run_videoanalysisapp.sh host_ip channel_name."
+        exit 1
+    fi
+
+    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source} ${presenter_view_app_name}
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+
+    parse_remote_port
+
+    echo "[Step] run ${remote_host}:ascend_videoanalysisapp..."
+
+    #start app
+    iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/videoanalysisapp/out/;./ascend_videoanalysisapp"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/videoanalysisapp/out/ascend_videoanalysisapp failed, please check /var/log/syslog and board running log from IDE Log Module for details."
         exit 1
     fi
     exit 0

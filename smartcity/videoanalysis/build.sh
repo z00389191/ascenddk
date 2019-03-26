@@ -32,22 +32,45 @@
 #   =======================================================================
 
 # ************************Variable*********************************************
+
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
-
-tools_version=$1
-
-common_path="${script_path}/../../common"
-
-. ${common_path}/utils/scripts/func_model.sh
 
 main()
 {
-    model_name="face_detection"
-    model_remote_path="computer_vision/object_detect"
-    prepare ${model_name} ${model_remote_path}
+    if [ ! -n ${DDK_HOME} ];then
+        echo "Can not find DDK_HOME env, please set it in environment!."
+        exit 1
+    fi
+
+    echo "Clear app build path..."
+    rm -rf ${script_path}/videoanalysisapp/out
+
+    echo "Build main..."
+    make -C ${script_path}/videoanalysisapp 1>/dev/null
     if [ $? -ne 0 ];then
         exit 1
     fi
+
+    for file in `find ${script_path}/videoanalysisapp -name "Makefile"`
+    do
+        if [ ${file} == "${script_path}/videoanalysisapp/Makefile" ];then
+            continue
+        fi
+        path=`dirname ${file}`
+        lib_path_name=`basename ${path}`
+        echo "Build ${lib_path_name} lib..."
+        make clean -C ${path} 1>/dev/null
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+        make install -C ${path} 1>/dev/null
+
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+    done
+
+    echo "Finish to Build app."
     exit 0
 }
 

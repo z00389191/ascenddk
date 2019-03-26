@@ -32,22 +32,52 @@
 #   =======================================================================
 
 # ************************Variable*********************************************
+
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-tools_version=$1
+remote_host=$1
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/utils/scripts/func_model.sh
+. ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-main()
+function kill_remote_running()
 {
-    model_name="face_detection"
-    model_remote_path="computer_vision/object_detect"
-    prepare ${model_name} ${model_remote_path}
-    if [ $? -ne 0 ];then
+    echo -e "run.sh exit, kill ${remote_host}:ascend_videoanalysisapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_videoanalysisapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_videoanalysisapp running failed, please login to kill it manually."
+        return 1
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    return 0
+}
+
+function main()
+{
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command format: ./stop_videoanalysisapp.sh host_ip."
         exit 1
     fi
+
+    running_pid=`ps -ef | grep "run_videoanalysisapp\.sh" | awk -F ' ' '{print $2}'`
+
+    if [[ ${running_pid}"X" != "X" ]];then
+        echo "kill local runn_face run_videoanalysisapp.sh ${running_pid}"
+        kill -9 ${running_pid}
+    fi
+
+    parse_remote_port
+
+    kill_remote_running
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+
     exit 0
 }
 
