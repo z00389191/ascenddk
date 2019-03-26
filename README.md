@@ -24,12 +24,6 @@ The Ascend Developer Kit (often abbreviated as the Ascend DK) is a computing pla
 </tr>
 <tr>
 	<td></td>
-	<td>osd</td>
-    <td></td>
-	<td>Public API for postprocessing of inference result image</td>
-</tr>
-<tr>
-	<td></td>
 	<td>presenter</td>
     <td></td>
 	<td>Visualized implementation example of inference results</td>
@@ -84,6 +78,18 @@ The Ascend Developer Kit (often abbreviated as the Ascend DK) is a computing pla
 	<td>Face detection application</td>
 </tr>
 <tr>
+	<td></td>
+    <td>facialrecognition</td>
+	<td></td>
+	<td>Facial recognition application</td>
+</tr>
+<tr>
+	<td></td>
+    <td>videoanalysis</td>
+	<td></td>
+	<td>Video structured analysis application</td>
+</tr>
+<tr>
 	<td>travisci</td>
 	<td></td>
     <td></td>
@@ -92,7 +98,7 @@ The Ascend Developer Kit (often abbreviated as the Ascend DK) is a computing pla
 </table>
 
 ## Source Code Instructions
-- [Atlas DK Open Source Application User Guide](https://ascend.github.io/ascenddk-private/doc/samplecode/OverView.html)
+- [Atlas DK Open Source Application User Guide](https://ascend.github.io/ascenddk-private/doc/en/samplecode/overview.html)
 
 ## Contribution Process
 -   [Contributing](contributing.md)
@@ -102,5 +108,4 @@ As an open AI computing platform, the Huawei Ascend chipset provides only relate
 
 ## Welcome to Join Us
 * Welcome to put forward and discuss concerned issues and submit pull requests (PRs) to participate in developing features.
-* If you have a cooperation intention and want to join the Huawei Ascend ecosystem partner, send an email to ascend@huawei.com or visit the Ascend official website (https://www.huawei.com/minisite/ascend/cn/index.html) to learn more details.
-
+* If you have a cooperation intention and want to join the Huawei Ascend ecosystem partner, send an email to ascend@huawei.com or visit the Ascend official website (https://www.huawei.com/minisite/ascend/en/index.html) to learn more details.
