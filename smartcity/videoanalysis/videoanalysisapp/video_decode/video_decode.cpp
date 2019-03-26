@@ -50,11 +50,22 @@
 #include "hiaiengine/log.h"
 #include "hiaiengine/data_type_reg.h"
 #include "dvpp/dvpp_config.h"
-#include "dvpp/Vpc.h"
 
 using namespace std;
 
 namespace {
+// The width of image in vpc interface need 128-byte alignment
+const int kVpcWidthAlign = 128;
+
+// The height of image in vpc interface need 16-byte alignment
+const int kVpcHeightAlign = 16;
+
+// The address of input data in vpc interface need 128-byte alignment
+const int kVpcAddressAlign = 128;
+
+// standard: 4096 * 4096 * 4 = 67108864 (64M)
+const int kAllowedMaxImageMemory = 67108864;
+
 const int kWait10Milliseconds = 10000; // wait 10ms
 
 const int kWait100Milliseconds = 100000; // wait 100ms
@@ -235,8 +246,8 @@ void AddImage2QueueByChannel(
   }
 }
 
-void SendKeyFrameData(const vpc_in_msg &vpc_in_msg, void* hiai_data,
-                      FRAME* frame) {
+void SendKeyFrameData(const VpcUserRoiOutputConfigure* vpc_output_config,
+                      void* hiai_data, FRAME* frame) {
   string channel_name = ((YuvImageFrameInfo*) (hiai_data))->channel_name;
   string channel_id = ((YuvImageFrameInfo*) (hiai_data))->channel_id;
   uint32_t frame_id = GetFrameId(channel_id);
@@ -262,33 +273,16 @@ void SendKeyFrameData(const vpc_in_msg &vpc_in_msg, void* hiai_data,
   image_data.width = frame->realWidth;
   image_data.height = frame->realHeight;
   image_data.format = IMAGEFORMAT::YUV420SP;
-  image_data.size = vpc_in_msg.auto_out_buffer_1->getBufferSize();
+  image_data.size = vpc_output_config->bufferSize;
 
   if (image_data.size <= 0) { // check image data size
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to copy vpc output image, buffer size is invalid!");
+                    "Fail to send vpc output image, buffer size:%s is invalid!",
+                    image_data.size);
     return;
   }
 
-  unsigned char* out_put_image_buffer = new (nothrow) unsigned char[image_data
-      .size];
-  if (out_put_image_buffer == nullptr) { // check new result
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to new data when handle vpc output!");
-    return;
-  }
-
-  int memcpy_result = memcpy_s(out_put_image_buffer, image_data.size,
-                               vpc_in_msg.auto_out_buffer_1->getBuffer(),
-                               vpc_in_msg.auto_out_buffer_1->getBufferSize());
-  if (memcpy_result != EOK) { // check memcpy_s result
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to copy vpc output image buffer, memcpy_s result:%d",
-                    memcpy_result);
-    return;
-  }
-
-  image_data.data.reset(out_put_image_buffer,
+  image_data.data.reset(vpc_output_config->addr,
                         default_delete<unsigned char[]>());
   shared_ptr<VideoImageParaT> video_image_para = make_shared<VideoImageParaT>();
   video_image_para->img = image_data;
@@ -348,6 +342,53 @@ void CallVpcGetYuvImage(FRAME* frame, void* hiai_data) {
   image_configure->compressDataConfigure.chromaPayloadStride = frame
       ->stride_payload;
 
+  shared_ptr<VpcUserRoiConfigure> roi_configure(new VpcUserRoiConfigure);
+  roi_configure->next = nullptr;
+
+  // constructing input roi configuration
+  VpcUserRoiInputConfigure *input_configure = &roi_configure->inputConfigure;
+  input_configure->cropArea.leftOffset = 0;
+  input_configure->cropArea.rightOffset =
+      frame->width % 2 == 0 ? frame->width - 1 : frame->width;
+  input_configure->cropArea.upOffset = 0;
+  input_configure->cropArea.downOffset =
+      frame->height % 2 == 0 ? frame->height - 1 : frame->height;
+
+  int aligned_output_width = ALIGN_UP(frame->width, kVpcWidthAlign);
+  int aligned_output_height = ALIGN_UP(frame->height, kVpcHeightAlign);
+  int vpc_output_size = aligned_output_width * aligned_output_height
+      * DVPP_YUV420SP_SIZE_MOLECULE / DVPP_YUV420SP_SIZE_DENOMINATOR;
+
+  if (vpc_output_size <= 0 || vpc_output_size > kAllowedMaxImageMemory) {
+    HIAI_ENGINE_LOG(
+        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+        "the vpc_output_size:%d is invalid! value range: 1~67108864",
+        vpc_output_size);
+    return;
+  }
+
+  uint8_t *out_buffer = (uint8_t *) memalign(kVpcAddressAlign, vpc_output_size);
+  if (out_buffer == nullptr) {
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "fail to memalign out_buffer for vpc in vide decode!");
+    return;
+  }
+
+  // constructing output roi configuration
+  VpcUserRoiOutputConfigure *output_configure = &roi_configure->outputConfigure;
+  output_configure->addr = out_buffer;
+  output_configure->bufferSize = vpc_output_size;
+  output_configure->widthStride = frame->width;
+  output_configure->heightStride = frame->height;
+  output_configure->outputArea.leftOffset = 0;
+  output_configure->outputArea.rightOffset =
+      frame->width % 2 == 0 ? frame->width - 1 : frame->width;
+  output_configure->outputArea.upOffset = 0;
+  output_configure->outputArea.downOffset =
+      frame->height % 2 == 0 ? frame->height - 1 : frame->height;
+
+  image_configure->roiConfigure = roi_configure.get();
+
   dvppapi_ctl_msg dvpp_api_ctl_msg;
   dvpp_api_ctl_msg.in = static_cast<void *>(image_configure.get());
   dvpp_api_ctl_msg.in_size = sizeof(VpcUserImageConfigure);
@@ -362,7 +403,7 @@ void CallVpcGetYuvImage(FRAME* frame, void* hiai_data) {
   }
 
   DestroyDvppApi(dvpp_api);
-  SendKeyFrameData(vpc_in_msg, hiai_data, frame);
+  SendKeyFrameData(output_configure, hiai_data, frame);
   return;
 }
 

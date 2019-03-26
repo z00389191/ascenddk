@@ -225,7 +225,7 @@ void CarTypeInferenceEngine::BatchImageResize(
 
     ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);
 
-    ascend::utils::DvppOutput dvpp_out;
+    ascend::utils::DvppVpcOutput dvpp_out;
     int ret = dvpp_process.DvppBasicVpcProc(iter->img.data.get(),
                                             (int32_t) iter->img.size,
                                             &dvpp_out);

@@ -52,6 +52,7 @@ extern "C" {
 #include "hiaiengine/engine.h"
 #include "hiaiengine/multitype_queue.h"
 #include "dvpp/idvppapi.h"
+#include "dvpp/Vpc.h"
 #include "video_analysis_params.h"
 
 // input size used for engine
@@ -59,6 +60,10 @@ extern "C" {
 
 // output size used for engine
 #define OUTPUT_SIZE 1
+
+// The memory size of the YUV image is 1.5 times that of width*height.
+#define DVPP_YUV420SP_SIZE_MOLECULE    3
+#define DVPP_YUV420SP_SIZE_DENOMINATOR 2
 
 // video type
 enum VideoType {
@@ -87,8 +92,8 @@ uint32_t GetFrameId(const std::string &channel_id);
  * @param [in] hiai_data: used for transmit channel id , channel name and frame id
  * @param [in] frame: image frame data
  */
-void SendKeyFrameData(const vpc_in_msg &vpcInMsg, void* hiai_data,
-                      FRAME* frame);
+void SendKeyFrameData(const VpcUserRoiOutputConfigure* vpc_output_config,
+                      void* hiai_data, FRAME* frame);
 
 /**
  * @brief call vpc to get yuv42sp image

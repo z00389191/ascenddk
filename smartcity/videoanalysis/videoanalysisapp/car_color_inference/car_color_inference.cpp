@@ -39,6 +39,7 @@
 #include <vector>
 
 #include <unistd.h>
+
 #include <hiaiengine/log.h>
 #include <hiaiengine/ai_types.h>
 #include "hiaiengine/ai_model_parser.h"
@@ -163,7 +164,7 @@ void CarColorInferenceEngine::BatchImageResize(
 
     ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);
 
-    ascend::utils::DvppOutput dvpp_out;
+    ascend::utils::DvppVpcOutput dvpp_out;
     int ret = dvpp_process.DvppBasicVpcProc(iter->img.data.get(),
                                             (int32_t) iter->img.size,
                                             &dvpp_out);

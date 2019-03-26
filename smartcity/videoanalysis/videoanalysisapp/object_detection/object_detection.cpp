@@ -137,7 +137,7 @@ HIAI_StatusT ObjectDetectionInferenceEngine::ImagePreProcess(
 
   ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);
 
-  ascend::utils::DvppOutput dvpp_out;
+  ascend::utils::DvppVpcOutput dvpp_out;
   int ret = dvpp_process.DvppBasicVpcProc(src_img.data.get(),
                                           (int32_t) src_img.size, &dvpp_out);
   if (ret != kDvppProcSuccess) {
