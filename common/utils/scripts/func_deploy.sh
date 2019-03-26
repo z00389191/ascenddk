@@ -217,7 +217,7 @@ function deploy_app()
     if [[ ${download_mode} != "none" ]];then
         echo "[Step] Prepare models..."
         if [[ ${download_mode} == "local" ]];then
-            model_version=""
+            model_version="local"
         else
             model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
             if [[ $? -ne 0 ]];then
