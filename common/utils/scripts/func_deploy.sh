@@ -250,7 +250,7 @@ function deploy_app()
     #deploy models
     if [ -d ${app_path}/MyModel ];then
         echo "[Step] Deploy models..."
-        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/ascend_workspace"
+        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/ascend_workspace" "true"
         if [[ $? -ne 0 ]];then
             return 1
         fi
