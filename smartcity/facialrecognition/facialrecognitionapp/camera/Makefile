@@ -20,7 +20,7 @@ INC_DIR = \
 
 CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
 LNK_FLAGS := \
-	-L$(HOME)/ascend_ddk/device/lib/ -L$(DDK_HOME)/device/lib/ \
+	-L$(DDK_HOME)/host/lib/ \
 	-lmedia_mini \
 	-shared
 

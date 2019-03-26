@@ -37,7 +37,6 @@ LNK_FLAGS := \
 	-lopencv_world \
 	-lascend_ezdvpp \
 	-lprotobuf \
-	-lpresenteragent \
 	-shared
 
 
