@@ -53,6 +53,15 @@
 using namespace std;
 
 namespace {
+// The width of image in vpc interface need 128-byte alignment
+const int kVpcWidthAlign = 128;
+
+// The height of image in vpc interface need 16-byte alignment
+const int kVpcHeightAlign = 16;
+
+// standard: 4096 * 4096 * 4 = 67108864 (64M)
+const int kAllowedMaxImageMemory = 67108864;
+
 const int kWait10Milliseconds = 10000; // wait 10ms
 
 const int kWait100Milliseconds = 100000; // wait 100ms
@@ -224,28 +233,29 @@ void AddImage2QueueByChannel(
   }
 
   if (!add_image_success) { // fail to send image data
-    HIAI_ENGINE_LOG(
-        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-        "Fail to add image data to queue, channel_id:%s, channel_name:%s, frame_id:%d",
-        video_image_para->video_image_info.channel_id.c_str(),
-        video_image_para->video_image_info.channel_name.c_str(),
-        video_image_para->video_image_info.frame_id);
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Fail to add image data to queue, channel_id:%s, "
+                    "channel_name:%s, frame_id:%d",
+                    video_image_para->video_image_info.channel_id.c_str(),
+                    video_image_para->video_image_info.channel_name.c_str(),
+                    video_image_para->video_image_info.frame_id);
   }
 }
 
-void SendKeyFrameData(const vpc_in_msg &vpc_in_msg, void* hiai_data,
-                      FRAME* frame) {
+void SendKeyFrameData(uint8_t* image_data_buffer, uint32_t image_data_size,
+                      void* hiai_data, FRAME* frame) {
   string channel_name = ((YuvImageFrameInfo*) (hiai_data))->channel_name;
   string channel_id = ((YuvImageFrameInfo*) (hiai_data))->channel_id;
   uint32_t frame_id = GetFrameId(channel_id);
 
   // only send key frame to next engine, key frame id: 1,6,11,16...
   if (!IsKeyFrame(frame_id)) {
+    delete[] image_data_buffer;
     return;
   }
 
-  HIAI_ENGINE_LOG("Get key frame, frame id:%d, channel_id:%s, channel_name:%s, "
-                  "frame->realWidth:%d, frame->realHeight:%d",
+  HIAI_ENGINE_LOG("Get key frame, frame id:%d, channel_id:%s, channel_name:%s,"
+                  " frame->realWidth:%d, frame->realHeight:%d",
                   frame_id, channel_id.c_str(), channel_name.c_str(),
                   frame->realWidth, frame->realHeight);
 
@@ -260,34 +270,9 @@ void SendKeyFrameData(const vpc_in_msg &vpc_in_msg, void* hiai_data,
   image_data.width = frame->realWidth;
   image_data.height = frame->realHeight;
   image_data.format = IMAGEFORMAT::YUV420SP;
-  image_data.size = vpc_in_msg.auto_out_buffer_1->getBufferSize();
+  image_data.size = image_data_size;
 
-  if (image_data.size <= 0) { // check image data size
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to copy vpc output image, buffer size is invalid!");
-    return;
-  }
-
-  unsigned char* out_put_image_buffer = new (nothrow) unsigned char[image_data
-      .size];
-  if (out_put_image_buffer == nullptr) { // check new result
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to new data when handle vpc output!");
-    return;
-  }
-
-  int memcpy_result = memcpy_s(out_put_image_buffer, image_data.size,
-                               vpc_in_msg.auto_out_buffer_1->getBuffer(),
-                               vpc_in_msg.auto_out_buffer_1->getBufferSize());
-  if (memcpy_result != EOK) { // check memcpy_s result
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to copy vpc output image buffer, memcpy_s result:%d",
-                    memcpy_result);
-    return;
-  }
-
-  image_data.data.reset(out_put_image_buffer,
-                        default_delete<unsigned char[]>());
+  image_data.data.reset(image_data_buffer, default_delete<unsigned char[]>());
   shared_ptr<VideoImageParaT> video_image_para = make_shared<VideoImageParaT>();
   video_image_para->img = image_data;
   video_image_para->video_image_info = i_video_image_info;
@@ -317,68 +302,130 @@ void CallVpcGetYuvImage(FRAME* frame, void* hiai_data) {
     return;
   }
 
-  vpc_in_msg vpc_in_msg;
-  vpc_in_msg.format = 0;  // "0" means image format is yuv420_semi_plannar
+  // constructing input image configuration
+  shared_ptr<VpcUserImageConfigure> image_configure(new VpcUserImageConfigure);
+  image_configure->widthStride = frame->width;
+  image_configure->heightStride = frame->height;
 
   // check image format is nv12
   if (strcmp(frame->image_format, kImageFormatNv12.c_str()) == kCompareEqual) {
-    // rank=1:the out format is same with the input. nv12->nv12; nv21->nv21
-    vpc_in_msg.rank = 1;
+    image_configure->inputFormat = INPUT_YUV420_SEMI_PLANNER_UV;
   } else {  // check image format is nv21
-    // rank=0:the out format is opposite of the input. nv12->nv21; nv21->nv12
-    vpc_in_msg.rank = 0;
+    image_configure->inputFormat = INPUT_YUV420_SEMI_PLANNER_VU;
   }
 
-  // set frame info for vpc input message
-  vpc_in_msg.bitwidth = frame->bitdepth;
-  vpc_in_msg.width = frame->width;
-  vpc_in_msg.high = frame->height;
-  vpc_in_msg.stride = vpc_in_msg.width;
-
-  shared_ptr<AutoBuffer> auto_out_buffer = make_shared<AutoBuffer>();
-
-  vpc_in_msg.in_buffer = (char*) frame->buffer;
-  vpc_in_msg.in_buffer_size = frame->buffer_size;
-
-  vpc_in_msg.rdma.luma_head_addr =
-      (long) (frame->buffer + frame->offset_head_y);
-  vpc_in_msg.rdma.chroma_head_addr = (long) (frame->buffer
+  image_configure->outputFormat = OUTPUT_YUV420SP_UV;
+  image_configure->isCompressData = true;
+  image_configure->compressDataConfigure.lumaHeadAddr = (long) (frame->buffer
+      + frame->offset_head_y);
+  image_configure->compressDataConfigure.chromaHeadAddr = (long) (frame->buffer
       + frame->offset_head_c);
-
-  vpc_in_msg.rdma.luma_payload_addr = (long) (frame->buffer
+  image_configure->compressDataConfigure.lumaHeadStride = frame->stride_head;
+  image_configure->compressDataConfigure.chromaHeadStride = frame->stride_head;
+  image_configure->compressDataConfigure.lumaPayloadAddr = (long) (frame->buffer
       + frame->offset_payload_y);
-  vpc_in_msg.rdma.chroma_payload_addr = (long) (frame->buffer
-      + frame->offset_payload_c);
+  image_configure->compressDataConfigure.chromaPayloadAddr = (long) (frame
+      ->buffer + frame->offset_payload_c);
+  image_configure->compressDataConfigure.lumaPayloadStride = frame
+      ->stride_payload;
+  image_configure->compressDataConfigure.chromaPayloadStride = frame
+      ->stride_payload;
 
-  vpc_in_msg.rdma.luma_head_stride = frame->stride_head;
-  vpc_in_msg.rdma.chroma_head_stride = frame->stride_head;
-  vpc_in_msg.rdma.luma_payload_stride = frame->stride_payload;
-  vpc_in_msg.rdma.chroma_payload_stride = frame->stride_payload;
-  vpc_in_msg.cvdr_or_rdma = 0;   // cvdr:1; rdma:0
+  shared_ptr<VpcUserRoiConfigure> roi_configure(new VpcUserRoiConfigure);
+  roi_configure->next = nullptr;
 
-  vpc_in_msg.hmax = frame->realWidth - 1;  // The max deviation from the origin
-  vpc_in_msg.hmin = 0; // The min deviation from 0
-  vpc_in_msg.vmax = frame->realHeight - 1;  // The max deviation from the origin
-  vpc_in_msg.vmin = 0; // The min deviation from 0
-  vpc_in_msg.vinc = 1;  // Vertical scaling,
-  vpc_in_msg.hinc = 1;  // Horizontal scaling
-  vpc_in_msg.auto_out_buffer_1 = auto_out_buffer;
+  // constructing input roi configuration
+  VpcUserRoiInputConfigure *input_configure = &roi_configure->inputConfigure;
+  input_configure->cropArea.leftOffset = 0; // 0 means without crop
+  // dvpp limits rightOffset is odd
+  input_configure->cropArea.rightOffset =
+      frame->width % 2 == 0 ? frame->width - 1 : frame->width;
+  input_configure->cropArea.upOffset = 0; // 0 means without crop
+  // dvpp limits downOffset is odd
+  input_configure->cropArea.downOffset =
+      frame->height % 2 == 0 ? frame->height - 1 : frame->height;
+
+  int aligned_output_width = ALIGN_UP(frame->width, kVpcWidthAlign);
+  int aligned_output_height = ALIGN_UP(frame->height, kVpcHeightAlign);
+  int vpc_output_size = aligned_output_width * aligned_output_height
+      * DVPP_YUV420SP_SIZE_MOLECULE / DVPP_YUV420SP_SIZE_DENOMINATOR;
+
+  // check vpc output size is valid
+  if (vpc_output_size <= 0 || vpc_output_size > kAllowedMaxImageMemory) {
+    HIAI_ENGINE_LOG(
+        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+        "The vpc_output_size:%d is invalid! value range: 1~67108864",
+        vpc_output_size);
+    return;
+  }
+
+  // construct vpc out data buffer
+  uint8_t *vpc_out_buffer = (uint8_t *) mmap(
+      0, vpc_output_size, PROT_READ | PROT_WRITE,
+      MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, 0, 0);
+  if (vpc_out_buffer == MAP_FAILED) { // check new buffer result
+    HIAI_ENGINE_LOG("Failed to malloc memory in dvpp(new vpc).");
+    return;
+  }
+
+  // constructing output roi configuration
+  VpcUserRoiOutputConfigure *output_configure = &roi_configure->outputConfigure;
+  output_configure->addr = vpc_out_buffer;
+  output_configure->bufferSize = vpc_output_size;
+  output_configure->widthStride = frame->width;
+  output_configure->heightStride = frame->height;
+  output_configure->outputArea.leftOffset = 0; // 0 means without crop
+  // dvpp limits rightOffset is odd
+  output_configure->outputArea.rightOffset =
+      frame->width % 2 == 0 ? frame->width - 1 : frame->width;
+  output_configure->outputArea.upOffset = 0; // 0 means without crop
+  // dvpp limits downOffset is odd
+  output_configure->outputArea.downOffset =
+      frame->height % 2 == 0 ? frame->height - 1 : frame->height;
+
+  image_configure->roiConfigure = roi_configure.get();
 
   dvppapi_ctl_msg dvpp_api_ctl_msg;
-  dvpp_api_ctl_msg.in = (void*) (&vpc_in_msg);
-  dvpp_api_ctl_msg.in_size = sizeof(vpc_in_msg);
+  dvpp_api_ctl_msg.in = static_cast<void *>(image_configure.get());
+  dvpp_api_ctl_msg.in_size = sizeof(VpcUserImageConfigure);
 
   // call vpc and check the result
   if (DvppCtl(dvpp_api, DVPP_CTL_VPC_PROC, &dvpp_api_ctl_msg)
       != kHandleSuccessful) {
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                     "Fail to call dvppctl VPC!");
+    // free vpc_out_buffer memory
+    munmap(vpc_out_buffer, (unsigned) (ALIGN_UP(vpc_output_size, MAP_2M)));
     DestroyDvppApi(dvpp_api);
     return;
   }
 
   DestroyDvppApi(dvpp_api);
-  SendKeyFrameData(vpc_in_msg, hiai_data, frame);
+
+  uint8_t* output_image_buffer = new (nothrow) uint8_t[vpc_output_size];
+  if (output_image_buffer == nullptr) { // check new result
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Fail to new data when handle vpc output!");
+    // free vpc_out_buffer memory
+    munmap(vpc_out_buffer, (unsigned) (ALIGN_UP(vpc_output_size, MAP_2M)));
+    return;
+  }
+
+  int memcpy_result = memcpy_s(output_image_buffer, vpc_output_size,
+                               vpc_out_buffer, vpc_output_size);
+  // free vpc_out_buffer memory
+  munmap(vpc_out_buffer, (unsigned) (ALIGN_UP(vpc_output_size, MAP_2M)));
+
+  if (memcpy_result != EOK) { // check memcpy_s result
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Fail to copy vpc output image buffer, memcpy_s result:%d",
+                    memcpy_result);
+    delete[] output_image_buffer;
+    return;
+  }
+
+  // send key frame data to next engine
+  SendKeyFrameData(output_image_buffer, vpc_output_size, hiai_data, frame);
   return;
 }
 
@@ -458,7 +505,7 @@ void VideoDecode::SetDictForRtsp(const string& channel_value,
     av_dict_set(&avdic, kBufferSize.c_str(), kMaxBufferSize.c_str(), kNoFlag);
     av_dict_set(&avdic, kMaxDelayStr.c_str(), kMaxDelayValue.c_str(), kNoFlag);
     av_dict_set(&avdic, kTimeoutStr.c_str(), kTimeoutValue.c_str(), kNoFlag);
-    av_dict_set(&avdic, kReorderQueueSize.c_str(), 
+    av_dict_set(&avdic, kReorderQueueSize.c_str(),
                 kReorderQueueSizeValue.c_str(), kNoFlag);
     av_dict_set(&avdic, kPktSize.c_str(), kPktSizeValue.c_str(), kNoFlag);
   }
@@ -475,8 +522,8 @@ bool VideoDecode::OpenVideoFromInputChannel(
 
   if (ret_open_input_video < kHandleSuccessful) { // check open video result
     char buf_error[kErrorBufferSize];
-	av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
-	
+    av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
+
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "Could not open video:%s, "
                     "result of avformat_open_input:%d, error info:%s",
                     channel_value.c_str(), ret_open_input_video, buf_error);
@@ -500,8 +547,8 @@ bool VideoDecode::InitVideoParams(int videoindex, VideoType &video_type,
                                   AVBSFContext* &bsf_ctx) {
   // check video type, only support h264 and h265
   if (!CheckVideoType(videoindex, av_format_context, video_type)) {
-	avformat_close_input(&av_format_context);
-	
+    avformat_close_input(&av_format_context);
+
     return false;
   }
 
@@ -544,11 +591,11 @@ bool VideoDecode::InitVideoParams(int videoindex, VideoType &video_type,
 void VideoDecode::UnpackVideo2Image(const string &channel_id) {
   char thread_name_log[kThreadNameLength];
   string thread_name = kThreadNameHead + channel_id;
-  prctl(PR_SET_NAME, (unsigned long)thread_name.c_str());
-  prctl(PR_GET_NAME, (unsigned long)thread_name_log);
-  HIAI_ENGINE_LOG("Unpack video to image from:%s, thread name:%s", 
-                   channel_id.c_str(), thread_name_log);
-  			   
+  prctl(PR_SET_NAME, (unsigned long) thread_name.c_str());
+  prctl(PR_GET_NAME, (unsigned long) thread_name_log);
+  HIAI_ENGINE_LOG("Unpack video to image from:%s, thread name:%s",
+                  channel_id.c_str(), thread_name_log);
+
   string channel_value = GetChannelValue(channel_id);
   AVFormatContext* av_format_context = avformat_alloc_context();
 
@@ -602,7 +649,7 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
 
   if (strcpy_result != EOK) { // check strcpy result
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to call strcpy_s, result:%d, channel id:%s", 
+                    "Fail to call strcpy_s, result:%d, channel id:%s",
                     strcpy_result, channel_id.c_str());
     return;
   }
@@ -619,7 +666,7 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
       if (av_bsf_send_packet(bsf_ctx, &av_packet) != kHandleSuccessful) {
         HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                         "Fail to call av_bsf_send_packet, channel id:%s",
-                          channel_id.c_str());
+                        channel_id.c_str());
       }
 
       // receive single frame from ffmpeg
@@ -673,9 +720,9 @@ bool VideoDecode::VerifyVideoWithUnpack(const string &channel_value) {
                                                  &avdic);
   if (ret_open_input_video < kHandleSuccessful) { // check open video result
     char buf_error[kErrorBufferSize];
-	av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
-	
-	HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "Could not open video:%s, "
+    av_strerror(ret_open_input_video, buf_error, kErrorBufferSize);
+
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "Could not open video:%s, "
                     "result of avformat_open_input:%d, error info:%s",
                     channel_value.c_str(), ret_open_input_video, buf_error);
 
@@ -696,7 +743,7 @@ bool VideoDecode::VerifyVideoWithUnpack(const string &channel_value) {
         HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
         "Video index is -1, current media stream has no video info:%s",
         channel_value.c_str());
-		
+
     avformat_close_input(&av_format_context);
     return false;
   }
@@ -704,7 +751,7 @@ bool VideoDecode::VerifyVideoWithUnpack(const string &channel_value) {
   VideoType video_type = kInvalidTpye;
   bool is_valid = CheckVideoType(video_index, av_format_context, video_type);
   avformat_close_input(&av_format_context);
-  
+
   return is_valid;
 }
 
@@ -725,9 +772,9 @@ void VideoDecode::MultithreadHandleVideo() {
   if (!IsEmpty(channel1_, kStrChannelId1)
       && !IsEmpty(channel2_, kStrChannelId2)) {
     thread thread_channel_1(&VideoDecode::UnpackVideo2Image, this,
-	                        kStrChannelId1);
+                            kStrChannelId1);
     thread thread_channel_2(&VideoDecode::UnpackVideo2Image, this,
-	                        kStrChannelId2);
+                            kStrChannelId2);
 
     thread_channel_1.join();
     thread_channel_2.join();
