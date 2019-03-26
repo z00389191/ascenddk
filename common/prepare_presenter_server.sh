@@ -149,6 +149,12 @@ function main()
             return 1
         fi
     fi
+    stop_pid=`ps -ef | grep "presenter_server\.py" | grep "${app_name}" | awk -F ' ' '{print $2}'`
+    if [[ ${stop_pid}"X" != "X" ]];then
+        echo "Kill existing presenter process: kill -9 ${stop_pid}"
+        kill -9 ${stop_pid}
+    fi
+    
     parse_presenter_altasdk_ip
     parse_presenter_view_ip
     
