@@ -65,8 +65,8 @@ function main()
     
     echo "Prepare app configuration..."
     cp -r ${script_path}/videoanalysisapp/graph_deploy.config ${script_path}/videoanalysisapp/out/graph.config
-    sed -i "s/\${template_channel1}/${channel1}/g" ${script_path}/videoanalysisapp/out/graph.config
-    sed -i "s/\${template_channel2}/${channel2}/g" ${script_path}/videoanalysisapp/out/graph.config
+    sed -i "s#\${template_channel1}#${channel1}#g" ${script_path}/videoanalysisapp/out/graph.config
+    sed -i "s#\${template_channel2}#${channel2}#g" ${script_path}/videoanalysisapp/out/graph.config
     sed -i "s/\${template_app_name}/${presenter_view_app_name}/g" ${script_path}/videoanalysisapp/out/graph.config
     
     parse_remote_port

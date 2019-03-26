@@ -23,6 +23,7 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
 	-I$(HOME)/ascend_ddk/include \
+	-I$(HOME)/ascend_ddk/include/third_party/ffmpeg \
 
 CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
 LNK_FLAGS := \
@@ -38,6 +39,13 @@ LNK_FLAGS := \
 	-lopencv_world \
 	-lpresenteragent \
 	-lascend_ezdvpp \
+	-lavcodec \
+	-lavformat \
+	-lavdevice \
+	-lavutil \
+	-lswresample \
+	-lavfilter \
+	-lswscale \
 	-shared
 
 

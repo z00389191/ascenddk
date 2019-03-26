@@ -100,7 +100,7 @@ function upload_file()
 # $2: remote path
 # $3: is_uncompress(true/false, default:true)
 # ******************************************************************************
-function upload_tar_gz_file()
+function upload_tar_file()
 {
     local_file=$1
     remote_path=$2
@@ -112,7 +112,7 @@ function upload_tar_gz_file()
 
     #uncompress tar.gz file
     if [[ ${is_uncompress}"X" != "falseX" ]];then
-        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -zxvf ${remote_file} -C ${remote_path}/"`
+        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -xvf ${remote_file} -C ${remote_path}/"`
         if [[ $? -ne 0 ]];then
             echo "ERROR: uncompress ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
         fi
@@ -164,8 +164,8 @@ function upload_path()
             remote_file_path=`dirname ${remote_file}`
         fi
 
-        if [[ ${file_extension} == "tar.gz" ]];then
-            upload_tar_gz_file ${file} ${remote_file_path} ${is_uncompress}
+        if [[ ${file_extension} == "tar" ]];then
+            upload_tar_file ${file} ${remote_file_path} ${is_uncompress}
             if [[ $? -ne 0 ]];then
                 return 1
             fi

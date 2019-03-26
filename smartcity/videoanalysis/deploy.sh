@@ -52,7 +52,7 @@ common_path="${script_path}/../../common"
 # $4: remote_host(host ip)
 # $5: download_mode(local-do with local mode, internet-download data from internet)
 # ******************************************************************************
-function deploy_app()
+function deploy_videoanalysis()
 {
     #set remote_port
     parse_remote_port
@@ -101,9 +101,9 @@ function deploy_app()
     fi
 
     echo "[Step] Deploy ffmpeg libs..."
-    upload_tar_gz_file "${script_path}/ffmpeg_lib.tar.gz" "~/HIAI_DATANDMODELSET/ascend_lib"
+    upload_tar_file "${script_path}/ffmpeg_lib.tar" "~/HIAI_PROJECTS/ascend_lib"
     if [[ $? -ne 0 ]];then
-        return 
+        return 1
     fi
 
     #deploy dataset
@@ -147,7 +147,7 @@ main()
         exit 1
     fi
     
-    deploy_app "videoanalysisapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
+    deploy_videoanalysis "videoanalysisapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
     if [[ $? -ne 0 ]];then
         exit 1
     fi

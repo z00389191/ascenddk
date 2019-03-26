@@ -53,7 +53,7 @@ function download_code()
             fi
         fi
     fi
-
+    echo "Download ffmpeg code..."
     ffmpeg_download_url="https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/${ffmpeg_version}"
     wget -O ${script_path}/${ffmpeg_version}.ing ${ffmpeg_download_url} --no-check-certificate
     if [[ $? -ne 0 ]];then
@@ -76,6 +76,7 @@ function download_code()
 
 function build_ffmpeg()
 {
+    echo "Build ffmpeg..."
     atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
     if [[ $? -ne 0 ]];then
         echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
@@ -91,19 +92,30 @@ function build_ffmpeg()
         sysroot=""
     fi
     install_prefix=${script_path}/ffmpeg/install_path
-    mkdir -p ${install_path}
+    mkdir -p ${install_prefix}
 
     ffmpeg_configure_options=" --cross-prefix=${cross_prefix} --enable-pthreads --enable-cross-compile --target-os=linux --arch=aarch64 --enable-shared --enable-network --enable-protocol=tcp --enable-protocol=udp --enable-protocol=rtp --enable-demuxer=rtsp --disable-debug --disable-stripping --disable-doc --disable-ffplay --disable-ffprobe --disable-htmlpages --disable-manpages --disable-podpages  --disable-txtpages --disable-w32threads --disable-os2threads ${sysroot} --prefix=${install_prefix}"
 
-    make clean -C ${script_path}/ffmpeg >/dev/null 2>&1
-    bash ${script_path}/ffmpeg/configure ${ffmpeg_configure_options}
-    make install -C ${script_path}/ffmpeg 1>/dev/null
+    mkdir -p ${script_path}/ffmpeg/ffbuild
+    echo "" > ${script_path}/ffmpeg/ffbuild/build.log
+    #make clean -C ${script_path}/ffmpeg >> ${script_path}/ffmpeg/ffbuild/build.log 2>&1
+    cd ${script_path}/ffmpeg && bash ./configure ${ffmpeg_configure_options} >> ${script_path}/ffmpeg/ffbuild/build.log 2>&1
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: configure ffmpeg failed, please check build.log and config.log in ${script_path}/ffmpeg/ffbuild"
+        return 1
+    fi
+    make install -C ${script_path}/ffmpeg >> ${script_path}/ffmpeg/ffbuild/build.log 2>&1
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: build ffmpeg failed, please check build.log in ${script_path}/ffmpeg/ffbuild"
+        return 1
+    fi
+    
+    mkdir -p ${HOME}/ascend_ddk/include/third_party/ffmpeg
+    mkdir -p ${HOME}/ascend_ddk/device/lib
+    cp -rdp ${install_prefix}/include/* ${HOME}/ascend_ddk/include/third_party/ffmpeg
+    cp -rdp ${install_prefix}/lib/* ${HOME}/ascend_ddk/device/lib
 
-    mkdir -p {HOME}/ascend_ddk/include/third_party/ffmpeg
-    cp -rdp {install_prefix}/include/* {HOME}/ascend_ddk/include/third_party/ffmpeg
-    cp -rdp {install_prefix}/lib/* {HOME}/ascend_ddk/device/lib
-
-    cd ${install_path}/lib && tar -cvzf ${script_path}/ffmpeg_lib.tar.gz ./*
+    cd ${install_prefix}/lib && tar -cvf ${script_path}/ffmpeg_lib.tar ./* >> ${script_path}/ffmpeg/ffbuild/build.log
     cd ${script_path}
 }
 
