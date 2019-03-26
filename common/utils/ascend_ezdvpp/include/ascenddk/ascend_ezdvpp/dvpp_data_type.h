@@ -278,7 +278,7 @@ struct DvppJpegDOutput {
     uint32_t height;  // the height of output image
     uint32_t aligned_width;  // the aligned width of output image
     uint32_t aligned_height;  // the aligned height of output image
-    DvppVpcImageType image_format;  //output image format
+    VpcInputFormat image_format;  //output image format
 };
 
 struct DvppPara {
