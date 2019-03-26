@@ -168,30 +168,41 @@ void PedestrianAttrInference::BatchImageResize(
   // resize each image
   for (std::vector<ObjectImageParaT>::iterator iter = batch_image_input
       ->obj_imgs.begin(); iter != batch_image_input->obj_imgs.end(); ++iter) {
-    ascend::utils::DvppCropOrResizePara dvpp_resize_param;
+    ascend::utils::DvppBasicVpcPara dvpp_basic_vpc_para;
 
-    // DVPP limits horz_max should be Odd number
-    dvpp_resize_param.horz_max =
+    /**
+     * when use dvpp_process only for resize function:
+     *
+     * 1.DVPP limits crop_left and crop_right should be Odd number,
+     * if it is even number, subtract 1, otherwise Equal to origin width
+     * or height.
+     *
+     * 2.crop_up and crop_down should be set to zero.
+     */
+    dvpp_basic_vpc_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV; // nv12
+    dvpp_basic_vpc_para.src_resolution.width = (int) iter->img.width;
+    dvpp_basic_vpc_para.src_resolution.height = (int) iter->img.height;
+    dvpp_basic_vpc_para.dest_resolution.width = kDestImageWidth;
+    dvpp_basic_vpc_para.dest_resolution.height = kDestImageHeight;
+    // DVPP limits crop_left should be even number, 0 means without crop
+    dvpp_basic_vpc_para.crop_left = 0;
+    iter->img.width % 2 == 0 ? iter->img.width : iter->img.width - 1;
+    // DVPP limits crop_right should be Odd number
+    dvpp_basic_vpc_para.crop_right =
         iter->img.width % 2 == 0 ? iter->img.width - 1 : iter->img.width;
-    dvpp_resize_param.horz_min = 0;
-
-    // DVPP limits vert_max should be Odd number
-    dvpp_resize_param.vert_max =
+    // DVPP limits crop_up should be even number, 0 means without crop
+    dvpp_basic_vpc_para.crop_up = 0;
+    // DVPP limits crop_down should be Odd number
+    dvpp_basic_vpc_para.crop_down =
         iter->img.height % 2 == 0 ? iter->img.height - 1 : iter->img.height;
-    dvpp_resize_param.vert_min = 0;
-    dvpp_resize_param.is_input_align = true;
-    dvpp_resize_param.is_output_align = true;
-    dvpp_resize_param.src_resolution.width = iter->img.width;
-    dvpp_resize_param.src_resolution.height = iter->img.height;
-    dvpp_resize_param.dest_resolution.width = kDestImageWidth;
-    dvpp_resize_param.dest_resolution.height = kDestImageHeight;
+    dvpp_basic_vpc_para.is_input_align = true;
 
-    ascend::utils::DvppProcess dvpp_process(dvpp_resize_param);
+    ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);
 
-    char* image_buffer = (char*) (iter->img.data.get());
-    ascend::utils::DvppOutput dvpp_out;
-    int ret = dvpp_process.DvppOperationProc(image_buffer, iter->img.size,
-                                             &dvpp_out);
+    ascend::utils::DvppVpcOutput dvpp_out;
+    int ret = dvpp_process.DvppBasicVpcProc(iter->img.data.get(),
+                                            (int32_t) iter->img.size,
+                                            &dvpp_out);
     if (ret != ascend::utils::kDvppOperationOk) { // check call dvpp result
       HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                       "Fail to resize image, result code:%d !", ret);
@@ -450,15 +461,15 @@ HIAI_IMPL_ENGINE_PROCESS("pedestrian_attr_inference",
   HIAI_ENGINE_LOG("Start process!");
 
   std::shared_ptr<BatchPedestrianInfoT> tran_data = std::make_shared<
-      BatchPedestrianInfoT>();
+  BatchPedestrianInfoT>();
 
   // PreProcess:Framework input data
   std::shared_ptr<BatchCroppedImageParaT> image_input = std::make_shared<
-      BatchCroppedImageParaT>();
+  BatchCroppedImageParaT>();
   std::shared_ptr<BatchCroppedImageParaT> image_handle = std::make_shared<
-      BatchCroppedImageParaT>();
+  BatchCroppedImageParaT>();
 
-  input_que_.PushData(0, arg0); // push arg0 data to the input queue
+  input_que_.PushData(0, arg0);// push arg0 data to the input queue
   if (!input_que_.PopAllData(image_input)) { // get all input data
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "Fail to PopAllData!");
     return HIAI_ERROR;
@@ -466,7 +477,7 @@ HIAI_IMPL_ENGINE_PROCESS("pedestrian_attr_inference",
 
   if (image_input == nullptr) { // check input image is nullptr
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "The input image is nullptr!");
+        "The input image is nullptr!");
     return HIAI_ERROR;
   }
 
@@ -480,7 +491,7 @@ HIAI_IMPL_ENGINE_PROCESS("pedestrian_attr_inference",
   BatchImageResize(image_input, image_handle);
   if (image_handle->obj_imgs.empty() == true) { // check resize result
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to resize input image!");
+        "Fail to resize input image!");
     return HIAI_ERROR;
   }
 
