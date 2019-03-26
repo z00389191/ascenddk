@@ -150,13 +150,13 @@ void CarColorInferenceEngine::BatchImageResize(
     dvpp_basic_vpc_para.src_resolution.height = (int) iter->img.height;
     dvpp_basic_vpc_para.dest_resolution.width = kDestImageWidth;
     dvpp_basic_vpc_para.dest_resolution.height = kDestImageHeight;
-    // DVPP limits crop_left should be even number
+    // DVPP limits crop_left should be even number, 0 means without crop
     dvpp_basic_vpc_para.crop_left = 0;
     iter->img.width % 2 == 0 ? iter->img.width : iter->img.width - 1;
     // DVPP limits crop_right should be Odd number
     dvpp_basic_vpc_para.crop_right =
         iter->img.width % 2 == 0 ? iter->img.width - 1 : iter->img.width;
-    // DVPP limits crop_up should be even number
+    // DVPP limits crop_up should be even number, 0 means without crop
     dvpp_basic_vpc_para.crop_up = 0;
     // DVPP limits crop_down should be Odd number
     dvpp_basic_vpc_para.crop_down =

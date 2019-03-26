@@ -137,11 +137,11 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
   /**
    * when use dvpp_process only for resize function:
    *
-   * 1.DVPP limits crop_left and crop_right should be Odd number,
+   * 1.DVPP limits crop_right and crop_down should be Odd number,
    * if it is even number, subtract 1, otherwise Equal to origin width
    * or height.
    *
-   * 2.crop_up and crop_down should be set to zero.
+   * 2.crop_left and crop_up should be set to zero.
    */
   dvpp_basic_vpc_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV; // nv12
   dvpp_basic_vpc_para.src_resolution.width = src_img.width;

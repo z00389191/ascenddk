@@ -123,12 +123,12 @@ HIAI_StatusT ObjectDetectionInferenceEngine::ImagePreProcess(
   dvpp_basic_vpc_para.src_resolution.height = (int) src_img.height;
   dvpp_basic_vpc_para.dest_resolution.width = kInputWidth;
   dvpp_basic_vpc_para.dest_resolution.height = kInputHeight;
-  // DVPP limits crop_left should be even number
+  // DVPP limits crop_left should be even number, 0 means without crop
   dvpp_basic_vpc_para.crop_left = 0;
   // DVPP limits crop_right should be Odd number
   dvpp_basic_vpc_para.crop_right =
       src_img.width % 2 == 0 ? src_img.width - 1 : src_img.width;
-  // DVPP limits crop_up should be even number
+  // DVPP limits crop_up should be even number, 0 means without crop
   dvpp_basic_vpc_para.crop_up = 0;
   // DVPP limits crop_down should be Odd number
   dvpp_basic_vpc_para.crop_down =
