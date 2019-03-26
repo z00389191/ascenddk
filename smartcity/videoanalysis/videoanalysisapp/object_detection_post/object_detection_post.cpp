@@ -147,6 +147,8 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
   dvpp_basic_vpc_para.src_resolution.width = src_img.width;
   dvpp_basic_vpc_para.src_resolution.height = src_img.height;
 
+  // the value of horz_max and vert_max must be odd and
+  // horz_min and vert_min must be even
   int crop_horz_min = bbox.lt_x % 2 == 0 ? bbox.lt_x : bbox.lt_x + 1;
   int crop_horz_max = bbox.rb_x % 2 == 0 ? bbox.rb_x - 1 : bbox.rb_x;
   int crop_vert_min = bbox.lt_y % 2 == 0 ? bbox.lt_y : bbox.lt_y + 1;
