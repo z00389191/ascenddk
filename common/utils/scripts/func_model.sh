@@ -107,7 +107,7 @@ function prepare()
         fi
         
         mkdir -p ${script_path}/MyModel/${model_name}/device
-        cp ${script_path}/${model_name}_${download_branch}.om ${script_path}/MyModel/${model_name}/device/
+        cp ${script_path}/${model_name}_${download_branch}.om ${script_path}/MyModel/${model_name}/device/${model_name}.om
     fi
 
     echo "${model_name} finish to prepare successfully."
