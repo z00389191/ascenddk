@@ -36,7 +36,7 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-model_mode=$2
+download_mode=$2
 
 common_path="${script_path}/../../common"
 
@@ -50,7 +50,7 @@ common_path="${script_path}/../../common"
 # $2: app path(absolute)
 # $3: common path(absolute)
 # $4: remote_host(host ip)
-# $5: model_mode(none-no need to do model, local-do with local model, internet-download model based on ddk version)
+# $5: download_mode(local-do with local mode, internet-download data from internet)
 # ******************************************************************************
 function deploy_app()
 {
@@ -65,7 +65,7 @@ function deploy_app()
     fi
 
     echo "[Step] Build FFmpeg libs..."
-    bash ${common_path}/build_ffmpeg.sh
+    bash ${script_path}/build_ffmpeg.sh ${download_mode}
     if [[ $? -ne 0 ]];then
         return 1
     fi
@@ -78,21 +78,19 @@ function deploy_app()
     fi
 
     #prepare_model.sh: model_mode
-    if [[ ${model_mode} != "none" ]];then
-        echo "[Step] Prepare models..."
-        if [[ ${model_mode} == "local" ]];then
-            model_version=""
-        else
-            model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
-            if [[ $? -ne 0 ]];then
-                echo "ERROR: can not get version in ${DDK_HOME}/ddk_info, please check your env."
-                return 1
-            fi
-        fi
-        bash ${script_path}/prepare_model.sh ${model_version}
+    echo "[Step] Prepare models..."
+    if [[ ${model_mode} == "local" ]];then
+        model_version=""
+    else
+        model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
         if [[ $? -ne 0 ]];then
+            echo "ERROR: can not get version in ${DDK_HOME}/ddk_info, please check your env."
             return 1
         fi
+    fi
+    bash ${script_path}/prepare_model.sh ${model_version}
+    if [[ $? -ne 0 ]];then
+        return 1
     fi
 
     #deploy common libs

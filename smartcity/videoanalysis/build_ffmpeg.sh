@@ -44,7 +44,7 @@ function download_code()
         echo "FFmpeg code have been downloaded, skip download work..."
         return 0
     else
-        if [[ ${download_mode} == "local" ]];
+        if [[ ${download_mode} == "local" ]];then
             echo "WARNING: no ffmpeg code found."
             read -p "Do you want to download from internet?(y/n, default:y)" confirm
             if [[ ${confirm}"X" != "X" && ${confirm} != "y" && ${confirm} != "Y" ]];then
@@ -55,14 +55,14 @@ function download_code()
     fi
 
     ffmpeg_download_url="https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/${ffmpeg_version}"
-    wget -o ${script_path}/${ffmpeg_version}.ing ${ffmpeg_download_url} --no-check-certificate
+    wget -O ${script_path}/${ffmpeg_version}.ing ${ffmpeg_download_url} --no-check-certificate
     if [[ $? -ne 0 ]];then
         echo "ERROR: download failed, please check ${ffmpeg_download_url} connection."
         return 1
     fi
-    
+
     mv ${script_path}/${ffmpeg_version}.ing ${script_path}/${ffmpeg_version}
-    tar -zxvf ${script_path}/${ffmpeg_version} -C ${script_path} 1>dev/null
+    tar -zxvf ${script_path}/${ffmpeg_version} -C ${script_path} 1>/dev/null
     if [[ $? -ne 0 ]];then
         echo "ERROR: uncompress ffmpeg tar.gz file failed, please check ${ffmpeg_download_url} connection."
         return 1
@@ -74,8 +74,6 @@ function download_code()
 
 }
 
-function 
-
 function build_ffmpeg()
 {
     atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
@@ -83,10 +81,9 @@ function build_ffmpeg()
         echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
         return 1
     fi
-    
+
     atlas_target=`echo ${atlas_target} | sed 's/ //g' `
     if [[ ${atlas_target} == "ASIC" ]];then
-    else
         cross_prefix="${DDK_HOME}/uihost/toolchains/aarch64-linux-gcc6.3/bin/aarch64-linux-gnu-"
         sysroot="--sysroot=${DDK_HOME}/uihost/toolchains/aarch64-linux-gcc6.3/sysroot"
     else
@@ -97,15 +94,15 @@ function build_ffmpeg()
     mkdir -p ${install_path}
 
     ffmpeg_configure_options=" --cross-prefix=${cross_prefix} --enable-pthreads --enable-cross-compile --target-os=linux --arch=aarch64 --enable-shared --enable-network --enable-protocol=tcp --enable-protocol=udp --enable-protocol=rtp --enable-demuxer=rtsp --disable-debug --disable-stripping --disable-doc --disable-ffplay --disable-ffprobe --disable-htmlpages --disable-manpages --disable-podpages  --disable-txtpages --disable-w32threads --disable-os2threads ${sysroot} --prefix=${install_prefix}"
-    
-    make clean -C ${script_path}/ffmpeg 1>/dev/null
-    bash {script_path}/ffmpeg/configure ${ffmpeg_configure_options}
+
+    make clean -C ${script_path}/ffmpeg >/dev/null 2>&1
+    bash ${script_path}/ffmpeg/configure ${ffmpeg_configure_options}
     make install -C ${script_path}/ffmpeg 1>/dev/null
-    
+
     mkdir -p {HOME}/ascend_ddk/include/third_party/ffmpeg
-    cp -rdp {install_path}/include/* {HOME}/ascend_ddk/include/third_party/ffmpeg
-    cp -rdp {install}/lib/* {HOME}/ascend_ddk/device/lib
-    
+    cp -rdp {install_prefix}/include/* {HOME}/ascend_ddk/include/third_party/ffmpeg
+    cp -rdp {install_prefix}/lib/* {HOME}/ascend_ddk/device/lib
+
     cd ${install_path}/lib && tar -cvzf ${script_path}/ffmpeg_lib.tar.gz ./*
     cd ${script_path}
 }
@@ -114,6 +111,12 @@ main()
 {
     #download code
     download_code
+    if [[ $? -ne 0 ]];then
+        return 1
+    fi
+
+    build_ffmpeg
+
     if [[ $? -ne 0 ]];then
         return 1
     fi
