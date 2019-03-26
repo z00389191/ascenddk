@@ -18,6 +18,7 @@ graphs {
     side: DEVICE
     thread_num: 1
     so_name: "./libgeneral_inference.so"
+    so_name: "../../../ascend_lib/libascend_ezdvpp.so"
     ai_config {
 
       items {

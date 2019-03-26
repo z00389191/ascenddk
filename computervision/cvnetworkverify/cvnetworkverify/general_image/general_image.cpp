@@ -158,7 +158,7 @@ void GeneralImage::GetPathFiles(const string &path, vector<string> &file_vec) {
 bool GeneralImage::ArrangeImageInfo(shared_ptr<EngineTrans> &image_handle,
                                     const string &image_path) {
   // read image using OPENCV
-  cv::Mat mat = cv::imread(image_path, CV_LOAD_IMAGE_UNCHANGED);
+  cv::Mat mat = cv::imread(image_path, CV_LOAD_IMAGE_COLOR);
   if (mat.empty()) {
     ERROR_LOG("Failed to deal file=%s. Reason: read image failed.",
               image_path.c_str());
