@@ -38,7 +38,7 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 remote_host=$1
 compilation_target=$2
 
-HOST_LIB_PATH="${HOME}/ascend_ddk/host/lib"
+HOST_LIB_PATH="${HOME}/ascend_ddk/device/lib"
 DEVICE_LIB_PATH="${HOME}/ascend_ddk/device/lib"
 
 . ${script_path}/utils/scripts/func_libraries.sh
