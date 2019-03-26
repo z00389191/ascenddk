@@ -69,7 +69,10 @@ enum class AppErrorCode {
   kDetection,
 
   // feature mask engine failed
-  kFeatureMask
+  kFeatureMask,
+
+  // recognition engine failed 
+  kRecognition
 };
 
 /**
@@ -87,6 +90,8 @@ struct FrameInfo {
       ascend::utils::kVpcYuv420SemiPlannar;
   ascend::utils::DvppVpcImageRankType org_img_rank = ascend::utils::kVpcNv21;
   bool img_aligned = false; // original image already aligned or not
+  unsigned char *original_jpeg_pic_buffer; // ouput buffer
+  unsigned int original_jpeg_pic_size; // size of output buffer
 };
 
 /**
