@@ -151,15 +151,16 @@ void CarColorInferenceEngine::BatchImageResize(
     dvpp_basic_vpc_para.dest_resolution.width = kDestImageWidth;
     dvpp_basic_vpc_para.dest_resolution.height = kDestImageHeight;
     // DVPP limits crop_left should be even number
-    dvpp_basic_vpc_para.crop_left =
-        iter->img.width % 2 == 0 ? iter->img.width : iter->img.width - 1;
+    dvpp_basic_vpc_para.crop_left = 0;
+    iter->img.width % 2 == 0 ? iter->img.width : iter->img.width - 1;
     // DVPP limits crop_right should be Odd number
     dvpp_basic_vpc_para.crop_right =
-        iter->img.height % 2 == 0 ? iter->img.height - 1 : iter->img.height;
+        iter->img.width % 2 == 0 ? iter->img.width - 1 : iter->img.width;
     // DVPP limits crop_up should be even number
     dvpp_basic_vpc_para.crop_up = 0;
     // DVPP limits crop_down should be Odd number
-    dvpp_basic_vpc_para.crop_down = 0;
+    dvpp_basic_vpc_para.crop_down =
+        iter->img.height % 2 == 0 ? iter->img.height - 1 : iter->img.height;
     dvpp_basic_vpc_para.is_input_align = true;
 
     ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);

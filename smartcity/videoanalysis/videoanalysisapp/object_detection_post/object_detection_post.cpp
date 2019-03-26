@@ -149,8 +149,8 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
 
   int crop_horz_min = bbox.lt_x % 2 == 0 ? bbox.lt_x : bbox.lt_x + 1;
   int crop_horz_max = bbox.rb_x % 2 == 0 ? bbox.rb_x - 1 : bbox.rb_x;
-  int crop_vert_min = bbox.lt_y % 2 == 0 ? bbox.lt_y - 1 : bbox.lt_y;
-  int crop_vert_max = bbox.rb_y % 2 == 0 ? bbox.rb_y : bbox.rb_y + 1;
+  int crop_vert_min = bbox.lt_y % 2 == 0 ? bbox.lt_y : bbox.lt_y + 1;
+  int crop_vert_max = bbox.rb_y % 2 == 0 ? bbox.rb_y - 1 : bbox.rb_y;
 
   // calculate cropped image width and height.
   int dest_width = crop_horz_max - crop_horz_min + 1;
@@ -172,9 +172,9 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
   // DVPP limits crop_right should be Odd number
   dvpp_basic_vpc_para.crop_right = crop_horz_max;
   // DVPP limits crop_up should be even number
-  dvpp_basic_vpc_para.crop_up = crop_vert_max;
+  dvpp_basic_vpc_para.crop_up = crop_vert_min;
   // DVPP limits crop_down should be Odd number
-  dvpp_basic_vpc_para.crop_down = crop_vert_min;
+  dvpp_basic_vpc_para.crop_down = crop_vert_max;
   dvpp_basic_vpc_para.is_input_align = true;
 
   ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);
@@ -190,8 +190,8 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
   target_img.channel = src_img.channel;
   target_img.format = src_img.format;
   target_img.data.reset(dvpp_out.buffer, default_delete<uint8_t[]>());
-  target_img.width = dvpp_crop_param.dest_resolution.width;
-  target_img.height = dvpp_crop_param.dest_resolution.height;
+  target_img.width = dest_width;
+  target_img.height = dest_height;
   target_img.size = dvpp_out.size;
 
   return HIAI_OK;

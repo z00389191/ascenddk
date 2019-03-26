@@ -124,15 +124,15 @@ HIAI_StatusT ObjectDetectionInferenceEngine::ImagePreProcess(
   dvpp_basic_vpc_para.dest_resolution.width = kInputWidth;
   dvpp_basic_vpc_para.dest_resolution.height = kInputHeight;
   // DVPP limits crop_left should be even number
-  dvpp_basic_vpc_para.crop_left =
-      src_img.width % 2 == 0 ? src_img.width : src_img.width - 1;
+  dvpp_basic_vpc_para.crop_left = 0;
   // DVPP limits crop_right should be Odd number
   dvpp_basic_vpc_para.crop_right =
-      src_img.height % 2 == 0 ? src_img.height - 1 : src_img.height;
+      src_img.width % 2 == 0 ? src_img.width - 1 : src_img.width;
   // DVPP limits crop_up should be even number
   dvpp_basic_vpc_para.crop_up = 0;
   // DVPP limits crop_down should be Odd number
-  dvpp_basic_vpc_para.crop_down = 0;
+  dvpp_basic_vpc_para.crop_down =
+      src_img.height % 2 == 0 ? src_img.height - 1 : src_img.height;
   dvpp_basic_vpc_para.is_input_align = true;
 
   ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);
