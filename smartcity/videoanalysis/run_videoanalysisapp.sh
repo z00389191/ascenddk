@@ -36,29 +36,53 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-model_mode=$2
+presenter_view_app_name=$2
+channel1=$3
+channel2=$4
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/utils/scripts/func_deploy.sh
 . ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-main()
+function kill_remote_running()
+{
+    echo -e "\nrun.sh exit, kill ${remote_host}:ascend_videoanalysisapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_videoanalysisapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_videoanalysisapp running failed, please login to kill it manually."
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    exit
+}
+
+trap 'kill_remote_running' 2 15
+
+function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [model_mode(local/internet)]."
+        echo "ERROR: invalid host ip, please check your command format: ./run_videoanalysisapp.sh host_ip presenter_view_app_name channel1 [channel2]."
         exit 1
     fi
-    
-    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
+
+    bash ${script_path}/prepare_param.sh ${remote_host} ${presenter_view_app_name} ${channel1} ${channel2}
     if [[ $? -ne 0 ]];then
         exit 1
     fi
-    
-    echo "[Step] Prepare presenter server information and graph.confg..."
-    bash ${script_path}/prepare_graph.sh ${remote_host} ${download_mode}
-    echo "Finish to deploy facedetectionapp."
+
+    parse_remote_port
+
+    echo "[Step] run ${remote_host}:ascend_videoanalysisapp..."
+
+    #start app
+    iRet=`IDE-daemon-client --host $remote_host:${remote_port} --hostcmd "cd ~/HIAI_PROJECTS/ascend_workspace/videoanalysisapp/out/;./ascend_videoanalysisapp"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: excute ${remote_host}:./HIAI_PROJECTS/ascend_workspace/videoanalysisapp/out/ascend_videoanalysisapp failed, please check /var/log/syslog and board running log from IDE Log Module for details."
+        exit 1
+    fi
     exit 0
 }
 

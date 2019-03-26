@@ -1,14 +1,3 @@
-#!/bin/bash
-#
-#   =======================================================================
-#
-# Copyright (C) 2018, Hisilicon Technologies Co., Ltd. All Rights Reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-#   1 Redistributions of source code must retain the above copyright notice,
-#     this list of conditions and the following disclaimer.
 #
 #   2 Redistributions in binary form must reproduce the above copyright notice,
 #     this list of conditions and the following disclaimer in the documentation
@@ -30,36 +19,33 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #   =======================================================================
-
-# ************************Variable*********************************************
-
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-model_mode=$2
+download_mode=$2
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/utils/scripts/func_deploy.sh
 . ${common_path}/utils/scripts/func_util.sh
 
-main()
+function main()
 {
-    check_ip_addr ${remote_host}
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [model_mode(local/internet)]."
-        exit 1
-    fi
+    bash ${common_path}/prepare_presenter_server.sh "video_analysis" ${remote_host} ${download_mode}
+
+    while [ ${presenter_server_storage_path}"X" == "X" ]
+    do
+        read -p "Please input a absolute path to storage facial recognition data:" presenter_server_storage_path
+        mkdir -p ${presenter_server_storage_path}
+        if [ $? -ne 0 ];then
+            echo "ERROR: invalid path: ${prepare_presenter_server}, please input a valid path."
+        fi
+
+    done
+    echo "Use ${presenter_server_storage_path} to store facial recognition data..."
+    sed -i "s#^storage_dir=.*\$#storage_dir=${presenter_server_storage_path}#g" ${common_path}/presenter/server/video_analysis/config/config.conf
     
-    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
-    if [[ $? -ne 0 ]];then
-        exit 1
-    fi
-    
-    echo "[Step] Prepare presenter server information and graph.confg..."
-    bash ${script_path}/prepare_graph.sh ${remote_host} ${download_mode}
-    echo "Finish to deploy facedetectionapp."
-    exit 0
+
+    echo "Finish to prepare facial recognition presenter server configuration."
 }
 
 main

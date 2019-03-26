@@ -89,6 +89,7 @@ main()
     atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
     if [[ $? -ne 0 ]];then
         echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
+        exit 1
     fi
 
     #remove blank
