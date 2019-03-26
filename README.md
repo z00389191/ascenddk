@@ -1,3 +1,4 @@
+EN|[CN](README_cn.md)
 ## Open Source Project -Ascend Developer Kit
 
 The Ascend Developer Kit (often abbreviated as the Ascend DK) is a computing platform ecosystem project based on Huawei's self-developed artificial intelligence (AI) chipset Ascend 310. It provides rich open source code libraries to help developers develop AI applications. The Ascend DK can be easily deployed in the Atlas 200 DK, which provides a one-stop development suite for developers, including the AI hardware computing platform and related tools. This enables developers to efficiently write AI applications running on specific hardware devices.
