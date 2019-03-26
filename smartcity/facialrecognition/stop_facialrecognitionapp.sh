@@ -36,37 +36,48 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-data_source=$2
 
 common_path="${script_path}/../../common"
 
 . ${common_path}/utils/scripts/func_util.sh
 . ${common_path}/utils/scripts/func_deploy.sh
 
+function kill_remote_running()
+{
+    echo -e "run.sh exit, kill ${remote_host}:ascend_facialrecognitionapp running..."
+    parse_remote_port
+    iRet=$(IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "for p in \`pidof ascend_facialrecognitionapp\`; do { echo \"kill \$p\"; kill \$p; }; done")
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: kill ${remote_host}:ascend_facialrecognitionapp running failed, please login to kill it manually."
+        return 1
+    else
+        echo "$iRet in ${remote_host}."
+    fi
+    return 0
+}
+
 function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name."
+        echo "ERROR: invalid host ip, please check your command format: ./stop_facialrecognitionapp.sh host_ip."
         exit 1
     fi
 
-    if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
-        echo "ERROR: invalid channel name, please input Channel-1 or Channel-2."
-        exit 1
+    running_pid=`ps -ef | grep "run_facialrecognitionapp\.sh" | awk -F ' ' '{print $2}'`
+
+    if [[ ${running_pid}"X" != "X" ]];then
+        echo "kill local runn_face run_facialrecognitionapp.sh ${running_pid}"
+        kill -9 ${running_pid}
     fi
-    echo "Prepare app configuration..."
-    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/out/graph.config
-    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/out/graph.config
-    
+
     parse_remote_port
-    
-    upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
+
+    kill_remote_running
     if [[ $? -ne 0 ]];then
-        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/syslog for details."
         exit 1
     fi
-    echo "Finish to prepare facedetectionapp params."
+
     exit 0
 }
 

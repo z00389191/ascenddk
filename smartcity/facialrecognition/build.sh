@@ -35,38 +35,42 @@
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-remote_host=$1
-data_source=$2
-
-common_path="${script_path}/../../common"
-
-. ${common_path}/utils/scripts/func_util.sh
-. ${common_path}/utils/scripts/func_deploy.sh
-
-function main()
+main()
 {
-    check_ip_addr ${remote_host}
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name."
+    if [ ! -n ${DDK_HOME} ];then
+        echo "Can not find DDK_HOME env, please set it in environment!."
         exit 1
     fi
 
-    if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
-        echo "ERROR: invalid channel name, please input Channel-1 or Channel-2."
+    echo "Clear app build path..."
+    rm -rf ${script_path}/facialrecognitionapp/out
+
+    echo "Build main..."
+    make -C ${script_path}/facialrecognitionapp 1>/dev/null
+    if [ $? -ne 0 ];then
         exit 1
     fi
-    echo "Prepare app configuration..."
-    cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/out/graph.config
-    sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/out/graph.config
-    
-    parse_remote_port
-    
-    upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/syslog for details."
-        exit 1
-    fi
-    echo "Finish to prepare facedetectionapp params."
+
+    for file in `find ${script_path}/facialrecognitionapp -name "Makefile"`
+    do
+        if [ ${file} == "${script_path}/facialrecognitionapp/Makefile" ];then
+            continue
+        fi
+        path=`dirname ${file}`
+        lib_path_name=`basename ${path}`
+        echo "Build ${lib_path_name} lib..."
+        make clean -C ${path} 1>/dev/null
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+        make install -C ${path} 1>/dev/null
+
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+    done
+
+    echo "Finish to Build app."
     exit 0
 }
 
