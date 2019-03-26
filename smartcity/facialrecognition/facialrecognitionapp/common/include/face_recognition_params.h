@@ -99,8 +99,7 @@ struct FrameInfo {
 template<class Archive>
 void serialize(Archive& ar, FrameInfo& data) {
   ar(data.frame_id, data.channel_id, data.timestamp, data.image_source,
-     data.face_id, data.org_img_format, data.img_aligned,
-     data.original_jpeg_pic_buffer, data.original_jpeg_pic_size);
+     data.face_id, data.org_img_format, data.img_aligned;
 }
 
 /**
