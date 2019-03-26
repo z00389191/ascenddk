@@ -35,30 +35,42 @@
 
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
-remote_host=$1
-model_mode=$2
-
-common_path="${script_path}/../../common"
-
-. ${common_path}/utils/scripts/func_deploy.sh
-. ${common_path}/utils/scripts/func_util.sh
-
 main()
 {
-    check_ip_addr ${remote_host}
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [model_mode(local/internet)]."
+    if [ ! -n ${DDK_HOME} ];then
+        echo "Can not find DDK_HOME env, please set it in environment!."
         exit 1
     fi
-    
-    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
-    if [[ $? -ne 0 ]];then
+
+    echo "Clear app build path..."
+    rm -rf ${script_path}/videoanalysisapp/out
+
+    echo "Build main..."
+    make -C ${script_path}/videoanalysisapp 1>/dev/null
+    if [ $? -ne 0 ];then
         exit 1
     fi
-    
-    echo "[Step] Prepare presenter server information and graph.confg..."
-    bash ${script_path}/prepare_graph.sh ${remote_host} ${download_mode}
-    echo "Finish to deploy facedetectionapp."
+
+    for file in `find ${script_path}/videoanalysisapp -name "Makefile"`
+    do
+        if [ ${file} == "${script_path}/videoanalysisapp/Makefile" ];then
+            continue
+        fi
+        path=`dirname ${file}`
+        lib_path_name=`basename ${path}`
+        echo "Build ${lib_path_name} lib..."
+        make clean -C ${path} 1>/dev/null
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+        make install -C ${path} 1>/dev/null
+
+        if [ $? -ne 0 ];then
+            exit 1
+        fi
+    done
+
+    echo "Finish to Build app."
     exit 0
 }
 

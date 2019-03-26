@@ -100,7 +100,7 @@ function upload_file()
 # $2: remote path
 # $3: is_uncompress(true/false, default:true)
 # ******************************************************************************
-function upload_tar_gz_file()
+function upload_tar_file()
 {
     local_file=$1
     remote_path=$2
@@ -112,7 +112,7 @@ function upload_tar_gz_file()
 
     #uncompress tar.gz file
     if [[ ${is_uncompress}"X" != "falseX" ]];then
-        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -zxvf ${remote_file} -C ${remote_path}/"`
+        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -xvf ${remote_file} -C ${remote_path}/"`
         if [[ $? -ne 0 ]];then
             echo "ERROR: uncompress ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
         fi
@@ -164,8 +164,8 @@ function upload_path()
             remote_file_path=`dirname ${remote_file}`
         fi
 
-        if [[ ${file_extension} == "tar.gz" ]];then
-            upload_tar_gz_file ${file} ${remote_file_path} ${is_uncompress}
+        if [[ ${file_extension} == "tar" ]];then
+            upload_tar_file ${file} ${remote_file_path} ${is_uncompress}
             if [[ $? -ne 0 ]];then
                 return 1
             fi
@@ -186,7 +186,7 @@ function upload_path()
 # $2: app path(absolute)
 # $3: common path(absolute)
 # $4: remote_host(host ip)
-# $5: model_mode(none-no need to do model, local-do with local model, internet-download model based on ddk version)
+# $5: download_mode(none-skip download, local-do with local data, internet-download data from internet)
 # ******************************************************************************
 function deploy_app()
 {
@@ -194,7 +194,7 @@ function deploy_app()
     app_path=$2
     common_path=$3
     remote_host=$4
-    model_mode=$5
+    download_mode=$5
 
     #set remote_port
     parse_remote_port
@@ -213,11 +213,11 @@ function deploy_app()
         return 1
     fi
 
-    #prepare_model.sh: model_mode
-    if [[ ${model_mode} != "none" ]];then
+    #prepare_model.sh: download_mode
+    if [[ ${download_mode} != "none" ]];then
         echo "[Step] Prepare models..."
-        if [[ ${model_mode} == "local" ]];then
-            model_version=""
+        if [[ ${download_mode} == "local" ]];then
+            model_version="local"
         else
             model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
             if [[ $? -ne 0 ]];then
@@ -250,7 +250,7 @@ function deploy_app()
     #deploy models
     if [ -d ${app_path}/MyModel ];then
         echo "[Step] Deploy models..."
-        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/ascend_workspace" "true"
+        upload_path ${app_path}/MyModel "~/HIAI_DATANDMODELSET/ascend_workspace"
         if [[ $? -ne 0 ]];then
             return 1
         fi

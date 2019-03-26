@@ -23,6 +23,7 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 app_name=$1
 remote_host=$2
+download_mode=$3
 
 . ${script_path}/utils/scripts/func_util.sh
 
@@ -140,6 +141,14 @@ function parse_presenter_view_ip()
 
 function main()
 {
+    if [[ ${download_mode} != "local" ]];then
+        echo "Install python3 libs: pip3 install -r ${script_path}/presenter/server/requirements..."
+        pip3 install -r ${script_path}/presenter/server/requirements
+        if [ $? -ne 0 ];then
+            echo "ERROR: install python3 libs failed, please check your env."
+            return 1
+        fi
+    fi
     parse_presenter_altasdk_ip
     parse_presenter_view_ip
     

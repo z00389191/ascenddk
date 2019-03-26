@@ -36,8 +36,8 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-data_source=$2
-presenter_view_app_name=$3
+presenter_view_app_name=$2
+data_source=$3
 
 common_path="${script_path}/../../common"
 
@@ -48,7 +48,7 @@ function main()
 {
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name presenter_view_app_name."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name channel_name."
         exit 1
     fi
 

@@ -36,29 +36,52 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-model_mode=$2
+download_mode=$2
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/utils/scripts/func_deploy.sh
 . ${common_path}/utils/scripts/func_util.sh
 
-main()
+function modify_graph()
 {
+    echo "Modify presenter server information in graph.config..."
+    cp -r ${script_path}/videoanalysisapp/graph_template.config ${script_path}/videoanalysisapp/graph_deploy.config
+    presenter_ip=`grep presenter_server_ip ${common_path}/presenter/server/video_analysis/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9.]//g'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: get presenter server ip failed, please check ${common_path}/presenter/server/video_analysis/config/config.conf."
+        return 1
+    fi
+    
+    presenter_port=`grep presenter_server_port ${common_path}/presenter/server/video_analysis/config/config.conf | awk -F '=' '{print $2}' | sed 's/[^0-9]//g'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: get presenter server port failed, please check ${common_path}/presenter/server/video_analysis/config/config.conf."
+        return 1
+    fi
+    
+    sed -i "s/\${template_presenter_ip}/${presenter_ip}/g" ${script_path}/videoanalysisapp/graph_deploy.config
+    sed -i "s/\${template_presenter_port}/${presenter_port}/g" ${script_path}/videoanalysisapp/graph_deploy.config
+    return 0
+}
+
+function main()
+{
+    echo "Modify presenter server configuration..."
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [model_mode(local/internet)]."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_graph.sh host_ip [download_mode(local/internet)]."
         exit 1
     fi
-    
-    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
+    bash ${script_path}/prepare_presenter_server.sh ${remote_host} ${download_mode}
     if [[ $? -ne 0 ]];then
         exit 1
     fi
     
-    echo "[Step] Prepare presenter server information and graph.confg..."
-    bash ${script_path}/prepare_graph.sh ${remote_host} ${download_mode}
-    echo "Finish to deploy facedetectionapp."
+    modify_graph
+    if [[ $? -ne 0 ]];then
+        exit 1
+    fi
+    
+    echo "Finish to prepare videoanalysisapp graph."
     exit 0
 }
 
