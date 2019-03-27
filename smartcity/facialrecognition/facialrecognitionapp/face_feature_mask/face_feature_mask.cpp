@@ -217,8 +217,8 @@ bool FaceFeatureMaskProcess::Resize(const vector<FaceImage> &face_imgs,
 
     resize_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;
     resize_para.crop_left = 0;
-    resize_para.crop_up = origin_width - 1;
-    resize_para.crop_right = 0;
+    resize_para.crop_up = 0;
+    resize_para.crop_right = origin_width - 1;
     resize_para.crop_down = origin_height - 1;
     resize_para.src_resolution.width = origin_width;
     resize_para.src_resolution.height = origin_height;

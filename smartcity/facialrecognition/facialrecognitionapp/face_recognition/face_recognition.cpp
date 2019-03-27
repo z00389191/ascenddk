@@ -162,9 +162,9 @@ bool FaceRecognition::ResizeImg(const FaceImage &face_img,
   int32_t height = face_img.image.height;
   // set from 0 to width -1
   resize_para.crop_left = 0;
-  resize_para.crop_up = width - 1;
+  resize_para.crop_right = width - 1;
   // set from 0 to height -1
-  resize_para.crop_right = 0;
+  resize_para.crop_up = 0;
   resize_para.crop_down = height - 1;
   // set source resolution ratio
   resize_para.src_resolution.width = width;
