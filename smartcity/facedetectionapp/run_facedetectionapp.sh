@@ -73,7 +73,13 @@ function main()
 
     #start presenter
     #cd {common_path}/script
-
+    presenter_server_pid=`ps -ef | grep "presenter_server\.py" | grep "face_detection" | awk -F ' ' '{print $2}'`
+    if [[ ${presenter_server_pid}"X" == "X" ]];then
+        echo "presenter server for face detection is not started, please start it."
+        exit 1
+    fi
+    
+    
     parse_remote_port
 
     echo "[Step] run ${remote_host}:ascend_facedetectionapp..."
