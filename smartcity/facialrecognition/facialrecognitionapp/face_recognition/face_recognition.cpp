@@ -155,18 +155,17 @@ bool FaceRecognition::ResizeImg(const FaceImage &face_img,
   }
 
   // call ez_dvpp to resize image
-  DvppCropOrResizePara resize_para;
-  resize_para.image_type = kVpcYuv420SemiPlannar;  // NV12 fixed format
-  resize_para.rank = kVpcNv21;  // NV12->NV12, rank is 1
+  DvppBasicVpcPara resize_para;
+  resize_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;  // NV12 format
   // get original image size and set to resize parameter
   int32_t width = face_img.image.width;
   int32_t height = face_img.image.height;
   // set from 0 to width -1
-  resize_para.horz_min = 0;
-  resize_para.horz_max = width - 1;
+  resize_para.crop_left = 0;
+  resize_para.crop_right = width - 1;
   // set from 0 to height -1
-  resize_para.vert_min = 0;
-  resize_para.vert_max = height - 1;
+  resize_para.crop_up = 0;
+  resize_para.crop_down = height - 1;
   // set source resolution ratio
   resize_para.src_resolution.width = width;
   resize_para.src_resolution.height = height;
@@ -179,10 +178,9 @@ bool FaceRecognition::ResizeImg(const FaceImage &face_img,
   resize_para.is_output_align = false;
   // call
   DvppProcess dvpp_resize_img(resize_para);
-  DvppOutput dvpp_output;
-  int ret = dvpp_resize_img.DvppOperationProc(
-      reinterpret_cast<char*>(face_img.image.data.get()), img_size,
-      &dvpp_output);
+  DvppVpcOutput dvpp_output;
+  int ret = dvpp_resize_img.DvppBasicVpcProc(face_img.image.data.get(),
+                                             img_size, &dvpp_output);
   if (ret != kDvppOperationOk) {
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                     "call ez_dvpp failed, failed to resize image.");

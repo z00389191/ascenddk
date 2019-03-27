@@ -153,9 +153,8 @@ bool FaceFeatureMaskProcess::Crop(const shared_ptr<FaceRecognitionInfo> &face_re
   for (vector<FaceImage>::iterator face_img_iter = face_imgs.begin();
        face_img_iter != face_imgs.end(); ++face_img_iter) {
     // call ez_dvpp to crop image
-    DvppCropOrResizePara crop_para;
-    crop_para.image_type = face_recognition_info->frame.org_img_format;
-    crop_para.rank = face_recognition_info->frame.org_img_rank;
+    DvppBasicVpcPara crop_para;
+    crop_para.input_image_type = face_recognition_info->frame.org_img_format;
 
     // Change the left top coordinate to even numver
     u_int32_t lt_horz = ((face_img_iter->rectangle.lt.x) >> 1) << 1;
@@ -172,18 +171,18 @@ bool FaceFeatureMaskProcess::Crop(const shared_ptr<FaceRecognitionInfo> &face_re
     crop_para.src_resolution.height = org_img.height;
     crop_para.dest_resolution.width = cropped_width;
     crop_para.dest_resolution.height = cropped_height;
-    crop_para.horz_min = lt_horz;
-    crop_para.horz_max = rb_horz;
-    crop_para.vert_min = lt_vert;
-    crop_para.vert_max = rb_vert;
+    crop_para.crop_left = lt_horz;
+    crop_para.crop_right = rb_horz;
+    crop_para.crop_up = lt_vert;
+    crop_para.crop_down = rb_vert;
 
     // The align flag for input and output data,output data should be aligned
     crop_para.is_input_align = face_recognition_info->frame.img_aligned;
     crop_para.is_output_align = true;
     DvppProcess dvpp_crop_img(crop_para);
-    DvppOutput dvpp_output;
-    int ret = dvpp_crop_img.DvppOperationProc(
-                reinterpret_cast<char *>(org_img.data.get()), img_size, &dvpp_output);
+    DvppVpcOutput dvpp_output;
+    int ret = dvpp_crop_img.DvppBasicVpcProc(
+                org_img.data.get(), img_size, &dvpp_output);
     if (ret != kDvppOperationOk) {
       HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                       "Call ez_dvpp failed, failed to crop image.");
@@ -214,14 +213,13 @@ bool FaceFeatureMaskProcess::Resize(const vector<FaceImage> &face_imgs,
     int32_t origin_width = face_img_iter->image.width;
     int32_t origin_height = face_img_iter->image.height;
     ImageData<u_int8_t> resized_image;
-    DvppCropOrResizePara resize_para;
+    DvppBasicVpcPara resize_para;
 
-    resize_para.image_type = kVpcYuv420SemiPlannar;
-    resize_para.rank = kVpcNv21;
-    resize_para.horz_min = 0;
-    resize_para.horz_max = origin_width - 1;
-    resize_para.vert_min = 0;
-    resize_para.vert_max = origin_height - 1;
+    resize_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;
+    resize_para.crop_left = 0;
+    resize_para.crop_up = 0;
+    resize_para.crop_right = origin_width - 1;
+    resize_para.crop_down = origin_height - 1;
     resize_para.src_resolution.width = origin_width;
     resize_para.src_resolution.height = origin_height;
 
@@ -232,9 +230,9 @@ bool FaceFeatureMaskProcess::Resize(const vector<FaceImage> &face_imgs,
     DvppProcess dvpp_resize_img(resize_para);
 
     // Invoke EZ_DVPP interface to resize image
-    DvppOutput dvpp_output;
-    int ret = dvpp_resize_img.DvppOperationProc(
-                reinterpret_cast<char *>(face_img_iter->image.data.get()), img_size, &dvpp_output);
+    DvppVpcOutput dvpp_output;
+    int ret = dvpp_resize_img.DvppBasicVpcProc(
+                face_img_iter->image.data.get(), img_size, &dvpp_output);
     if (ret != kDvppOperationOk) {
       HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                       "Call ez_dvpp failed, failed to resize image.");
