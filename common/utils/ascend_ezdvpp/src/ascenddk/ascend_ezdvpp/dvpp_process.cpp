@@ -34,7 +34,6 @@
 #include <cstdlib>
 #include <malloc.h>
 #include "ascenddk/ascend_ezdvpp/dvpp_process.h"
-#include "hiaiengine/ai_memory.h"
 
 using namespace std;
 namespace ascend {
