@@ -39,6 +39,7 @@
 
 using hiai::Engine;
 using namespace ascend::presenter;
+using namespace std::__cxx11;
 
 // register data type
 HIAI_REGISTER_DATA_TYPE("EngineTransT", EngineTransT);
@@ -83,15 +84,6 @@ const float kConfidenceMax = 1.0;
 // face detection function return value
 const int32_t kFdFunSuccess = 0;
 const int32_t kFdFunFailed = -1;
-
-// OSD function return value
-const int32_t kOsdCallSuccess = 0;
-
-// DVPP function return value
-const int32_t kDvppCallSuccess = 0;
-
-// level for call DVPP
-const int32_t kDvppToJpegLevel = 100;
 
 // need to deal results when index is 2
 const int32_t kDealResultIndex = 2;
@@ -234,10 +226,6 @@ bool FaceDetectionPostProcess::IsInvalidConfidence(float confidence) {
   return (confidence <= kConfidenceMin) || (confidence > kConfidenceMax);
 }
 
-bool FaceDetectionPostProcess::IsSupportFormat(hiai::IMAGEFORMAT format) {
-  return format == hiai::YUV420SP;
-}
-
 bool FaceDetectionPostProcess::IsInvalidResults(float attr, float score,
                                                 const Point &point_lt,
                                                 const Point &point_rb) {
@@ -261,46 +249,26 @@ bool FaceDetectionPostProcess::IsInvalidResults(float attr, float score,
 
 int32_t FaceDetectionPostProcess::SendImage(uint32_t height, uint32_t width,
                                             uint32_t size, u_int8_t *data, std::vector<DetectionResult>& detection_results) {
-  // parameter
   int32_t status = kFdFunSuccess;
-  ascend::utils::DvppToJpgPara dvpp_to_jpeg_para;
-  dvpp_to_jpeg_para.format = JPGENC_FORMAT_NV12;
-  dvpp_to_jpeg_para.level = kDvppToJpegLevel;
-  dvpp_to_jpeg_para.resolution.height = height;
-  dvpp_to_jpeg_para.resolution.width = width;
-  ascend::utils::DvppProcess dvpp_to_jpeg(dvpp_to_jpeg_para);
+  // parameter
+  ImageFrame image_frame_para;
+  image_frame_para.format = ImageFormat::kJpeg;
+  image_frame_para.width = width;
+  image_frame_para.height = height;
+  image_frame_para.size = size;
+  image_frame_para.data = data;
+  image_frame_para.detection_results = detection_results;
 
-  // call DVPP
-  ascend::utils::DvppOutput dvpp_output;
-  int32_t ret = dvpp_to_jpeg.DvppOperationProc(reinterpret_cast<char*>(data),
-                                               size, &dvpp_output);
-  // failed, no need to send to presenter
-  if (ret != kDvppCallSuccess) {
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Failed to convert YUV420SP to JPEG, skip it.");
-    status = kFdFunFailed;
-  } else {  // success, need sent jpeg to presenter
-    ImageFrame image_frame_para;
-    image_frame_para.format = ImageFormat::kJpeg;
-    image_frame_para.width = width;
-    image_frame_para.height = height;
-    image_frame_para.size = dvpp_output.size;
-    image_frame_para.data = dvpp_output.buffer;
-    image_frame_para.detection_results = detection_results;
-
-    PresenterErrorCode p_ret = PresentImage(presenter_channel_.get(),
+  PresenterErrorCode p_ret = PresentImage(presenter_channel_.get(),
                                             image_frame_para);
-    // send to presenter failed
-    if (p_ret != PresenterErrorCode::kNone) {
-      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+  // send to presenter failed
+  if (p_ret != PresenterErrorCode::kNone) {
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                       "Send JPEG image to presenter failed, error code=%d",
                       p_ret);
-      status = kFdFunFailed;
-    }
-
-    // delete data which DVPP new (call DvppOperationProc function)
-    delete[] dvpp_output.buffer;
+    status = kFdFunFailed;
   }
+
   return status;
 }
 
@@ -310,15 +278,6 @@ HIAI_StatusT FaceDetectionPostProcess::HandleOriginalImage(
   std::vector<NewImageParaT> img_vec = inference_res->imgs;
   // dealing every original image
   for (uint32_t ind = 0; ind < inference_res->b_info.batch_size; ind++) {
-    hiai::IMAGEFORMAT format = img_vec[ind].img.format;
-    // format invalid, skip it
-    if (!IsSupportFormat(format)) {
-      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                      "Only support YUV420SP format, index=%d, format=%d", ind,
-                      format);
-      status = HIAI_ERROR;
-      continue;
-    }
     uint32_t width = img_vec[ind].img.width;
     uint32_t height = img_vec[ind].img.height;
     uint32_t size = img_vec[ind].img.size;
@@ -343,17 +302,6 @@ HIAI_StatusT FaceDetectionPostProcess::HandleResults(
   std::vector<OutputT> output_data_vec = inference_res->output_datas;
   // dealing every image
   for (uint32_t ind = 0; ind < inference_res->b_info.batch_size; ind++) {
-    // get origin image parameters
-    hiai::IMAGEFORMAT format = img_vec[ind].img.format;
-    // format invalid, skip it
-    if (!IsSupportFormat(format)) {
-      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                      "Only support YUV420SP format, index=%d, format=%d", ind,
-                      format);
-      status = HIAI_ERROR;
-      continue;
-    }
-
     // result
     int32_t out_index = ind * kDealResultIndex;
     OutputT out = output_data_vec[out_index];

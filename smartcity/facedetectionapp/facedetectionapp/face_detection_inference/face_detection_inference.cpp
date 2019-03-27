@@ -57,6 +57,8 @@ const uint32_t kModelHeight = 300;
 
 // call dvpp success
 const uint32_t kDvppProcSuccess = 0;
+// level for call DVPP
+const int32_t kDvppToJpegLevel = 100;
 
 // vpc input image offset
 const uint32_t kImagePixelOffsetEven = 1;
@@ -158,6 +160,51 @@ HIAI_StatusT FaceDetectionInference::ImagePreProcess(
   return HIAI_OK;
 }
 
+bool FaceDetectionInference::IsSupportFormat(hiai::IMAGEFORMAT format) {
+  return format == hiai::YUV420SP;
+}
+
+HIAI_StatusT FaceDetectionInference::ConvertImage(NewImageParaT& img) {
+  hiai::IMAGEFORMAT format = img.img.format;
+  if (!IsSupportFormat(format)){
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Format %d is not supported!", format);
+    return HIAI_ERROR;
+  }
+
+  uint32_t width = img.img.width;
+  uint32_t height = img.img.height;
+  uint32_t img_size = img.img.size;
+
+  // parameter
+  ascend::utils::DvppToJpgPara dvpp_to_jpeg_para;
+  dvpp_to_jpeg_para.format = JPGENC_FORMAT_NV12;
+  dvpp_to_jpeg_para.level = kDvppToJpegLevel;
+  dvpp_to_jpeg_para.resolution.height = height;
+  dvpp_to_jpeg_para.resolution.width = width;
+  ascend::utils::DvppProcess dvpp_to_jpeg(dvpp_to_jpeg_para);
+  
+
+  // call DVPP
+  ascend::utils::DvppOutput dvpp_output;
+  int32_t ret = dvpp_to_jpeg.DvppOperationProc(reinterpret_cast<char*>(img.img.data.get()),
+                                                img_size, &dvpp_output);
+
+  // failed, no need to send to presenter
+  if (ret != kDvppProcSuccess) {
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Failed to convert YUV420SP to JPEG, skip it.");
+    return HIAI_ERROR;
+  }
+
+  // reset the data in img_vec
+  img.img.data.reset(dvpp_output.buffer, default_delete<uint8_t[]>());
+  img.img.size = dvpp_output.size;
+
+  return HIAI_OK;
+}
+
+
 HIAI_IMPL_ENGINE_PROCESS("face_detection_inference",
     FaceDetectionInference, INPUT_SIZE) {
   HIAI_ENGINE_LOG("Start process!");
@@ -199,7 +246,12 @@ HIAI_IMPL_ENGINE_PROCESS("face_detection_inference",
   // copy original data
   std::shared_ptr<EngineTransT> trans_data = std::make_shared<EngineTransT>();
   trans_data->b_info = image_handle->b_info;
+  // convert the orginal image to JPEG
+  for (uint32_t index = 0; index < image_handle->b_info.batch_size; index++){
+    HIAI_StatusT convert_ret = ConvertImage(image_handle->v_img[index]);
+  }
   trans_data->imgs = image_handle->v_img;
+
 
   // copy image data
   std::shared_ptr<uint8_t> temp = std::shared_ptr<uint8_t>(

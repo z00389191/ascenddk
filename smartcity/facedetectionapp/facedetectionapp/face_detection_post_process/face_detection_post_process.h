@@ -39,10 +39,10 @@
 #include "hiaiengine/data_type_reg.h"
 #include "hiaiengine/engine.h"
 #include "ascenddk/presenter/agent/presenter_channel.h"
-#include "ascenddk/ascend_ezdvpp/dvpp_process.h"
+
 
 #define INPUT_SIZE 1
-#define OUTPUT_SIZE 0
+#define OUTPUT_SIZE 1
 
 // face detection configuration
 struct FaceDetectionPostConfig {
@@ -142,13 +142,6 @@ private:
    */
   bool IsInvalidConfidence(float confidence);
 
-  /**
-   * @brief: check format support or not
-   * @param [in]: format
-   * @return: true: support
-   *          false: not support
-   */
-  bool IsSupportFormat(hiai::IMAGEFORMAT format);
 
   /**
    * @brief: validate results
