@@ -54,12 +54,6 @@ HIAI_REGISTER_DATA_TYPE("FaceRecognitionInfo", FaceRecognitionInfo);
 HIAI_REGISTER_DATA_TYPE("FaceRectangle", FaceRectangle);
 HIAI_REGISTER_DATA_TYPE("FaceImage", FaceImage);
 
-// constants
-namespace {
-// level for call DVPP
-const int32_t kDvppToJpegLevel = 100;
-}
-
 HIAI_StatusT FacePostProcess::Init(
     const hiai::AIConfig &config,
     const std::vector<hiai::AIModelDescription> &model_desc) {
@@ -99,29 +93,10 @@ HIAI_StatusT FacePostProcess::SendFeature(
     return HIAI_ERROR;
   }
 
-  // generate frame information
-  // 1. JPEG image (call DVPP change NV12 to jpeg)
-  DvppToJpgPara dvpp_to_jpeg_para;
-  dvpp_to_jpeg_para.format = JPGENC_FORMAT_NV12;
-  dvpp_to_jpeg_para.level = kDvppToJpegLevel;
-  dvpp_to_jpeg_para.resolution.height = info->org_img.height;
-  dvpp_to_jpeg_para.resolution.width = info->org_img.width;
-  DvppProcess dvpp_to_jpeg(dvpp_to_jpeg_para);
-  DvppOutput dvpp_output;
-  int32_t ret = dvpp_to_jpeg.DvppOperationProc(
-      reinterpret_cast<char*>(info->org_img.data.get()), info->org_img.size,
-      &dvpp_output);
-  // failed, no need to send to presenter
-  if (ret != kDvppOperationOk) {
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Failed to convert NV12 to JPEG, skip this frame.");
-    return HIAI_ERROR;
-  }
-
   facial_recognition::FrameInfo frame_info;
   frame_info.set_image(
-      string(reinterpret_cast<char*>(dvpp_output.buffer), dvpp_output.size));
-  delete[] dvpp_output.buffer;
+      string(reinterpret_cast<char*>(info->frame.original_jpeg_pic_buffer), info->frame.original_jpeg_pic_size));
+  delete info->frame.original_jpeg_pic_buffer;
 
   // 2. repeated FaceFeature
   vector<FaceImage> face_imgs = info->face_imgs;

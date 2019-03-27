@@ -72,7 +72,13 @@ function main()
     if [[ $? -ne 0 ]];then
         exit 1
     fi
-
+    
+    presenter_server_pid=`ps -ef | grep "presenter_server\.py" | grep "video_analysis" | awk -F ' ' '{print $2}'`
+    if [[ ${presenter_server_pid}"X" == "X" ]];then
+        echo "presenter server for video analysis is not started, please start it."
+        exit 1
+    fi
+    
     parse_remote_port
 
     echo "[Step] run ${remote_host}:ascend_videoanalysisapp..."

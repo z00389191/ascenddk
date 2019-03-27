@@ -73,7 +73,7 @@ function parse_presenter_altasdk_ip()
     echo "Can not find ip in the same segment with ${remote_host}."
     while [[ ${presenter_atlasdk_ip}"X" == "X" ]]
     do
-        echo -en "Current enviroment valid ip list:\n${valid_ips}Please choose one which can connect to Atlas DK Developerment Board:"
+        echo -en "Current environment valid ip list:\n${valid_ips}Please choose one which can connect to Atlas DK Developerment Board:"
         read presenter_atlasdk_ip
         if [[ ${presenter_atlasdk_ip}"X" != "X" ]];then
             check_ip_addr ${presenter_atlasdk_ip}
@@ -117,7 +117,7 @@ function parse_presenter_view_ip()
     
     while [[ ${presenter_view_ip}"X" == "X" ]]
     do
-        echo -en "Current enviroment valid ip list:\n${valid_view_ips}Please choose one to show the presenter in browser(default: 127.0.0.1):"
+        echo -en "Current environment valid ip list:\n${valid_view_ips}Please choose one to show the presenter in browser(default: 127.0.0.1):"
         read presenter_view_ip
         
         if [[ ${presenter_view_ip}"X" != "X" ]];then
@@ -149,6 +149,12 @@ function main()
             return 1
         fi
     fi
+    stop_pid=`ps -ef | grep "presenter_server\.py" | grep "${app_name}" | awk -F ' ' '{print $2}'`
+    if [[ ${stop_pid}"X" != "X" ]];then
+        echo "Kill existing presenter process: kill -9 ${stop_pid}"
+        kill -9 ${stop_pid}
+    fi
+    
     parse_presenter_altasdk_ip
     parse_presenter_view_ip
     
