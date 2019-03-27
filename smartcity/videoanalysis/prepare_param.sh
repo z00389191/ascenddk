@@ -36,29 +36,41 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-model_mode=$2
+presenter_view_app_name=$2
+channel1=$3
+channel2=$4
 
 common_path="${script_path}/../../common"
 
-. ${common_path}/utils/scripts/func_deploy.sh
 . ${common_path}/utils/scripts/func_util.sh
+. ${common_path}/utils/scripts/func_deploy.sh
 
-main()
+function main()
 {
+    if [[ $# -lt 3 ]];then
+        echo "ERROR: invalid command, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name channel1 [channel2]."
+        exit 1
+    fi
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./deploy.sh host_ip [model_mode(local/internet)]."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name channel1 [channel2]."
         exit 1
     fi
+
+    echo "Prepare app configuration..."
+    cp -r ${script_path}/videoanalysisapp/graph_deploy.config ${script_path}/videoanalysisapp/out/graph.config
+    sed -i "s#\${template_channel1}#${channel1}#g" ${script_path}/videoanalysisapp/out/graph.config
+    sed -i "s#\${template_channel2}#${channel2}#g" ${script_path}/videoanalysisapp/out/graph.config
+    sed -i "s/\${template_app_name}/${presenter_view_app_name}/g" ${script_path}/videoanalysisapp/out/graph.config
     
-    deploy_app "facedetectionapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
+    parse_remote_port
+    
+    upload_file ${script_path}/videoanalysisapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/videoanalysisapp/out"
     if [[ $? -ne 0 ]];then
+        echo "ERROR: sync ${script_path}/videoanalysisapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/videoanalysisapp/out failed, please check /var/log/syslog for details."
         exit 1
     fi
-    
-    echo "[Step] Prepare presenter server information and graph.confg..."
-    bash ${script_path}/prepare_graph.sh ${remote_host} ${download_mode}
-    echo "Finish to deploy facedetectionapp."
+    echo "Finish to prepare videoanalysisapp params."
     exit 0
 }
 

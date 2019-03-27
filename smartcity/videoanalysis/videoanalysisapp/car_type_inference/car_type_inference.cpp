@@ -195,37 +195,41 @@ void CarTypeInferenceEngine::BatchImageResize(
   // resize for each image
   for (std::vector<ObjectImageParaT>::iterator iter = batch_image_input
       ->obj_imgs.begin(); iter != batch_image_input->obj_imgs.end(); ++iter) {
-
-    ascend::utils::DvppCropOrResizePara dvpp_resize_param;
+    ascend::utils::DvppBasicVpcPara dvpp_basic_vpc_para;
 
     /**
      * when use dvpp_process only for resize function:
      *
-     * 1.DVPP limits horz_max and vert_max should be Odd number,
+     * 1.DVPP limits crop_left and crop_right should be Odd number,
      * if it is even number, subtract 1, otherwise Equal to origin width
      * or height.
      *
-     * 2.horz_min and vert_min should be set to zero.
+     * 2.crop_up and crop_down should be set to zero.
      */
-    dvpp_resize_param.horz_max =
+    dvpp_basic_vpc_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV; // nv12
+    dvpp_basic_vpc_para.src_resolution.width = (int) iter->img.width;
+    dvpp_basic_vpc_para.src_resolution.height = (int) iter->img.height;
+    dvpp_basic_vpc_para.dest_resolution.width = kDestImageWidth;
+    dvpp_basic_vpc_para.dest_resolution.height = kDestImageHeight;
+    // DVPP limits crop_left should be even number, 0 means without crop
+    dvpp_basic_vpc_para.crop_left = 0;
+    iter->img.width % 2 == 0 ? iter->img.width : iter->img.width - 1;
+    // DVPP limits crop_right should be Odd number
+    dvpp_basic_vpc_para.crop_right =
         iter->img.width % 2 == 0 ? iter->img.width - 1 : iter->img.width;
-    dvpp_resize_param.horz_min = 0;
-    dvpp_resize_param.vert_max =
+    // DVPP limits crop_up should be even number, 0 means without crop
+    dvpp_basic_vpc_para.crop_up = 0;
+    // DVPP limits crop_down should be Odd number
+    dvpp_basic_vpc_para.crop_down =
         iter->img.height % 2 == 0 ? iter->img.height - 1 : iter->img.height;
-    dvpp_resize_param.vert_min = 0;
-    dvpp_resize_param.is_input_align = true;
-    dvpp_resize_param.is_output_align = true;
-    dvpp_resize_param.src_resolution.width = iter->img.width;
-    dvpp_resize_param.src_resolution.height = iter->img.height;
-    dvpp_resize_param.dest_resolution.width = kDestImageWidth;
-    dvpp_resize_param.dest_resolution.height = kDestImageHeight;
+    dvpp_basic_vpc_para.is_input_align = true;
 
-    ascend::utils::DvppProcess dvpp_process(dvpp_resize_param);
+    ascend::utils::DvppProcess dvpp_process(dvpp_basic_vpc_para);
 
-    char* image_buffer = (char*) (iter->img.data.get());
-    ascend::utils::DvppOutput dvpp_out;
-    int ret = dvpp_process.DvppOperationProc(image_buffer, iter->img.size,
-                                             &dvpp_out);
+    ascend::utils::DvppVpcOutput dvpp_out;
+    int ret = dvpp_process.DvppBasicVpcProc(iter->img.data.get(),
+                                            (int32_t) iter->img.size,
+                                            &dvpp_out);
     if (ret != ascend::utils::kDvppOperationOk) {
       HIAI_ENGINE_LOG(
           "[CarTypeInferenceEngine] resize image failed with code %d !", ret);
@@ -423,14 +427,14 @@ HIAI_StatusT CarTypeInferenceEngine::BatchInferenceProcess(
 }
 
 HIAI_IMPL_ENGINE_PROCESS("car_type_inference", CarTypeInferenceEngine,
-                         INPUT_SIZE) {
+    INPUT_SIZE) {
   HIAI_StatusT hiai_ret = HIAI_OK;
   std::shared_ptr<BatchCarInfoT> tran_data = std::make_shared<BatchCarInfoT>();
   std::shared_ptr<BatchCroppedImageParaT> image_input = std::make_shared<
-      BatchCroppedImageParaT>();
+  BatchCroppedImageParaT>();
 
   std::shared_ptr<BatchCroppedImageParaT> image_handle = std::make_shared<
-      BatchCroppedImageParaT>();
+  BatchCroppedImageParaT>();
 
   if (arg0 == nullptr) {
     HIAI_ENGINE_LOG("[CarTypeInferenceEngine] input data is null!");

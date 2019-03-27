@@ -36,6 +36,7 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
+download_mode=$2
 
 common_path="${script_path}/../../common"
 
@@ -68,10 +69,10 @@ function main()
     echo "Modify presenter server configuration..."
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_graph.sh host_ip."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_graph.sh host_ip [download_mode(local/internet)]."
         exit 1
     fi
-    bash ${common_path}/prepare_presenter_server.sh "face_detection" ${remote_host}
+    bash ${common_path}/prepare_presenter_server.sh "face_detection" ${remote_host} ${download_mode}
     if [[ $? -ne 0 ]];then
         exit 1
     fi

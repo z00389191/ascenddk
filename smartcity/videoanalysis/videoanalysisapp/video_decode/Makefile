@@ -1,7 +1,10 @@
-all : libface_feature_mask.so
+all : libvideo_decode.so
 #DEVICE COMPILER		
+ifndef DDK_HOME
+$(error "Can not find DDK_HOME env, please set it in environment!.")
+endif
 CC := aarch64-linux-gnu-g++
-# current directory
+
 LOCAL_DIR  := ./
 
 SRC_DIR = $(LOCAL_DIR)
@@ -10,7 +13,6 @@ OUT_DIR = ../out
 OBJ_DIR = $(BUILD_DIR)/obj
 DEPS_DIR  = $(BUILD_DIR)/deps
 
-# include directory
 INC_DIR = \
 	-I$(SRC_DIR) \
 	-I$(DDK_HOME)/include/inc \
@@ -21,11 +23,11 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
 	-I$(HOME)/ascend_ddk/include \
+	-I$(HOME)/ascend_ddk/include/third_party/ffmpeg \
 
-# link parameters
 CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
 LNK_FLAGS := \
-	-L$(HOME)/ascend_ddk/device/lib/ -L$(DDK_HOME)/device/lib/ \
+	-L$(HOME)/ascend_ddk/device/lib -L$(DDK_HOME)/device/lib/ \
 	-lDvpp_api \
 	-lDvpp_jpeg_decoder \
 	-lDvpp_jpeg_encoder \
@@ -35,7 +37,15 @@ LNK_FLAGS := \
 	-lidedaemon \
 	-lhiai_common \
 	-lopencv_world \
+	-lpresenteragent \
 	-lascend_ezdvpp \
+	-lavcodec \
+	-lavformat \
+	-lavdevice \
+	-lavutil \
+	-lswresample \
+	-lavfilter \
+	-lswscale \
 	-shared
 
 
@@ -51,18 +61,16 @@ OBJS_customop = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(notdir $(CUSTOM_S
 OBJS_no_customop := $(filter-out $(OBJS_customop), $(OBJS))
 DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))
 
-
-libface_feature_mask.so: $(OBJS_customop) 
+libvideo_decode.so: $(OBJS_customop)
 	$(CC) $^ $(LNK_FLAGS) -o $@
 	rm -rf $(BUILD_DIR)
 
-$(OBJ_DIR)/%.o:%.cpp 
+$(OBJ_DIR)/%.o:%.cpp
 	@if [ ! -d $(OBJ_DIR) ]; then mkdir -p $(OBJ_DIR); fi;
 	$(CC) -c $(CC_FLAGS) -o $@ $<
-	$(warning dir is $(OBJS_customop))
 
 
-$(DEPS_DIR)/%.d:%.cpp 
+$(DEPS_DIR)/%.d:%.cpp
 	@if [ ! -d $(DEPS_DIR) ]; then mkdir -p $(DEPS_DIR); fi;
 	set -e; rm -f $@;
 	$(CC) -MM $(CC_FLAGS) $< > $@.$$$$;
@@ -76,5 +84,5 @@ endif
 .PHONY : clean install
 clean:
 	rm -rf $(BUILD_DIR) lib*.so *.o
-install: libface_feature_mask.so
+install: libvideo_decode.so
 	mv *.so $(OUT_DIR)
