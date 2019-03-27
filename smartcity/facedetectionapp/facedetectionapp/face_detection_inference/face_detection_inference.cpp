@@ -249,6 +249,11 @@ HIAI_IMPL_ENGINE_PROCESS("face_detection_inference",
   // convert the orginal image to JPEG
   for (uint32_t index = 0; index < image_handle->b_info.batch_size; index++){
     HIAI_StatusT convert_ret = ConvertImage(image_handle->v_img[index]);
+    if (convert_ret != HIAI_OK) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Convert YUV Image to Jpeg failed!");
+      return HIAI_ERROR;
+    }
   }
   trans_data->imgs = image_handle->v_img;
 
