@@ -58,10 +58,14 @@ LOCAL_LIBRARY         := $(LOCAL_OBJ_PATH)/$(LOCAL_MODULE_NAME)
 FULL_CPP_SRCS         := $(filter %.cpp,$(FULL_SRC_FILES))
 FULL_CPP_OBJS         := $(patsubst $(LOCAL_DIR)/%.cpp,$(LOCAL_OBJ_PATH)/%.o, $(FULL_CPP_SRCS))
 
+#presenteragent in host running side
+#host and device runing side is the same in atlas dk 200
+#ascendcamera only support atlas 200
 LNK_FLAGS := \
 	-Wl,-rpath-link=$(DDK_HOME)/device/lib/ \
 	-L$(DDK_HOME)/device/lib \
 	-L$(HOME)/ascend_ddk/device/lib \
+        -L$(HOME)/ascend_ddk/host/lib \
 	$(SHARED_LIBRARIES)
 
 all: do_pre_build do_build

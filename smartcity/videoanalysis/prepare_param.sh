@@ -74,4 +74,4 @@ function main()
     exit 0
 }
 
-main
+main $*

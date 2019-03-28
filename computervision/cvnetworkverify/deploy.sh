@@ -43,7 +43,7 @@ common_path="${script_path}/../../common"
 . ${common_path}/utils/scripts/func_util.sh
 
 # define supported type
-type_array=("classfication" "faster_rcnn")
+type_array=("classification" "faster_rcnn")
 
 # ******************************************************************************
 # Description: check app type
@@ -92,6 +92,11 @@ function deploy_cvverify()
     #deploy app
     if [ -d ${script_path}/cvnetworkverify/out ];then
         echo "[Step] Deploy app libs..."
+        iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "rm -rf ~/HIAI_PROJECTS/ascend_workspace/cvnetworkverify"`
+        if [[ $? -ne 0 ]];then
+            echo "ERROR: delete ${remote_host}:./HIAI_PROJECTS/ascend_workspace/cvnetworkverify failed, please check /var/log/syslog for details."
+            return 1
+        fi
         upload_path ${script_path}/cvnetworkverify/out "~/HIAI_PROJECTS/ascend_workspace/cvnetworkverify/out"
         if [[ $? -ne 0 ]];then
             return 1
@@ -106,6 +111,11 @@ function deploy_cvverify()
 
 main()
 {
+    if [[ $# -lt 2 ]];then
+        echo "ERROR: invalid command, please check your command format: ./deploy.sh host_ip app_type"
+        exit 1
+    fi
+
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
         echo "ERROR: invalid host ip, please check your command."
@@ -127,4 +137,4 @@ main()
     exit 0
 }
 
-main
+main $*

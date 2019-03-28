@@ -62,7 +62,8 @@ COMMON_MAP = {"web_server": "display.src.web",
 
 APP_CONF_MAP = {"face_detection": FACE_DETION_MAP,
                 "facial_recognition": FACIAL_RECOGNITION_MAP,
-                "video_analysis": VIDEO_ANALYSIS_MAP
+                "video_analysis": VIDEO_ANALYSIS_MAP,
+                "display": COMMON_MAP
                }
 
 
@@ -73,10 +74,11 @@ def arg_parse():
     global SERVER_TYPE
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--app', type=str, required=False,
+    parser.add_argument('--app', type=str, required=True,
                         choices=['face_detection',
                                  'facial_recognition',
-                                 'video_analysis'],
+                                 'video_analysis',
+                                 'display'],
                         help="Application type corresponding to Presenter Server.")
     args = parser.parse_args()
     SERVER_TYPE = args.app
@@ -112,10 +114,12 @@ def close_all_thread(signum, frame):
 
 def check_server_exist():
     pid = os.getpid()
-    ppid = os.getppid()
-    cmd = "ps -ef|grep -v {}|grep -v {}|grep -w presenter_server|grep {}" \
-            .format(pid, ppid, SERVER_TYPE)
+:
+    cmd = "ps -ef|grep -v {}|grep -w presenter_server|grep {}" \
+            .format(pid, SERVER_TYPE)
+
     ret = os.system(cmd)
+
     return ret
 
 def main_process():
