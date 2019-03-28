@@ -112,7 +112,7 @@ main()
     fi
     
     echo "[Step] Prepare presenter server information..."
-    bash ${common_path}/prepare_presenter_server.sh "face_detection" ${remote_host} ${download_mode}
+    bash ${common_path}/prepare_presenter_server.sh "common_view" ${remote_host} ${download_mode}
     if [[ $? -ne 0 ]];then
         exit 1
     fi
