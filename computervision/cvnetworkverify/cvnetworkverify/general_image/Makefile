@@ -1,12 +1,22 @@
-all : libface_detection_pre_process.so
-#DEVICE COMPILER		
-
+all : libgeneral_image.so
+#HOST COMPILER
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 
-CC := aarch64-linux-gnu-g++
+ifeq ($(mode),)
+mode=AtlasDK
+endif
 
+ifeq ($(mode), AtlasDK)
+CC := aarch64-linux-gnu-g++
+else ifeq ($(mode), ASIC)
+CC := g++
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
+
+# current directory
 LOCAL_DIR  := ./
 
 SRC_DIR = $(LOCAL_DIR)
@@ -15,6 +25,7 @@ OUT_DIR = ../out
 OBJ_DIR = $(BUILD_DIR)/obj
 DEPS_DIR  = $(BUILD_DIR)/deps
 
+# include
 INC_DIR = \
 	-I$(SRC_DIR) \
 	-I$(DDK_HOME)/include/inc \
@@ -24,22 +35,12 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
-	-I$(HOME)/ascend_ddk/include \
 
-CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
+CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
 LNK_FLAGS := \
-	-L$(HOME)/ascend_ddk/device/lib -L$(DDK_HOME)/device/lib/ \
-	-lDvpp_api \
-	-lDvpp_jpeg_decoder \
-	-lDvpp_jpeg_encoder \
-	-lDvpp_vpc \
+	-L$(DDK_HOME)/host/lib/ \
 	-lmedia_mini \
-	-lhiai_server \
-	-lidedaemon \
-	-lhiai_common \
 	-lopencv_world \
-	-lpresenteragent \
-	-lascend_ezdvpp \
 	-shared
 
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
@@ -54,7 +55,7 @@ OBJS_customop = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(notdir $(CUSTOM_S
 OBJS_no_customop := $(filter-out $(OBJS_customop), $(OBJS))
 DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))
 
-libface_detection_pre_process.so: $(OBJS_customop)
+libgeneral_image.so: $(OBJS_customop)
 	$(CC) $^ $(LNK_FLAGS) -o $@
 	rm -rf $(BUILD_DIR)
 
@@ -76,5 +77,5 @@ endif
 .PHONY : clean install
 clean:
 	rm -rf $(BUILD_DIR) lib*.so *.o
-install: libface_detection_pre_process.so
+install: libgeneral_image.so
 	mv *.so $(OUT_DIR)
