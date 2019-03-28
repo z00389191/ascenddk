@@ -28,7 +28,7 @@ INC_DIR = \
 
 CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
 LNK_FLAGS := \
-	-L$(HOME)/ascend_ddk/device/lib -L$(DDK_HOME)/device/lib/ \
+	-L$(HOME)/ascend_ddk/host/lib -L$(DDK_HOME)/host/lib/ \
 	-lmedia_mini \
 	-lhiai_server \
 	-lidedaemon \

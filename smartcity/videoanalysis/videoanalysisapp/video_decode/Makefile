@@ -37,7 +37,6 @@ LNK_FLAGS := \
 	-lidedaemon \
 	-lhiai_common \
 	-lopencv_world \
-	-lpresenteragent \
 	-lascend_ezdvpp \
 	-lavcodec \
 	-lavformat \
