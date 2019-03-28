@@ -63,7 +63,7 @@ COMMON_MAP = {"web_server": "display.src.web",
 APP_CONF_MAP = {"face_detection": FACE_DETION_MAP,
                 "facial_recognition": FACIAL_RECOGNITION_MAP,
                 "video_analysis": VIDEO_ANALYSIS_MAP,
-                "common_view": COMMON_MAP
+                "display": COMMON_MAP
                }
 
 
@@ -73,21 +73,16 @@ def arg_parse():
     global APP_SERVER
     global SERVER_TYPE
 
-    # no args, show common view as default
-    if len(sys.argv) == 1:
-        app_conf = COMMON_MAP
-    else:
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--app', type=str, required=True,
-                            choices=['face_detection',
-                                     'facial_recognition',
-                                     'video_analysis',
-                                     'common_view'],
-                            help="Application type corresponding to Presenter Server.")
-        args = parser.parse_args()
-        SERVER_TYPE = args.app
-        app_conf = APP_CONF_MAP.get(SERVER_TYPE, COMMON_MAP)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--app', type=str, required=True,
+                        choices=['face_detection',
+                                 'facial_recognition',
+                                 'video_analysis',
+                                 'display'],
+                        help="Application type corresponding to Presenter Server.")
+    args = parser.parse_args()
+    SERVER_TYPE = args.app
+    app_conf = APP_CONF_MAP.get(SERVER_TYPE, COMMON_MAP)
     
     WEB_SERVER = __import__(app_conf.get("web_server"), fromlist=True)
     APP_SERVER = __import__(app_conf.get("app_server"), fromlist=True)
@@ -119,13 +114,9 @@ def close_all_thread(signum, frame):
 
 def check_server_exist():
     pid = os.getpid()
-
-    if SERVER_TYPE == "":         
-        cmd = "ps -ef|grep -v {}|grep -w presenter_server|grep python|grep -v \"\-\-app\"" \
-                .format(pid)   
-    else:
-        cmd = "ps -ef|grep -v {}|grep -w presenter_server|grep {}" \
-                .format(pid, SERVER_TYPE)
+:
+    cmd = "ps -ef|grep -v {}|grep -w presenter_server|grep {}" \
+            .format(pid, SERVER_TYPE)
 
     ret = os.system(cmd)
 
