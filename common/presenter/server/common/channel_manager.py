@@ -95,10 +95,10 @@ class ChannelManager():
         if cls.__instance is None:
             cls.__instance = object.__new__(cls)
             # default create 2 channels: image and video
-            if channel_list is not None and isinstance(channel_list, list):
-                for i in channel_list:
-                    cls.channel_list.append(Channel(channel_name=i))
-                    logging.info("register channel %s", i)
+            # if channel_list is not None and isinstance(channel_list, list):
+            #     for i in channel_list:
+            #         cls.channel_list.append(Channel(channel_name=i))
+            #         logging.info("register channel %s", i)
         return cls.__instance
 
     def _register_channel_fd(self, sock_fileno, channel_name):

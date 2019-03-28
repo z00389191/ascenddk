@@ -114,7 +114,7 @@ def close_all_thread(signum, frame):
 
 def check_server_exist():
     pid = os.getpid()
-:
+
     cmd = "ps -ef|grep -v {}|grep -w presenter_server|grep {}" \
             .format(pid, SERVER_TYPE)
 
