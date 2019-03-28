@@ -78,6 +78,20 @@ public:
   HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE);
 
 private:
+  
+  /**
+   * @brief : image preprocess function.
+   * @param [in] src_img: input image data.
+   * @param [out] resized_img: resized image data.
+   * @return HIAI_StatusT
+   */
+  HIAI_StatusT ImagePreProcess(const hiai::ImageData<u_int8_t>& src_img,
+                               hiai::ImageData<u_int8_t>& resized_img);
+
+  bool IsSupportFormat(hiai::IMAGEFORMAT format);
+
+  HIAI_StatusT ConvertImage(NewImageParaT& img_vec);
+                               
   // private member variable, which is used to cache AI model parameters
   std::shared_ptr<hiai::AIModelManager> ai_model_manager_;
 };

@@ -90,7 +90,7 @@ bool PresenterMessageHelper::InitPresentImageRequest(
 
     // set the rectangle attr
     proto::Rectangle_Attr *rectangle_attr = nullptr;
-    for (int i = 0; i < image.detection_results.size(); i++)
+    for (uint32_t i = 0; i < image.detection_results.size(); i++)
     {
 	rectangle_attr = request.add_rectangle_list();
 	rectangle_attr->mutable_left_top()-> set_x(image.detection_results[i].lt.x);
