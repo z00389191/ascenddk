@@ -62,6 +62,7 @@ FULL_CPP_OBJS         := $(patsubst $(LOCAL_DIR)/%.cpp,$(LOCAL_OBJ_PATH)/%.o, $(
 #host and device runing side is the same in atlas dk 200
 #ascendcamera only support atlas 200
 LNK_FLAGS := \
+        -Wl,-rpath-link=$(DDK_HOME)/host/lib \
 	-Wl,-rpath-link=$(DDK_HOME)/device/lib/ \
 	-L$(DDK_HOME)/device/lib \
 	-L$(HOME)/ascend_ddk/device/lib \
@@ -79,7 +80,7 @@ do_build: $(LOCAL_LIBRARY) | do_pre_build
 
 $(LOCAL_LIBRARY): $(FULL_CPP_OBJS) | do_pre_build
 	$(Q)echo [LD] $@
-	$(Q)$(CPP) $(CC_FLAGS) -o $(LOCAL_LIBRARY) $(FULL_CPP_OBJS)   -Wl,--whole-archive  -Wl,--no-whole-archive -Wl,--start-group  -Wl,--end-group $(LNK_FLAGS)
+	$(Q)$(CPP) $(CC_FLAGS) -o $(LOCAL_LIBRARY) $(FULL_CPP_OBJS)   -Wl,--whole-archive  -Wl,--no-whole-archive -Wl,--start-group  -Wl,--end-group $(LNK_FLAGS) -Wl,-rpath='$$ORIGIN/../../../ascend_lib'
 
 $(FULL_CPP_OBJS): $(LOCAL_OBJ_PATH)/%.o : $(LOCAL_DIR)/%.cpp  | do_pre_build
 	$(Q)echo [CC] $@
