@@ -249,13 +249,13 @@ struct DvppOutput {
 };
 
 struct DvppBasicVpcPara {
-    VpcInputFormat input_image_type;
+    VpcInputFormat input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;
     ResolutionRatio src_resolution;
     int crop_left = 0;
     int crop_up = 0;
     int crop_right = 0;
     int crop_down = 0;
-    VpcOutputFormat output_image_type;
+    VpcOutputFormat output_image_type = OUTPUT_YUV420SP_UV;
     ResolutionRatio dest_resolution;
     bool is_input_align = false;
     bool is_output_align = true;
