@@ -97,8 +97,7 @@ int DvppProcess::DvppOperationProc(const char *input_buf, int input_size,
         ret = dvpp_utils.CheckDataSize(output_data_queue->getBufferSize());
         if (ret != kDvppOperationOk) {
             ASC_LOG_ERROR(
-                    "To prevent excessive memory, data size should be in "
-                    "(0, 64]M! " "Now data size is %d byte.",
+                    "To prevent excessive memory, data size should be in " "(0, 64]M! " "Now data size is %d byte.",
                     output_data_queue->getBufferSize());
             return ret;
         }
@@ -126,8 +125,7 @@ int DvppProcess::DvppOperationProc(const char *input_buf, int input_size,
         ret = dvpp_utils.CheckDataSize(jpg_output_data.jpgSize);
         if (ret != kDvppOperationOk) {
             ASC_LOG_ERROR(
-                    "To prevent excessive memory, data size should be in "
-                    "(0, 64]M! " "Now data size is %d byte.",
+                    "To prevent excessive memory, data size should be in " "(0, 64]M! " "Now data size is %d byte.",
                     jpg_output_data.jpgSize);
             return ret;
         }
@@ -154,9 +152,7 @@ int DvppProcess::DvppOperationProc(const char *input_buf, int input_size,
         ret = dvpp_utils.CheckDataSize(data_size);
         if (ret != kDvppOperationOk) {
             ASC_LOG_ERROR(
-                    "To prevent excessive memory, data size should be in "
-                    "(0, 64]M! Now data size is %d byte. width is %d, "
-                    "height is %d.",
+                    "To prevent excessive memory, data size should be in " "(0, 64]M! Now data size is %d byte. width is %d, " "height is %d.",
                     data_size, dvpp_instance_para_.yuv_para.resolution.width,
                     dvpp_instance_para_.yuv_para.resolution.height);
             return ret;
@@ -205,9 +201,7 @@ int DvppProcess::DvppOperationProc(const char *input_buf, int input_size,
         ret = dvpp_utils.CheckDataSize(data_size);
         if (ret != kDvppOperationOk) {
             ASC_LOG_ERROR(
-                    "To prevent excessive memory, data size should be in "
-                    "(0, 64]M! Now data size is %d byte. width is %d, "
-                    "height is %d.",
+                    "To prevent excessive memory, data size should be in " "(0, 64]M! Now data size is %d byte. width is %d, " "height is %d.",
                     data_size, dest_width, dest_high);
             return ret;
         }
@@ -247,8 +241,7 @@ int DvppProcess::DvppJpegDProc(const char *input_buf, int input_size,
     ret = dvpp_utils.CheckDataSize(jpegd_out.yuv_data_size);
     if (ret != kDvppOperationOk) {
         ASC_LOG_ERROR(
-                "To prevent excessive memory, data size should be in (0, 64]M! "
-                "Now data size is %d byte.",
+                "To prevent excessive memory, data size should be in (0, 64]M! " "Now data size is %d byte.",
                 jpegd_out.yuv_data_size);
         return ret;
     }
@@ -334,8 +327,7 @@ int DvppProcess::DvppBasicVpcProc(const uint8_t *input_buf, int32_t input_size,
     ret = dvpp_utils.CheckDataSize(data_size);
     if (ret != kDvppOperationOk) {
         ASC_LOG_ERROR(
-                "To prevent excessive memory, data size should be in (0, 64]M! "
-                "Now data size is %d byte. width is %d, height is %d.",
+                "To prevent excessive memory, data size should be in (0, 64]M! " "Now data size is %d byte. width is %d, height is %d.",
                 data_size, dest_width, dest_high);
         return ret;
     }
@@ -399,8 +391,7 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
     if ((input_buf == nullptr) || (input_size <= 0)
             || (output_data == nullptr)) {
         ASC_LOG_ERROR(
-                "The input parameter is error in dvpp(yuv to jpeg)."
-                "parameter is pInput_buf:%d input_size:%d pOut_data:%d.",
+                "The input parameter is error in dvpp(yuv to jpeg)." "parameter is pInput_buf:%d input_size:%d pOut_data:%d.",
                 input_buf, input_size, output_data);
         return kDvppErrorInvalidParameter;
     }
@@ -422,9 +413,7 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
 
             input_data.bufSize =
                     ALIGN_UP(
-                            input_data.stride * input_data.heightAligned
-                            * DVPP_YUV420SP_SIZE_MOLECULE
-                            / DVPP_YUV420SP_SIZE_DENOMINATOR,
+                            input_data.stride * input_data.heightAligned * DVPP_YUV420SP_SIZE_MOLECULE / DVPP_YUV420SP_SIZE_DENOMINATOR,
                             PAGE_SIZE);
         } else {
             input_data.stride = ALIGN_UP(input_data.width,
@@ -434,9 +423,7 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
                     kJpegEHeightAlign);
             input_data.bufSize =
                     ALIGN_UP(
-                            input_data.stride * input_data.heightAligned
-                            * DVPP_YUV420SP_SIZE_MOLECULE
-                            / DVPP_YUV420SP_SIZE_DENOMINATOR,
+                            input_data.stride * input_data.heightAligned * DVPP_YUV420SP_SIZE_MOLECULE / DVPP_YUV420SP_SIZE_DENOMINATOR,
                             PAGE_SIZE);
         }
     }
@@ -846,9 +833,7 @@ int DvppProcess::DvppCropOrResize(const char *input_buf, int input_size,
 
     if (ret != kDvppOperationOk) {
         ASC_LOG_ERROR(
-                "resize hinc param must be [0.03125, 1) or (1, 4] and vinc "
-                "param must be [0.03125, 1) or (1, 4]!, now hinc is %f, "
-                "vinc " "is %f",
+                "resize hinc param must be [0.03125, 1) or (1, 4] and vinc " "param must be [0.03125, 1) or (1, 4]!, now hinc is %f, " "vinc " "is %f",
                 vpc_in_msg.hinc, vpc_in_msg.vinc);
         DestroyDvppApi(pi_dvpp_api);
         return ret;
@@ -1050,10 +1035,52 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
 
     if (ret != kDvppOperationOk) {
         ASC_LOG_ERROR(
-                "input_buf and output_buf can not be null, input_size and "
-                "output_size can not less than 0, now input_size is %d and "
-                "output_size is %d !",
+                "input_buf and output_buf can not be null, input_size and " "output_size can not less than 0, now input_size is %d and " "output_size is %d !",
                 input_size, output_size);
+        return ret;
+    }
+
+    // check image format params
+    VpcInputFormat input_format = dvpp_instance_para_.basic_vpc_para
+            .input_image_type;
+    VpcOutputFormat output_format = dvpp_instance_para_.basic_vpc_para
+            .output_image_type;
+    ret = dvpp_utils.CheckBasicVpcImageFormat(input_format, output_format);
+
+    if (ret != kDvppOperationOk) {
+        ASC_LOG_ERROR(
+                "Input image format or output image format is out of range, input format is %d, output format is %d",
+                input_format, output_format);
+        return ret;
+    }
+
+    // check crop params
+    uint32_t left_offset = dvpp_instance_para_.basic_vpc_para.crop_left;
+    uint32_t up_offset = dvpp_instance_para_.basic_vpc_para.crop_up;
+    uint32_t right_offset = dvpp_instance_para_.basic_vpc_para.crop_right;
+    uint32_t down_offset = dvpp_instance_para_.basic_vpc_para.crop_down;
+
+    ret = dvpp_utils.CheckBasicVpcCropParam(left_offset, up_offset,
+                                            right_offset, down_offset);
+    if (ret != kDvppOperationOk) {
+        ASC_LOG_ERROR(
+                "The left_offset and up_offset params must be even, The right_offset and down_offset params must be odd, left_offset is %d, up_offset is %d, right_offset is %d, down_offset is %d",
+                left_offset, up_offset, right_offset, down_offset);
+
+        return ret;
+    }
+
+    // check output image params
+    int output_width = dvpp_instance_para_.basic_vpc_para.dest_resolution.width;
+    int output_height = dvpp_instance_para_.basic_vpc_para.dest_resolution
+            .height;
+
+    ret = dvpp_utils.CheckBasicVpcOutputParam(output_width, output_height);
+    if (ret != kDvppOperationOk) {
+        ASC_LOG_ERROR(
+                "The width and height of the output image must be even, output width is %d, output height is %d",
+                output_width, output_height);
+
         return ret;
     }
 
@@ -1069,10 +1096,10 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
     bool is_input_align = dvpp_instance_para_.basic_vpc_para.is_input_align;
 
     // alloc input buffer
-    ret = dvpp_utils.AllocBasicVpcBuffer(
-            input_buf, input_size, is_input_align,
-            dvpp_instance_para_.basic_vpc_para.input_image_type, input_width,
-            input_height, width_stride, in_buffer_size, &in_buffer);
+    ret = dvpp_utils.AllocBasicVpcBuffer(input_buf, input_size, is_input_align,
+                                         input_format, input_width,
+                                         input_height, width_stride,
+                                         in_buffer_size, &in_buffer);
 
     if (ret != kDvppOperationOk) {
         ASC_LOG_ERROR("Allocate basic vpc buffer failed!");
@@ -1088,10 +1115,8 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
     image_configure->isCompressData = false;
     image_configure->widthStride = width_stride;
     image_configure->heightStride = height_stride;
-    image_configure->inputFormat = dvpp_instance_para_.basic_vpc_para
-            .input_image_type;
-    image_configure->outputFormat = dvpp_instance_para_.basic_vpc_para
-            .output_image_type;
+    image_configure->inputFormat = input_format;
+    image_configure->outputFormat = output_format;
     image_configure->yuvSumEnable = false;
     image_configure->cmdListBufferAddr = nullptr;
     image_configure->cmdListBufferSize = 0;
@@ -1109,10 +1134,6 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
             .crop_up;
     input_configure->cropArea.downOffset = dvpp_instance_para_.basic_vpc_para
             .crop_down;
-
-    int output_width = dvpp_instance_para_.basic_vpc_para.dest_resolution.width;
-    int output_height = dvpp_instance_para_.basic_vpc_para.dest_resolution
-            .height;
 
     int aligned_output_width = ALIGN_UP(output_width, kVpcWidthAlign);
     int aligned_output_height = ALIGN_UP(output_height, kVpcHeightAlign);
