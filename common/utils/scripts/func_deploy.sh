@@ -91,7 +91,9 @@ function upload_file()
     ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --sync ${local_file} ${remote_path}`
     if [[ $? -ne 0 ]];then
         echo "ERROR: sync ${local_file} to ${remote_host}:${remote_path} failed, please check /var/log/syslog for details."
+        return 1
     fi
+    return 0
 }
 
 # ************************uplooad tar.gz file****************************************
@@ -100,7 +102,7 @@ function upload_file()
 # $2: remote path
 # $3: is_uncompress(true/false, default:true)
 # ******************************************************************************
-function upload_tar_gz_file()
+function upload_tar_file()
 {
     local_file=$1
     remote_path=$2
@@ -109,19 +111,25 @@ function upload_tar_gz_file()
     remote_file="${remote_path}/${file_name}"
 
     upload_file ${local_file} ${remote_path}
+    if [[ $? -ne 0 ]];then
+        return 1
+    fi
 
     #uncompress tar.gz file
     if [[ ${is_uncompress}"X" != "falseX" ]];then
-        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -zxvf ${remote_file} -C ${remote_path}/"`
+        ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "tar -xvf ${remote_file} -C ${remote_path}/"`
         if [[ $? -ne 0 ]];then
             echo "ERROR: uncompress ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
+            return 1
         fi
 
         ret=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "rm ${remote_file}"`
         if [[ $? -ne 0 ]];then
             echo "ERROR: delete ${remote_host}:${remote_file} failed, please check /var/log/syslog for details."
+            return 1
         fi
     fi
+    return 0
 
 }
 
@@ -164,8 +172,8 @@ function upload_path()
             remote_file_path=`dirname ${remote_file}`
         fi
 
-        if [[ ${file_extension} == "tar.gz" ]];then
-            upload_tar_gz_file ${file} ${remote_file_path} ${is_uncompress}
+        if [[ ${file_extension} == "tar" ]];then
+            upload_tar_file ${file} ${remote_file_path} ${is_uncompress}
             if [[ $? -ne 0 ]];then
                 return 1
             fi
@@ -180,13 +188,42 @@ function upload_path()
     return 0
 }
 
+# ************************deploy app libs ***************************************
+# Description:  upload a file
+# $1: app_name
+# $2: app path(absolute)
+# $4: remote_host(host ip)
+# ******************************************************************************
+function deploy_app_lib_path()
+{
+    app_name=$1
+    app_path=$2
+    remote_host=$3
+    
+    iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "rm -rf ~/HIAI_PROJECTS/ascend_workspace/${app_name}/out"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: delete ${remote_host}:./HIAI_PROJECTS/ascend_workspace/${app_name}/out/* failed, please check /var/log/syslog for details."
+        return 1
+    fi
+
+    upload_path ${app_path}/${app_name}/out "~/HIAI_PROJECTS/ascend_workspace/${app_name}/out"
+    if [[ $? -ne 0 ]];then
+        return 1
+    fi
+    iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/${app_name}/out/ascend_${app_name}"`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: change excution mode ${remote_host}:./HIAI_PROJECTS/ascend_workspace/${app_name}/out/* failed, please check /var/log/syslog for details."
+        return 1
+    fi
+}
+
 # ************************deploy ***********************************************
 # Description:  upload a file
 # $1: app_name
 # $2: app path(absolute)
 # $3: common path(absolute)
 # $4: remote_host(host ip)
-# $5: model_mode(none-no need to do model, local-do with local model, internet-download model based on ddk version)
+# $5: download_mode(none-skip download, local-do with local data, internet-download data from internet)
 # ******************************************************************************
 function deploy_app()
 {
@@ -194,7 +231,7 @@ function deploy_app()
     app_path=$2
     common_path=$3
     remote_host=$4
-    model_mode=$5
+    download_mode=$5
 
     #set remote_port
     parse_remote_port
@@ -213,11 +250,11 @@ function deploy_app()
         return 1
     fi
 
-    #prepare_model.sh: model_mode
-    if [[ ${model_mode} != "none" ]];then
+    #prepare_model.sh: download_mode
+    if [[ ${download_mode} != "none" ]];then
         echo "[Step] Prepare models..."
-        if [[ ${model_mode} == "local" ]];then
-            model_version=""
+        if [[ ${download_mode} == "local" ]];then
+            model_version="local"
         else
             model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
             if [[ $? -ne 0 ]];then
@@ -258,13 +295,8 @@ function deploy_app()
 
     if [ -d ${app_path}/${app_name}/out ];then
         echo "[Step] Deploy app libs..."
-        upload_path ${app_path}/${app_name}/out "~/HIAI_PROJECTS/ascend_workspace/${app_name}/out"
+        deploy_app_lib_path ${app_name} ${app_path} ${remote_host}
         if [[ $? -ne 0 ]];then
-            return 1
-        fi
-        iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/${app_name}/out/ascend_${app_name}"`
-        if [[ $? -ne 0 ]];then
-            echo "ERROR: change excution mode ${remote_host}:./HIAI_PROJECTS/ascend_workspace/${app_name}/out/* failed, please check /var/log/syslog for details."
             return 1
         fi
     fi

@@ -195,6 +195,12 @@ private:
    * param [out]: image_handle: engine transform data
    */
   void SendResult(const std::shared_ptr<FaceRecognitionInfo> &image_handle);
+
+  /**
+   * @brief: Get original picture from camera
+   * param [out]: image_handle: engine transform data
+   */
+  bool GetOriginPic(const std::shared_ptr<FaceRecognitionInfo> &image_handle);
 };
 
 #endif /* FACE_RECOGNITION_ENGINE_H_ */

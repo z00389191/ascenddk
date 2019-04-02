@@ -116,13 +116,45 @@ int DvppUtils::CheckImageNeedAlign(int width, int high) {
     return kImageNeedAlign;
 }
 
+int DvppUtils::CheckBasicVpcImageFormat(VpcInputFormat input_format,
+                                        VpcOutputFormat output_format) {
+    if (input_format < INPUT_YUV400
+            || input_format > INPUT_YUV420_SEMI_PLANNER_VU_10BIT
+            || (output_format != OUTPUT_YUV420SP_UV
+                    && output_format != OUTPUT_YUV420SP_VU)) {
+        return kDvppErrorInvalidParameter;
+    }
+
+    return kDvppOperationOk;
+}
+
+int DvppUtils::CheckBasicVpcOutputParam(int width, int height) {
+    if ((width % 2 != 0) || (height % 2 != 0)) {
+        return kDvppErrorInvalidParameter;
+    }
+    return kDvppOperationOk;
+}
+
+int DvppUtils::CheckBasicVpcCropParam(uint32_t left_offset, uint32_t up_offset,
+                                      uint32_t right_offset,
+                                      uint32_t down_offset) {
+    if ((left_offset % 2 != 0) || (up_offset % 2 != 0)
+            || (right_offset % 2 == 0) || (down_offset % 2 == 0)) {
+        return kDvppErrorInvalidParameter;
+    }
+
+    return kDvppOperationOk;
+}
+
 int DvppUtils::AllocBuffer(const char * src_data, int input_size,
                            bool is_input_align, int format, int width, int high,
-                           int &width_stride, int &buffer_size,
+                           int &width_stride, int &dest_buffer_size,
                            char **dest_data) {
     int ret = kDvppOperationOk;
+
+    // call common allocation input memory method
     ret = AllocInputBuffer(src_data, input_size, is_input_align, format, width,
-                           high, width_stride, buffer_size, dest_data);
+                           high, width_stride, dest_buffer_size, dest_data);
 
     return ret;
 }
@@ -131,8 +163,10 @@ int DvppUtils::AllocBasicVpcBuffer(const uint8_t * src_data, int input_size,
                                    bool is_input_align,
                                    VpcInputFormat vpc_format, int width,
                                    int high, int &width_stride,
-                                   int &buffer_size, uint8_t **dest_data) {
+                                   int &dest_buffer_size, uint8_t **dest_data) {
     int ret = kDvppOperationOk;
+
+    // default input image format
     int format = kVpcYuv420SemiPlannar;
 
     switch (vpc_format) {
@@ -174,18 +208,26 @@ int DvppUtils::AllocBasicVpcBuffer(const uint8_t * src_data, int input_size,
         case INPUT_YUV420_SEMI_PLANNER_VU_10BIT:
             format = kVpcYuv420SemiPlannar;
             break;
+        default:
+            ret = kDvppErrorInvalidParameter;
+            break;
     }
 
+    if (ret != kDvppOperationOk) {
+        return ret;
+    }
+
+    // call common allocation input memory method
     ret = AllocInputBuffer(src_data, input_size, is_input_align, format, width,
-                           high, width_stride, buffer_size, dest_data);
+                           high, width_stride, dest_buffer_size, dest_data);
     return ret;
 }
 
 template<typename T>
 int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
                                 bool is_input_align, int format, int width,
-                                int high, int &width_stride, int &buffer_size,
-                                T **dest_data) {
+                                int high, int &width_stride,
+                                int &dest_buffer_size, T **dest_data) {
     // Dvpp requires the width and high of image must be even, so we need
     // convert the width and high of an odd number into even numbers
     int even_width = (width >> 1) << 1;
@@ -202,13 +244,13 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             width_stride = align_width;
 
             // The memory size of yuv420 image is 1.5 times width * height
-            buffer_size = align_width * align_high * DVPP_YUV420SP_SIZE_MOLECULE
+            dest_buffer_size = align_width * align_high
+                    * DVPP_YUV420SP_SIZE_MOLECULE
                     / DVPP_YUV420SP_SIZE_DENOMINATOR;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -217,7 +259,7 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             // alloc yuv420sp buffer
             ret = AllocYuv420SPBuffer(src_data, input_size, is_input_align,
                                       width, align_width, high, align_high,
-                                      buffer_size, *dest_data);
+                                      dest_buffer_size, *dest_data);
             break;
         }
         case kVpcYuv422SemiPlannar: {
@@ -226,12 +268,11 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             width_stride = align_width;
 
             // The memory size of yuv422 image is 2 times width * height
-            buffer_size = align_width * align_high * kYuv422SPWidthMul;
+            dest_buffer_size = align_width * align_high * kYuv422SPWidthMul;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -240,29 +281,28 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             // alloc yuv422sp buffer
             ret = AllocYuv422SPBuffer(src_data, input_size, is_input_align,
                                       width, align_width, high, align_high,
-                                      buffer_size, *dest_data);
+                                      dest_buffer_size, *dest_data);
             break;
         }
         case kVpcYuv444SemiPlannar: {
-            // y channel width of yuv444sp equals to image width and need 128-byte
-            // alignment
+            // y channel width of yuv444sp equals to image width and need
+            // 128-byte alignment
             int y_align_width = ALIGN_UP(even_width, kVpcWidthAlign);
             width_stride = y_align_width;
 
-            // uv channel width of yuv444sp is 2 times image width and need 128-byte
-            // alignment
+            // uv channel width of yuv444sp is 2 times image width and need
+            // 128-byte alignment
             int uv_align_width = ALIGN_UP(even_width * kYuv444SPWidthMul,
                                           kVpcWidthAlign);
 
-            // memory size of yuv444sp = memory size of y channel + memory size of uv
-            // channel
-            buffer_size = y_align_width * align_high
+            // memory size of yuv444sp = memory size of y channel + memory size
+            // of uv channel
+            dest_buffer_size = y_align_width * align_high
                     + uv_align_width * align_high;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -271,12 +311,13 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             // alloc yuv444sp buffer
             ret = AllocYuv444SPBuffer(src_data, input_size, is_input_align,
                                       width, y_align_width, uv_align_width,
-                                      high, align_high, buffer_size,
+                                      high, align_high, dest_buffer_size,
                                       *dest_data);
             break;
         }
         case kVpcYuv422Packed: {
-            //  The memory size of each row in yuv422 packed is 2 times width of image
+            //  The memory size of each row in yuv422 packed is 2 times width of
+            //  image
             int yuv422_packed_width = even_width * kYuv422PackedWidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -284,12 +325,11 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             width_stride = align_width;
 
             // memory size of yuv422 packed
-            buffer_size = align_width * align_high;
+            dest_buffer_size = align_width * align_high;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -299,11 +339,12 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
                                             is_input_align, yuv422_packed_width,
                                             align_width, high, align_high,
-                                            buffer_size, *dest_data);
+                                            dest_buffer_size, *dest_data);
             break;
         }
         case kVpcYuv444Packed: {
-            // The memory size of each row in yuv444 packed is 3 times width of image
+            // The memory size of each row in yuv444 packed is 3 times width of
+            // image
             int yuv444_packed_width = even_width * kYuv444PackedWidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -311,12 +352,11 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             width_stride = align_width;
 
             // memory size of yuv444 packed
-            buffer_size = align_width * align_high;
+            dest_buffer_size = align_width * align_high;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -326,11 +366,12 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
                                             is_input_align, yuv444_packed_width,
                                             align_width, high, align_high,
-                                            buffer_size, *dest_data);
+                                            dest_buffer_size, *dest_data);
             break;
         }
         case kVpcRgb888Packed: {
-            // The memory size of each row in rgb888 packed is 3 times width of image
+            // The memory size of each row in rgb888 packed is 3 times width of
+            // image
             int rgb888_width = even_width * kRgb888WidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -338,12 +379,11 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             width_stride = align_width;
 
             // memory size of rgb888 packed
-            buffer_size = align_width * align_high;
+            dest_buffer_size = align_width * align_high;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -353,12 +393,12 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
                                             is_input_align, rgb888_width,
                                             align_width, high, align_high,
-                                            buffer_size, *dest_data);
+                                            dest_buffer_size, *dest_data);
             break;
         }
         case kVpcXrgb8888Packed: {
-            // The memory size of each row in xrgb8888 packed is 4 times width of
-            // image
+            // The memory size of each row in xrgb8888 packed is 4 times width
+            // of image
             int xrgb8888_width = even_width * kXrgb888WidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -366,12 +406,11 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             width_stride = align_width;
 
             // memory size of xrgb8888 packed
-            buffer_size = align_width * align_high;
+            dest_buffer_size = align_width * align_high;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -381,7 +420,7 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
                                             is_input_align, xrgb8888_width,
                                             align_width, high, align_high,
-                                            buffer_size, *dest_data);
+                                            dest_buffer_size, *dest_data);
             break;
         }
         case kVpcYuv400SemiPlannar: {
@@ -391,13 +430,13 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             width_stride = align_width;
 
             // yuv400sp image apply for the same size space as yuv420sp image
-            buffer_size = align_width * align_high * DVPP_YUV420SP_SIZE_MOLECULE
+            dest_buffer_size = align_width * align_high
+                    * DVPP_YUV420SP_SIZE_MOLECULE
                     / DVPP_YUV420SP_SIZE_DENOMINATOR;
 
             // input data address 128 byte alignment
-            //*dest_data = (T *) memalign(kVpcAddressAlign, buffer_size);
             *dest_data = (T *) mmap(
-                    0, buffer_size,
+                    0, dest_buffer_size,
                     PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
                     0, 0);
@@ -406,7 +445,7 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             // alloc yuv400sp buffer
             ret = AllocYuv420SPBuffer(src_data, input_size, is_input_align,
                                       width, align_width, high, align_high,
-                                      buffer_size, *dest_data);
+                                      dest_buffer_size, *dest_data);
             break;
         }
         default: {
@@ -429,7 +468,7 @@ template<typename T>
 int DvppUtils::AllocYuv420SPBuffer(const T * src_data, int input_size,
                                    bool is_input_align, int width,
                                    int align_width, int high, int align_high,
-                                   int buffer_size, T * dest_data) {
+                                   int dest_buffer_size, T * dest_data) {
     int ret = EOK;
 
     // Dvpp requires the width and high of image must be even, so we need
@@ -439,16 +478,16 @@ int DvppUtils::AllocYuv420SPBuffer(const T * src_data, int input_size,
 
     // If the input image is aligned , directly copy all memory.
     if ((width == align_width && high == align_high) || is_input_align) {
-        ret = memcpy_s(dest_data, buffer_size, src_data, input_size);
-        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+        ret = memcpy_s(dest_data, dest_buffer_size, src_data, input_size);
+        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
     } else {      // If image is not aligned, memory copy from line to line.
-        int remain_buffer_size = buffer_size;
+        int remain_buffer_size = dest_buffer_size;
 
         // y channel data copy
         for (int i = 0; i < even_high; ++i) {
             ret = memcpy_s(dest_data + ((ptrdiff_t) i * align_width),
                            remain_buffer_size, src_data, even_width);
-            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
             remain_buffer_size -= align_width;
             src_data += width;
         }
@@ -461,7 +500,7 @@ int DvppUtils::AllocYuv420SPBuffer(const T * src_data, int input_size,
         for (int j = even_high; j < even_high + even_high / 2; ++j) {
             ret = memcpy_s(dest_data + ((ptrdiff_t) j * align_width),
                            remain_buffer_size, src_data, even_width);
-            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
             remain_buffer_size -= align_width;
             src_data += width;
         }
@@ -474,7 +513,7 @@ template<typename T>
 int DvppUtils::AllocYuv422SPBuffer(const T * src_data, int input_size,
                                    bool is_input_align, int width,
                                    int align_width, int high, int align_high,
-                                   int buffer_size, T * dest_data) {
+                                   int dest_buffer_size, T * dest_data) {
     int ret = EOK;
 
     // Dvpp requires the width and high of image must be even, so we need
@@ -484,16 +523,16 @@ int DvppUtils::AllocYuv422SPBuffer(const T * src_data, int input_size,
 
     // If the input image is aligned , directly copy all memory.
     if ((width == align_width && high == align_high) || is_input_align) {
-        ret = memcpy_s(dest_data, buffer_size, src_data, input_size);
-        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+        ret = memcpy_s(dest_data, dest_buffer_size, src_data, input_size);
+        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
     } else {      // If image is not aligned, memory copy from line to line.
-        int remain_buffer_size = buffer_size;
+        int remain_buffer_size = dest_buffer_size;
 
         // y channel data copy
         for (int i = 0; i < even_high; ++i) {
             ret = memcpy_s(dest_data + ((ptrdiff_t) i * align_width),
                            remain_buffer_size, src_data, even_width);
-            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
             remain_buffer_size -= align_width;
             src_data += width;
         }
@@ -506,7 +545,7 @@ int DvppUtils::AllocYuv422SPBuffer(const T * src_data, int input_size,
         for (int j = even_high; j < even_high * 2; ++j) {
             ret = memcpy_s(dest_data + ((ptrdiff_t) j * align_width),
                            remain_buffer_size, src_data, even_width);
-            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
             remain_buffer_size -= align_width;
             src_data += width;
         }
@@ -518,8 +557,8 @@ template<typename T>
 int DvppUtils::AllocYuv444SPBuffer(const T * src_data, int input_size,
                                    bool is_input_align, int width,
                                    int y_align_width, int uv_align_width,
-                                   int high, int align_high, int buffer_size,
-                                   T * dest_data) {
+                                   int high, int align_high,
+                                   int dest_buffer_size, T * dest_data) {
     int ret = EOK;
 
     // Dvpp requires the width and high of image must be even, so we need
@@ -529,16 +568,16 @@ int DvppUtils::AllocYuv444SPBuffer(const T * src_data, int input_size,
 
     // If the input image is aligned , directly copy all memory.
     if ((width == y_align_width && high == align_high) || is_input_align) {
-        ret = memcpy_s(dest_data, buffer_size, src_data, input_size);
-        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+        ret = memcpy_s(dest_data, dest_buffer_size, src_data, input_size);
+        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
     } else {      // If image is not aligned, memory copy from line to line.
-        int remain_buffer_size = buffer_size;
+        int remain_buffer_size = dest_buffer_size;
 
         // y channel data copy
         for (int i = 0; i < even_high; ++i) {
             ret = memcpy_s(dest_data + ((ptrdiff_t) i * y_align_width),
                            remain_buffer_size, src_data, even_width);
-            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
             remain_buffer_size -= y_align_width;
             src_data += width;
         }
@@ -553,7 +592,7 @@ int DvppUtils::AllocYuv444SPBuffer(const T * src_data, int input_size,
                     dest_data + ((ptrdiff_t) (j - even_high) * uv_align_width),
                     remain_buffer_size, src_data,
                     even_width * kYuv444SPWidthMul);
-            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
             remain_buffer_size -= uv_align_width;
             src_data += width * kYuv444SPWidthMul;
         }
@@ -565,7 +604,7 @@ template<typename T>
 int DvppUtils::AllocYuvOrRgbPackedBuffer(const T * src_data, int input_size,
                                          bool is_input_align, int width,
                                          int align_width, int high,
-                                         int align_high, int buffer_size,
+                                         int align_high, int dest_buffer_size,
                                          T * dest_data) {
     int ret = EOK;
 
@@ -576,16 +615,16 @@ int DvppUtils::AllocYuvOrRgbPackedBuffer(const T * src_data, int input_size,
 
     // If the input image is aligned , directly copy all memory.
     if ((width == align_width && high == align_high) || is_input_align) {
-        ret = memcpy_s(dest_data, buffer_size, src_data, input_size);
-        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+        ret = memcpy_s(dest_data, dest_buffer_size, src_data, input_size);
+        CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
     } else {      // If image is not aligned, memory copy from line to line.
-        int remain_buffer_size = buffer_size;
+        int remain_buffer_size = dest_buffer_size;
 
         // y channel and uv channel data copy
         for (int i = 0; i < even_high; ++i) {
             ret = memcpy_s(dest_data + ((ptrdiff_t) i * align_width),
                            remain_buffer_size, src_data, even_width);
-            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, buffer_size, dest_data);
+            CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
             remain_buffer_size -= align_width;
             src_data += width;
         }

@@ -23,6 +23,7 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 app_name=$1
 remote_host=$2
+download_mode=$3
 
 . ${script_path}/utils/scripts/func_util.sh
 
@@ -72,7 +73,7 @@ function parse_presenter_altasdk_ip()
     echo "Can not find ip in the same segment with ${remote_host}."
     while [[ ${presenter_atlasdk_ip}"X" == "X" ]]
     do
-        echo -en "Current enviroment valid ip list:\n${valid_ips}Please choose one which can connect to Atlas DK Developerment Board:"
+        echo -en "Current environment valid ip list:\n${valid_ips}Please choose one which can connect to Atlas DK Developerment Board:"
         read presenter_atlasdk_ip
         if [[ ${presenter_atlasdk_ip}"X" != "X" ]];then
             check_ip_addr ${presenter_atlasdk_ip}
@@ -116,7 +117,7 @@ function parse_presenter_view_ip()
     
     while [[ ${presenter_view_ip}"X" == "X" ]]
     do
-        echo -en "Current enviroment valid ip list:\n${valid_view_ips}Please choose one to show the presenter in browser(default: 127.0.0.1):"
+        echo -en "Current environment valid ip list:\n${valid_view_ips}Please choose one to show the presenter in browser(default: 127.0.0.1):"
         read presenter_view_ip
         
         if [[ ${presenter_view_ip}"X" != "X" ]];then
@@ -140,6 +141,21 @@ function parse_presenter_view_ip()
 
 function main()
 {
+    stop_pid=`ps -ef | grep "presenter_server\.py" | grep "${app_name}" | awk -F ' ' '{print $2}'`
+    if [[ ${stop_pid}"X" != "X" ]];then
+        echo -e "\033[33mNow do presenter server configuration, kill existing presenter process: kill -9 ${stop_pid}.\033[0m"
+        kill -9 ${stop_pid}
+    fi
+
+    if [[ ${download_mode} != "local" ]];then
+        echo "Install python3 libs: pip3 install -r ${script_path}/presenter/server/requirements..."
+        pip3 install -r ${script_path}/presenter/server/requirements
+        if [ $? -ne 0 ];then
+            echo "ERROR: install python3 libs failed, please check your env."
+            return 1
+        fi
+    fi
+    
     parse_presenter_altasdk_ip
     parse_presenter_view_ip
     
@@ -148,7 +164,7 @@ function main()
     
     echo "Use ${presenter_view_ip} to show information in browser..."
     sed -i "s/web_server_ip=[0-9.]*/web_server_ip=${presenter_view_ip}/g" ${script_path}/presenter/server/${app_name}/config/config.conf
-    echo "Finish to prepare presenter server for ${app_name}."
+    echo "Finish to prepare ${app_name} presenter server ip configuration."
 }
 
 main

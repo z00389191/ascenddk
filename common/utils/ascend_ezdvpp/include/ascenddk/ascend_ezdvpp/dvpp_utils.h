@@ -166,6 +166,34 @@ public:
     int CheckImageNeedAlign(int width, int high);
 
     /**
+     * @brief check new vpc format whether is correct
+     * @param [in] input_format: input image format
+     * @param [in] output_format: output image format
+     * @return enum DvppErrorCode
+     */
+    int CheckBasicVpcImageFormat(VpcInputFormat input_format,
+                                 VpcOutputFormat output_format);
+
+    /**
+     * @brief check the width and height of output image in new vpc
+     * @param [in] width: output image width, must be even
+     * @param [in] height: output image height, must be even
+     * @return enum DvppErrorCode
+     */
+    int CheckBasicVpcOutputParam(int width, int height);
+
+    /**
+     * @brief check crop parameters in new vpc
+     * @param [in] left_offset: left offset of cropped image, must be even
+     * @param [in] up_offset: up offset of cropped image, must be even
+     * @param [in] right_offset: right offset of cropped image, must be odd
+     * @param [in] down_offset: down offset of cropped image, must be odd
+     * @return enum DvppErrorCode
+     */
+    int CheckBasicVpcCropParam(uint32_t left_offset, uint32_t up_offset,
+                               uint32_t right_offset, uint32_t down_offset);
+
+    /**
      * @brief alloc buffer for vpc interface
      * @param [in] src_data: source image data
      * @param [in] input_size: source image data size
@@ -175,14 +203,15 @@ public:
      * @param [in] width: image width
      * @param [in] high: image high
      * @param [out] width_stride: image stride in width direction
-     * @param [out] buffer_size: image data size after align
+     * @param [out] dest_buffer_size: image data size after align
      * @param [out] dest_data: image data after align
      * @return enum DvppErrorCode
      */
     template<typename T>
     int AllocInputBuffer(const T * src_data, int input_size,
                          bool is_input_align, int format, int width, int high,
-                         int &width_stride, int &buffer_size, T **dest_data);
+                         int &width_stride, int &dest_buffer_size,
+                         T **dest_data);
     /**
      * @brief alloc buffer for new vpc interface
      * @param [in] src_data: source image data
@@ -193,13 +222,13 @@ public:
      * @param [in] width: image width
      * @param [in] high: image high
      * @param [out] width_stride: image stride in width direction
-     * @param [out] buffer_size: image data size after align
+     * @param [out] dest_buffer_size: image data size after align
      * @param [out] dest_data: image data after align
      * @return enum DvppErrorCode
      */
     int AllocBuffer(const char * src_data, int input_size, bool is_input_align,
                     int format, int width, int high, int &width_stride,
-                    int &buffer_size, char **dest_data);
+                    int &dest_buffer_size, char **dest_data);
 
     /**
      * @brief alloc buffer for new vpc interface
@@ -211,14 +240,14 @@ public:
      * @param [in] width: image width
      * @param [in] high: image high
      * @param [out] width_stride: image stride in width direction
-     * @param [out] buffer_size: image data size after align
+     * @param [out] dest_buffer_size: image data size after align
      * @param [out] dest_data: image data after align
      * @return enum DvppErrorCode
      */
     int AllocBasicVpcBuffer(const uint8_t * src_data, int input_size,
                             bool is_input_align, VpcInputFormat vpc_format,
                             int width, int high, int &width_stride,
-                            int &buffer_size, uint8_t **dest_data);
+                            int &dest_buffer_size, uint8_t **dest_data);
 
     /**
      * @brief alloc buffer for yuv420_sp image
@@ -231,14 +260,14 @@ public:
      * @param [in] align_width: image width after align
      * @param [in] high: image high
      * @param [in] align_high: image high after align
-     * @param [out] buffer_size: image data size after align
+     * @param [out] dest_buffer_size: image data size after align
      * @param [out] dest_data: image data after align
      * @return enum DvppErrorCode
      */
     template<typename T>
     int AllocYuv420SPBuffer(const T * src_data, int input_size,
                             bool is_input_align, int width, int align_width,
-                            int high, int align_high, int buffer_size,
+                            int high, int align_high, int dest_buffer_size,
                             T * dest_data);
 
     /**
@@ -252,14 +281,14 @@ public:
      * @param [in] align_width: image width after align
      * @param [in] high: image high
      * @param [in] align_high: image high after align
-     * @param [out] buffer_size: image data size after align
+     * @param [out] dest_buffer_size: image data size after align
      * @param [out] dest_data: image data after align
      * @return enum DvppErrorCode
      */
     template<typename T>
     int AllocYuv422SPBuffer(const T * src_data, int input_size,
                             bool is_input_align, int width, int align_width,
-                            int high, int align_high, int buffer_size,
+                            int high, int align_high, int dest_buffer_size,
                             T * dest_data);
 
     /**
@@ -274,7 +303,7 @@ public:
      * @param [in] uv_align_width: image width of uv component after align
      * @param [in] high: image high
      * @param [in] align_high: image high after align
-     * @param [out] buffer_size: image data size after align
+     * @param [out] dest_buffer_size: image data size after align
      * @param [out] dest_data: image data after align
      * @return enum DvppErrorCode
      */
@@ -282,7 +311,7 @@ public:
     int AllocYuv444SPBuffer(const T * src_data, int input_size,
                             bool is_input_align, int width, int y_align_width,
                             int uv_align_width, int high, int align_high,
-                            int buffer_size, T * dest_data);
+                            int dest_buffer_size, T * dest_data);
 
     /**
      * @brief alloc buffer for yuv packed image or rgb packed image,
@@ -296,7 +325,7 @@ public:
      * @param [in] align_width: image width after align
      * @param [in] high: image high
      * @param [in] align_high: image high after align
-     * @param [out] buffer_size: image data size after align
+     * @param [out] dest_buffer_size: image data size after align
      * @param [out] dest_data: image data after align
      * @return enum DvppErrorCode
      */
@@ -304,7 +333,7 @@ public:
     int AllocYuvOrRgbPackedBuffer(const T * src_data, int input_size,
                                   bool is_input_align, int width,
                                   int align_width, int high, int align_high,
-                                  int buffer_size, T * dest_data);
+                                  int dest_buffer_size, T * dest_data);
 
 };
 

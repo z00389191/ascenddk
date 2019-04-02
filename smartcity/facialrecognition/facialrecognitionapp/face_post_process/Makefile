@@ -22,18 +22,12 @@ INC_DIR = \
 
 CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
 LNK_FLAGS := \
-	-L$(HOME)/ascend_ddk/device/lib/ -L$(DDK_HOME)/device/lib/ \
-	-lDvpp_api \
-	-lDvpp_jpeg_decoder \
-	-lDvpp_jpeg_encoder \
-	-lDvpp_vpc \
-	-lmedia_mini \
+	-L$(HOME)/ascend_ddk/host/lib/ -L$(DDK_HOME)/host/lib/ \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
 	-lopencv_world \
 	-lpresenteragent \
-	-lascend_ezdvpp \
 	-shared
 
 

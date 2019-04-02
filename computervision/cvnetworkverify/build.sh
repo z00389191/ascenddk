@@ -37,7 +37,7 @@ script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 # define supported type
 declare -A type_flag=()
-type_flag["classfication"]="CLASSFICATION"
+type_flag["classification"]="CLASSIFICATION"
 type_flag["faster_rcnn"]="FASTER_RCNN"
 
 function get_cc_flag(){
@@ -98,8 +98,11 @@ main()
     done
     
     # copy other file to out
-    cp ${script_path}/run_classfication.py ${script_path}/cvnetworkverify/out
-    cp ${script_path}/run_object_detection_faster_rcnn.py ${script_path}/cvnetworkverify/out
+    if [[ $app_type"X" == "classificationX" ]]; then
+        cp ${script_path}/run_classification.py ${script_path}/cvnetworkverify/out
+    else
+        cp ${script_path}/run_object_detection_faster_rcnn.py ${script_path}/cvnetworkverify/out
+    fi
     cp ${script_path}/cvnetworkverify/graph.template ${script_path}/cvnetworkverify/out
 
     echo "Finish to Build app."

@@ -38,6 +38,7 @@ import logging
 import socket
 from google.protobuf.message import DecodeError
 import common.presenter_message_pb2 as pb2
+from common.channel_manager import ChannelManager
 from common.channel_handler import ChannelHandler
 
 #read nothing from socket.recv()
@@ -351,9 +352,12 @@ class PresenterSocketServer():
         # check channel name if exist
         if not self.channel_manager.is_channel_exist(channel_name):
             logging.error("channel name %s is not exist.", channel_name)
-            err_code = pb2.kOpenChannelErrorNoSuchChannel
-            return self._response_open_channel(conn, channel_name, response,
-                                               err_code)
+            # if channel is not exist, need to create the channel
+            ret = self.channel_manager.register_one_channel(channel_name)
+            if ret != ChannelManager.err_code_ok:
+                logging.error("Create the channel %s failed!, and ret is %d", channel_name, ret)
+                err_code =  pb2.kOpenChannelErrorOther
+                self._response_open_channel(conn, channel_name, response, err_code)
 
         # check channel path if busy
         if self.channel_manager.is_channel_busy(channel_name):

@@ -36,7 +36,8 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-data_source=$2
+presenter_view_app_name=$2
+data_source=$3
 
 common_path="${script_path}/../../common"
 
@@ -45,29 +46,34 @@ common_path="${script_path}/../../common"
 
 function main()
 {
+    if [[ $# -lt 3 ]];then
+        echo "ERROR: invalid command, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name camera_channel_name."
+        exit 1
+    fi
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name camera_channel_name."
         exit 1
     fi
 
     if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
-        echo "ERROR: invalid channel name, please input Channel-1 or Channel-2."
+        echo "ERROR: invalid camera channel name, please input Channel-1 or Channel-2."
         exit 1
     fi
     echo "Prepare app configuration..."
     cp -r ${script_path}/facedetectionapp/graph_deploy.config ${script_path}/facedetectionapp/out/graph.config
     sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facedetectionapp/out/graph.config
+    sed -i "s/\${template_app_name}/${presenter_view_app_name}/g" ${script_path}/facedetectionapp/out/graph.config
     
     parse_remote_port
     
     upload_file ${script_path}/facedetectionapp/out/graph.config "~/HIAI_PROJECTS/ascend_workspace/facedetectionapp/out"
     if [[ $? -ne 0 ]];then
-        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/slog for details."
+        echo "ERROR: sync ${script_path}/facedetectionapp/graph.config ${remote_host}:./HIAI_PROJECTS/ascend_workspace/facedetectionapp/out failed, please check /var/log/syslog for details."
         exit 1
     fi
     echo "Finish to prepare facedetectionapp params."
     exit 0
 }
 
-main
+main $*

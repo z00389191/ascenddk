@@ -50,6 +50,9 @@ namespace {
 // output port (engine port begin with 0)
 const uint32_t kSendDataPort = 0;
 
+// level for call Dvpp
+const int32_t kDvppToJpegLevel = 100;
+
 // model need resized image to 300 * 300
 const float kResizeWidth = 96.0;
 const float kResizeHeight = 112.0;
@@ -152,18 +155,17 @@ bool FaceRecognition::ResizeImg(const FaceImage &face_img,
   }
 
   // call ez_dvpp to resize image
-  DvppCropOrResizePara resize_para;
-  resize_para.image_type = kVpcYuv420SemiPlannar;  // NV12 fixed format
-  resize_para.rank = kVpcNv21;  // NV12->NV12, rank is 1
+  DvppBasicVpcPara resize_para;
+  resize_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;  // NV12 format
   // get original image size and set to resize parameter
   int32_t width = face_img.image.width;
   int32_t height = face_img.image.height;
   // set from 0 to width -1
-  resize_para.horz_min = 0;
-  resize_para.horz_max = width - 1;
+  resize_para.crop_left = 0;
+  resize_para.crop_right = width - 1;
   // set from 0 to height -1
-  resize_para.vert_min = 0;
-  resize_para.vert_max = height - 1;
+  resize_para.crop_up = 0;
+  resize_para.crop_down = height - 1;
   // set source resolution ratio
   resize_para.src_resolution.width = width;
   resize_para.src_resolution.height = height;
@@ -176,10 +178,9 @@ bool FaceRecognition::ResizeImg(const FaceImage &face_img,
   resize_para.is_output_align = false;
   // call
   DvppProcess dvpp_resize_img(resize_para);
-  DvppOutput dvpp_output;
-  int ret = dvpp_resize_img.DvppOperationProc(
-      reinterpret_cast<char*>(face_img.image.data.get()), img_size,
-      &dvpp_output);
+  DvppVpcOutput dvpp_output;
+  int ret = dvpp_resize_img.DvppBasicVpcProc(face_img.image.data.get(),
+                                             img_size, &dvpp_output);
   if (ret != kDvppOperationOk) {
     HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
                     "call ez_dvpp failed, failed to resize image.");
@@ -533,9 +534,49 @@ void FaceRecognition::InferenceFeatureVector(
   }
 }
 
+bool FaceRecognition::GetOriginPic(
+  const shared_ptr<FaceRecognitionInfo> &image_handle) {
+  if(image_handle->frame.image_source == 0) {
+    HIAI_ENGINE_LOG("Begin to transfer the image to jpeg.");
+    
+    // Generate frame information
+    // JPEG image (call DVPP change NV12 to jpeg)
+    DvppToJpgPara dvpp_to_jpeg_para;
+    dvpp_to_jpeg_para.format = JPGENC_FORMAT_NV12;
+    dvpp_to_jpeg_para.level = kDvppToJpegLevel;
+    dvpp_to_jpeg_para.resolution.height = image_handle->org_img.height;
+    dvpp_to_jpeg_para.resolution.width = image_handle->org_img.width;
+    DvppProcess dvpp_to_jpeg(dvpp_to_jpeg_para);
+    DvppOutput dvpp_output;
+    int32_t ret = dvpp_to_jpeg.DvppOperationProc(
+                    reinterpret_cast<char*>(image_handle->org_img.data.get()), image_handle->org_img.size,
+                    &dvpp_output);
+
+    // failed, no need to send to presenter
+    if(ret != kDvppOperationOk) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                      "Failed to convert NV12 to JPEG, skip this frame.");
+      return false;
+    }
+    
+    image_handle->frame.original_jpeg_pic_buffer = dvpp_output.buffer;
+    image_handle->frame.original_jpeg_pic_size = dvpp_output.size;
+  }
+  return true;
+}
+
 void FaceRecognition::SendResult(
     const shared_ptr<FaceRecognitionInfo> &image_handle) {
   HIAI_StatusT hiai_ret;
+  if(!GetOriginPic(image_handle)){
+    image_handle->err_info.err_code = AppErrorCode::kRecognition;
+    image_handle->err_info.err_msg = "Get the original pic failed";
+
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Engine handle filed, err_code=%d, err_msg=%s",
+                    image_handle->err_info.err_code,
+                    image_handle->err_info.err_msg.c_str());
+  }
   // when register face, can not discard when queue full
   do {
     hiai_ret = SendData(0, "FaceRecognitionInfo",

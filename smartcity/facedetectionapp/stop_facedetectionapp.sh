@@ -64,7 +64,7 @@ function main()
         exit 1
     fi
 
-    running_pid=`ps -ef | grep "run_facedetectionapp\.sh" | awk -F ' ' '{print $2}'`
+    running_pid=`ps -ef | grep "run_facedetectionapp\.sh" | grep "${remote_host}" | awk -F ' ' '{print $2}'`
 
     if [[ ${running_pid}"X" != "X" ]];then
         echo "kill local runn_face run_facedetectionapp.sh ${running_pid}"

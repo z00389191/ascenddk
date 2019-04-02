@@ -44,6 +44,28 @@ APP_SERVER = None
 RUN_SERVER = None
 SERVER_TYPE = ""
 
+FACE_DETION_MAP = {"web_server": "face_detection.src.web",
+                    "app_server": "face_detection.src.face_detection_server"
+                  }
+
+FACIAL_RECOGNITION_MAP = {"web_server": "facial_recognition.src.web",
+                          "app_server": "facial_recognition.src.facial_recognition_server"
+                          }
+
+VIDEO_ANALYSIS_MAP = {"web_server": "video_analysis.src.web",
+                      "app_server": "video_analysis.src.video_analysis_server"
+                     }
+
+COMMON_MAP = {"web_server": "display.src.web",
+              "app_server": "display.src.display_server"
+            }
+
+APP_CONF_MAP = {"face_detection": FACE_DETION_MAP,
+                "facial_recognition": FACIAL_RECOGNITION_MAP,
+                "video_analysis": VIDEO_ANALYSIS_MAP,
+                "display": COMMON_MAP
+               }
+
 
 def arg_parse():
     '''arg_parse'''
@@ -55,22 +77,15 @@ def arg_parse():
     parser.add_argument('--app', type=str, required=True,
                         choices=['face_detection',
                                  'facial_recognition',
-                                 'video_analysis'],
+                                 'video_analysis',
+                                 'display'],
                         help="Application type corresponding to Presenter Server.")
     args = parser.parse_args()
     SERVER_TYPE = args.app
-    if args.app == "face_detection":
-        WEB_SERVER = __import__("face_detection.src.web", fromlist=True)
-        APP_SERVER = __import__("face_detection.src.face_detection_server",
-                                fromlist=True)
-    elif args.app == "facial_recognition":
-        WEB_SERVER = __import__("facial_recognition.src.web", fromlist=True)
-        APP_SERVER = __import__("facial_recognition.src.facial_recognition_server",
-                                fromlist=True)
-    elif args.app == "video_analysis":
-        WEB_SERVER = __import__("video_analysis.src.web", fromlist=True)
-        APP_SERVER = __import__("video_analysis.src.video_analysis_server",
-                                fromlist=True)
+    app_conf = APP_CONF_MAP.get(SERVER_TYPE, COMMON_MAP)
+    
+    WEB_SERVER = __import__(app_conf.get("web_server"), fromlist=True)
+    APP_SERVER = __import__(app_conf.get("app_server"), fromlist=True)
 
 def start_app():
     global RUN_SERVER
@@ -99,10 +114,12 @@ def close_all_thread(signum, frame):
 
 def check_server_exist():
     pid = os.getpid()
-    ppid = os.getppid()
-    cmd = "ps -ef|grep -v {}|grep -v {}|grep -w presenter_server|grep {}" \
-            .format(pid, ppid, SERVER_TYPE)
+
+    cmd = "ps -ef|grep -v {}|grep -w presenter_server|grep {}" \
+            .format(pid, SERVER_TYPE)
+
     ret = os.system(cmd)
+
     return ret
 
 def main_process():
