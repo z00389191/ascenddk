@@ -65,6 +65,9 @@ const string kStrChannelId1 = "channel1"; // channle id 1 string
 
 const string kStrChannelId2 = "channel2"; // channle id 2 string
 
+// standard: 4096 * 4096 * 4 = 67108864 (64M)
+const int kAllowedMaxImageMemory = 67108864;
+
 const string kNeedRemoveStr = " \r\n\t"; // the string need remove
 
 const string kVideoImageParaType = "VideoImageParaT"; // video image para type
@@ -366,7 +369,24 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
         video_image_para->video_image_info.channel_name = channel_value;
         video_image_para->video_image_info.is_finished = false;
         video_image_para->video_image_info.video_type = video_type;
-        video_image_para->img.data.reset(av_packet.data,
+
+        if (av_packet.size <= 0 || av_packet.size > kAllowedMaxImageMemory) {
+          continue;
+        }
+
+        char* vdec_in_buffer = new char[av_packet.size];
+        int memcpy_result = memcpy_s(vdec_in_buffer, av_packet.size,
+                                     av_packet.data, av_packet.size);
+        if (memcpy_result != EOK) { // check memcpy_s result
+          HIAI_ENGINE_LOG(
+              HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+              "Fail to copy av_packet data to vdec buffer, memcpy_s result:%d",
+              memcpy_result);
+          delete[] vdec_in_buffer;
+          return;
+        }
+
+        video_image_para->img.data.reset(vdec_in_buffer,
                                          default_delete<uint8_t[]>());
         video_image_para->img.size = av_packet.size;
 

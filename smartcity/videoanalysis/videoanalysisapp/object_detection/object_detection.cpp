@@ -37,15 +37,6 @@
 #include <sstream>
 #include "ascenddk/ascend_ezdvpp/dvpp_process.h"
 
-#include "hiaiengine/ai_model_manager.h"
-#include "hiaiengine/ai_tensor.h"
-#include "hiaiengine/ai_types.h"
-#include "hiaiengine/api.h"
-#include "hiaiengine/data_type.h"
-#include "hiaiengine/data_type_reg.h"
-#include "hiaiengine/engine.h"
-#include "video_analysis_params.h"
-
 using ascend::utils::DvppCropOrResizePara;
 using ascend::utils::DvppOutput;
 using ascend::utils::DvppProcess;
