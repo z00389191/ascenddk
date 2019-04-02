@@ -36,7 +36,7 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-dowload_mode=$2
+download_mode=$2
 
 common_path="${script_path}/../../common"
 
