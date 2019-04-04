@@ -250,10 +250,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv420sp buffer
@@ -272,10 +271,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv422sp buffer
@@ -302,10 +300,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv444sp buffer
@@ -329,10 +326,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv422 packed buffer
@@ -356,10 +352,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv444 packed buffer
@@ -383,10 +378,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc rgb888 packed buffer
@@ -410,10 +404,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc xrgb8888 packed buffer
@@ -436,10 +429,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv400sp buffer
