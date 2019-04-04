@@ -20,26 +20,15 @@
     </div>
 
     <div class="box_top">
-        <span> >Channels</span>
+        <span> >View List</span>
     </div>
     <div style="width:100%;height:2px;background-color:#ccc;"></div>
     <div class="box_content">
         <ul class="content_top">
             <li class="top_refresh"><img src="/static/images/u1.png" alt=""><span>Refresh</span></li>
             <li class="top_del"><img src="/static/images/u2.png" alt=""><span>Delete</span></li>
-            <li class="top_create"><img src="/static/images/u3.png" alt=""><span>Create</span></li>
         </ul>
-        <div class="content_mid">
-            <form action="" method="post">
-                <ul class="mid_list">
-                    <li><span>Channel Name</span><span>*</span></li>
-                    <li><input id="cname" type="text"></li>
-                </ul>
-            </form>
-            <div class="mid_add">
-                <img src="static/images/u3.png" alt=""><span>Add</span>
-            </div>
-        </div>
+        
         <div class="content_bot">
             <form name="myForm">
                 <table  id="mytable" border="1" width="100%">
@@ -47,7 +36,7 @@
                         <th></th>
                         <th><input type="checkbox" id="checkAll"></th>
                         <th>Status</th>
-                        <th>Channel Name</th>
+                        <th>View Name</th>
                     </tr>
                     {% for item in listret %}
                        <tr>
