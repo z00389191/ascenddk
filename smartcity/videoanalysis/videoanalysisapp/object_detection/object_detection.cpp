@@ -561,7 +561,7 @@ bool ObjectDetectionInferenceEngine::ConvertVideoFrameToHfbc(
   hiai_data->channel_id_ = video_image->video_image_info.channel_id;
   vdec_msg.channelId = GetIntChannelId(
       video_image->video_image_info.channel_id);
-  vdec_msg.hiai_data = hiai_data;
+  vdec_msg.hiai_data_sp = hiai_data;
 
   int strcpy_result = EOK;
   // check video type is h264 or h265
