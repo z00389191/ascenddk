@@ -46,16 +46,14 @@ using hiai::IMAGEFORMAT;
 using namespace std;
 
 namespace {
-const uint32_t kInputPort = 0;
-const uint32_t kOutputPort = 0;
+const uint32_t kInputPort = 0; // the input port number
+const uint32_t kOutputPort = 0; // the output port number
 
 const int kHandleSuccessful = 0; // the process handled successfully
 
 const int kVideoFormatLength = 5; // video format string length
 
 const int kImageDataQueueSize = 20; // the queue default size
-
-const int kWaitTime = 100000; // wait 100ms
 
 const string kVideoTypeH264 = "h264"; // video type h264
 const string kVideoTypeH265 = "h265"; // video type h265
@@ -77,7 +75,10 @@ const int kVpcHeightAlign = 16;
 // standard: 4096 * 4096 * 4 = 67108864 (64M)
 const int kAllowedMaxImageMemory = 67108864;
 
-const int kMaxRetryNumber = 100; // the maximum number of retry
+const int kWaitTimeShort = 20000; // the short wait time: 20ms
+const int kWaitTimeLong = 100000; // the short wait time: 100ms
+const int kRetryTimeShort = 5; // the short retry time
+const int kRetryTimeLong = 100; // the long retry time
 
 const int kCompareEqual = 0; // string compare equal
 
@@ -86,9 +87,8 @@ const uint32_t kInputWidth = 512;
 const uint32_t kInputHeight = 512;
 
 const int kDvppProcSuccess = 0; // call dvpp success return.
-const int kSleepMicroSecs = 20000; // waiting time after queue is full.
 
-const string kModelPath = "model_path";
+const string kModelPath = "model_path"; // model path item
 
 // the queue store yuv image data
 ThreadSafeQueue<shared_ptr<VideoImageParaT>> yuv_image_queue(
@@ -107,6 +107,31 @@ HIAI_REGISTER_DATA_TYPE("DetectionEngineTransT", DetectionEngineTransT);
 ObjectDetectionInferenceEngine::ObjectDetectionInferenceEngine() {
   dvpp_api_channel1_ = nullptr;
   dvpp_api_channel2_ = nullptr;
+
+  CreateVdecApi(dvpp_api_channel1_, 0);
+  CreateVdecApi(dvpp_api_channel2_, 0);
+
+  if (dvpp_api_channel1_ == nullptr) { // check create dvpp api result
+    HIAI_ENGINE_LOG(
+        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+        "[ODInferenceEngine] fail to create dvpp vdec api for channel1!");
+  }
+
+  if (dvpp_api_channel2_ == nullptr) { // check create dvpp api result
+    HIAI_ENGINE_LOG(
+        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+        "[ODInferenceEngine] fail to create dvpp vdec api for channel2!");
+  }
+}
+
+ObjectDetectionInferenceEngine::~ObjectDetectionInferenceEngine() {
+  if (dvpp_api_channel1_ != nullptr) { // check create dvpp api result
+    DestroyVdecApi(dvpp_api_channel1_, 0);
+  }
+
+  if (dvpp_api_channel2_ != nullptr) { // check create dvpp api result
+    DestroyVdecApi(dvpp_api_channel2_, 0);
+  }
 }
 
 HIAI_StatusT ObjectDetectionInferenceEngine::Init(
@@ -114,7 +139,7 @@ HIAI_StatusT ObjectDetectionInferenceEngine::Init(
     const vector<hiai::AIModelDescription>& model_desc) {
   HIAI_ENGINE_LOG(HIAI_DEBUG_INFO, "[ODInferenceEngine] start to initialize!");
 
-  if (ai_model_manager_ == nullptr) {
+  if (ai_model_manager_ == nullptr) { // check ai model manager is nullptr
     ai_model_manager_ = make_shared<hiai::AIModelManager>();
   }
 
@@ -124,7 +149,7 @@ HIAI_StatusT ObjectDetectionInferenceEngine::Init(
   // load model path.
   for (int index = 0; index < config.items_size(); ++index) {
     const ::hiai::AIConfigItem& item = config.items(index);
-    if (item.name() == kModelPath) {
+    if (item.name() == kModelPath) { // current item is model path
       const char* model_path = item.value().data();
       model_description.set_path(model_path);
     }
@@ -288,10 +313,10 @@ void CallVpcGetYuvImage(FRAME* frame, void* hiai_data) {
   return;
 }
 
-void HandleKeyFrameData(uint8_t* image_data_buffer, uint32_t image_data_size,
-                        void* hiai_data, FRAME* frame) {
-  string channel_name = ((YuvImageFrameInfo*) (hiai_data))->channel_name;
-  string channel_id = ((YuvImageFrameInfo*) (hiai_data))->channel_id;
+void HandleKeyFrameData(uint8_t* &image_data_buffer, uint32_t image_data_size,
+                        void* &hiai_data, FRAME* &frame) {
+  string channel_name = ((HiaiDataSpSon*) hiai_data)->channel_name_;
+  string channel_id = ((HiaiDataSpSon*) hiai_data)->channel_id_;
   uint32_t frame_id = GetFrameId(channel_id);
 
   // only send key frame to next engine, key frame id: 1,6,11,16...
@@ -305,25 +330,19 @@ void HandleKeyFrameData(uint8_t* image_data_buffer, uint32_t image_data_size,
                   frame_id, channel_id.c_str(), channel_name.c_str(),
                   frame->realWidth, frame->realHeight);
 
-  //send yuv420sp data
-  VideoImageInfoT i_video_image_info;
-  i_video_image_info.channel_id = channel_id;
-  i_video_image_info.channel_name = channel_name;
-  i_video_image_info.frame_id = frame_id;
-  i_video_image_info.is_finished = false;
-
-  hiai::ImageData<unsigned char> image_data;
-  image_data.width = frame->realWidth;
-  image_data.height = frame->realHeight;
-  image_data.format = IMAGEFORMAT::YUV420SP;
-  image_data.size = image_data_size;
-
-  image_data.data.reset(image_data_buffer, default_delete<unsigned char[]>());
   shared_ptr<VideoImageParaT> video_image_para = make_shared<VideoImageParaT>();
-  video_image_para->img = image_data;
-  video_image_para->video_image_info = i_video_image_info;
+  video_image_para->video_image_info.channel_id = channel_id;
+  video_image_para->video_image_info.channel_name = channel_name;
+  video_image_para->video_image_info.frame_id = frame_id;
+  video_image_para->video_image_info.is_finished = false;
+  video_image_para->img.width = frame->realWidth;
+  video_image_para->img.height = frame->realHeight;
+  video_image_para->img.format = IMAGEFORMAT::YUV420SP;
+  video_image_para->img.size = image_data_size;
+  video_image_para->img.data.reset(image_data_buffer,
+                                   default_delete<uint8_t[]>());
 
-  AddImage2QueueByChannel(video_image_para);
+  AddImage2Queue(video_image_para);
 }
 
 uint32_t GetFrameId(const string &channel_id) {
@@ -336,20 +355,19 @@ uint32_t GetFrameId(const string &channel_id) {
   }
 }
 
-void AddImage2QueueByChannel(
-    const shared_ptr<VideoImageParaT>& video_image_para) {
+void AddImage2Queue(const shared_ptr<VideoImageParaT>& video_image_para) {
   bool add_image_success = false;
   int count = 0; // count retry number
 
   // add image data to queue, max retry time: 100
-  while (count < kMaxRetryNumber) {
+  while (count < kRetryTimeLong) {
     count++;
 
     if (yuv_image_queue.Push(video_image_para)) { // push image data to queue
       add_image_success = true;
       break;
     } else { // queue is full
-      usleep(kWaitTime); // sleep 100 ms
+      usleep(kWaitTimeLong); // sleep 100 ms
     }
   }
 
@@ -485,7 +503,6 @@ HIAI_StatusT ObjectDetectionInferenceEngine::PerformInference(
 
 HIAI_StatusT ObjectDetectionInferenceEngine::SendDetectionResult(
     shared_ptr<DetectionEngineTransT>& detection_trans, bool inference_success,
-
     string err_msg) {
   if (!inference_success) {
     // inference error.
@@ -500,7 +517,7 @@ HIAI_StatusT ObjectDetectionInferenceEngine::SendDetectionResult(
                    static_pointer_cast<void>(detection_trans));
     if (ret == HIAI_QUEUE_FULL) {
       HIAI_ENGINE_LOG(HIAI_DEBUG_INFO, "[ODInferenceEngine] output queue full");
-      usleep(kSleepMicroSecs);
+      usleep(kWaitTimeShort);
     }
   } while (ret == HIAI_QUEUE_FULL);
   if (ret != HIAI_OK) {
@@ -519,7 +536,7 @@ int ObjectDetectionInferenceEngine::GetIntChannelId(const string channel_id) {
   }
 }
 
-bool ObjectDetectionInferenceEngine::ConvertH264ToHfbc(
+bool ObjectDetectionInferenceEngine::ConvertVideoFrameToHfbc(
     const shared_ptr<VideoImageParaT>& video_image) {
   IDVPPAPI* dvpp_api = nullptr;
   if (video_image->video_image_info.channel_id == kStrChannelId1) {
@@ -539,13 +556,12 @@ bool ObjectDetectionInferenceEngine::ConvertH264ToHfbc(
 
   vdec_in_msg vdec_msg;
   vdec_msg.call_back = CallVpcGetYuvImage;
-  YuvImageFrameInfo yuv_image_frame_info;
-  yuv_image_frame_info.channel_name =
-      video_image->video_image_info.channel_name;
-  yuv_image_frame_info.channel_id = video_image->video_image_info.channel_id;
+  shared_ptr<HiaiDataSpSon> hiai_data = make_shared<HiaiDataSpSon>();
+  hiai_data->channel_name_ = video_image->video_image_info.channel_name;
+  hiai_data->channel_id_ = video_image->video_image_info.channel_id;
   vdec_msg.channelId = GetIntChannelId(
       video_image->video_image_info.channel_id);
-  vdec_msg.hiai_data = &yuv_image_frame_info;
+  vdec_msg.hiai_data = hiai_data;
 
   int strcpy_result = EOK;
   // check video type is h264 or h265
@@ -570,6 +586,10 @@ bool ObjectDetectionInferenceEngine::ConvertH264ToHfbc(
   dvppapi_ctl_msg dvppApiCtlMsg;
   dvppApiCtlMsg.in = (void*) ((&vdec_msg));
   dvppApiCtlMsg.in_size = sizeof(vdec_in_msg);
+
+  vdec_msg.in_buffer = (char*) video_image->img.data.get();
+  vdec_msg.in_buffer_size = video_image->img.size;
+
   // call vdec and check result
   if (VdecCtl(dvpp_api, DVPP_CTL_VDEC_PROC, &dvppApiCtlMsg, 0)
       != kHandleSuccessful) {
@@ -583,9 +603,16 @@ bool ObjectDetectionInferenceEngine::ConvertH264ToHfbc(
   return true;
 }
 
-void ObjectDetectionInferenceEngine::ObjectDetecitonInference(
-    shared_ptr<DetectionEngineTransT> detection_trans) {
+void ObjectDetectionInferenceEngine::ObjectDetectInference() {
+  HIAI_ENGINE_LOG(
+      "[ODInferenceEngine] start object detection inference, queue size:%d",
+      yuv_image_queue.size());
+
   while (!yuv_image_queue.empty()) {
+    // init inference results tensor shared_ptr.
+    shared_ptr<DetectionEngineTransT> detection_trans = make_shared<
+        DetectionEngineTransT>();
+
     shared_ptr<VideoImageParaT> video_image = yuv_image_queue.Pop();
     if (video_image == nullptr) {
       HIAI_ENGINE_LOG(
@@ -615,6 +642,50 @@ void ObjectDetectionInferenceEngine::ObjectDetecitonInference(
   }
 }
 
+HIAI_StatusT ObjectDetectionInferenceEngine::HandleFinishedData(
+    const shared_ptr<VideoImageParaT>& video_image) {
+  // the input is finished
+  HIAI_ENGINE_LOG(HIAI_DEBUG_INFO,
+                  "[ODInferenceEngine] get is_finished frame!");
+
+  // loop for send yuv image data obtained from dvpp vpc
+  for (int count = 0; count < kRetryTimeShort; count++) {
+    if (yuv_image_queue.empty()) {
+      // the yuv iamge queue is empty
+      count++;
+      usleep(kWaitTimeLong); // sleep 100ms
+    } else { // the yuv iamge queue is not empty
+      count = 0;
+      // convert hfbc data to yuv image from queue, and detect object
+      ObjectDetectInference();
+    }
+  }
+
+  // destroy dvpp api used for channel1
+  if (dvpp_api_channel1_ != nullptr) {
+    DestroyVdecApi(dvpp_api_channel1_, 0);
+  }
+  // destroy dvpp api used for channel2
+  if (dvpp_api_channel2_ != nullptr) {
+    DestroyVdecApi(dvpp_api_channel2_, 0);
+  }
+
+  // sleep 100ms wait for dvpp finish last frame convert
+  usleep(kWaitTimeLong);
+
+  // the yuv iamge queue is not empty
+  ObjectDetectInference();
+
+  // init inference results tensor shared_ptr.
+  shared_ptr<DetectionEngineTransT> detection_trans = make_shared<
+      DetectionEngineTransT>();
+  detection_trans->video_image = *video_image;
+  HIAI_ENGINE_LOG("[ODInferenceEngine] send is_finished data!");
+
+  // send finished data
+  return SendDetectionResult(detection_trans);
+}
+
 HIAI_IMPL_ENGINE_PROCESS("object_detection", ObjectDetectionInferenceEngine,
     INPUT_SIZE) {
   HIAI_ENGINE_LOG(HIAI_DEBUG_INFO, "[ODInferenceEngine] start process!");
@@ -625,40 +696,25 @@ HIAI_IMPL_ENGINE_PROCESS("object_detection", ObjectDetectionInferenceEngine,
                     "[ODInferenceEngine] input data is null!");
     return HIAI_ERROR;
   }
+
   shared_ptr<VideoImageParaT> video_image =
       static_pointer_cast<VideoImageParaT>(arg0);
 
-  // init inference results tensor shared_ptr.
-  shared_ptr<DetectionEngineTransT> detection_trans = make_shared<
-      DetectionEngineTransT>();
-
-  detection_trans->video_image.video_image_info = video_image->video_image_info;
   if (video_image->video_image_info.is_finished) {
     // input is finished.
-    HIAI_ENGINE_LOG(HIAI_DEBUG_INFO,
-                    "[ODInferenceEngine] input video finished!");
-
-    IDVPPAPI* dvpp_api = nullptr;
-    if (video_image->video_image_info.channel_id == kStrChannelId1) {
-      dvpp_api = dvpp_api_channel1_;
-    } else {
-      dvpp_api = dvpp_api_channel2_;
-    }
-
-    DestroyVdecApi(dvpp_api, 0);
-    ObjectDetecitonInference(detection_trans);
-
-    return SendDetectionResult(detection_trans);
+    return HandleFinishedData(video_image);
   }
 
-  if (!ConvertH264ToHfbc(video_image)) {
+  // convert video frame to hfbc and put results to queue
+  if (!ConvertVideoFrameToHfbc(video_image)) {
     HIAI_ENGINE_LOG(
         HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
         "[ODInferenceEngine] fail to call dvpp vdec convert h264 to hfbc!");
     return HIAI_ERROR;
   }
 
-  ObjectDetecitonInference(detection_trans);
+  // convert hfbc data to yuv image from queue, and detect object
+  ObjectDetectInference();
 
   return HIAI_OK;
 }

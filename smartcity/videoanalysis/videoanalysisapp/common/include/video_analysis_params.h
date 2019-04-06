@@ -64,7 +64,7 @@ struct VideoImageInfoT {
   }
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, VideoImageInfoT& data) {
   ar(data.channel_id, data.frame_id, data.channel_name, data.is_finished);
 }
@@ -74,7 +74,7 @@ struct VideoImageParaT {
   hiai::ImageData<u_int8_t> img;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, VideoImageParaT& data) {
   ar(data.video_image_info, data.img);
 }
@@ -84,7 +84,7 @@ struct ObjectInfoT {
   float score;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, ObjectInfoT& data) {
   ar(data.object_id, data.score);
 }
@@ -94,7 +94,7 @@ struct ObjectImageParaT {
   hiai::ImageData<u_int8_t> img;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, ObjectImageParaT& data) {
   ar(data.object_info, data.img);
 }
@@ -104,7 +104,7 @@ struct VideoDetectionImageParaT {
   std::vector<ObjectImageParaT> obj_imgs;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, VideoDetectionImageParaT& data) {
   ar(data.image, data.obj_imgs);
 }
@@ -114,7 +114,7 @@ struct BatchCroppedImageParaT {
   std::vector<ObjectImageParaT> obj_imgs;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, BatchCroppedImageParaT& data) {
   ar(data.video_image_info, data.obj_imgs);
 }
@@ -132,7 +132,7 @@ struct CarInfoT {
   float confidence;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, CarInfoT& data) {
   ar(data.object_id, data.label, data.attribute_name, data.inference_result,
      data.confidence);
@@ -143,7 +143,7 @@ struct BatchCarInfoT {
   std::vector<CarInfoT> car_infos;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, BatchCarInfoT& data) {
   ar(data.video_image_info, data.car_infos);
 }
@@ -154,7 +154,7 @@ struct OutputT {
   std::shared_ptr<u_int8_t> data;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, OutputT& data) {
   ar(data.size);
   ar(data.name);
@@ -172,7 +172,7 @@ struct DetectionEngineTransT {
   VideoImageParaT video_image;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, DetectionEngineTransT& data) {
   ar(data.status, data.msg, data.output_datas, data.video_image);
 }
@@ -183,7 +183,7 @@ struct PedestrianInfoT {
   std::map<string, float> pedestrian_attribute_map; // string:label_name,float:confidence
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, PedestrianInfoT& data) {
   ar(data.object_id, data.attribute_name, data.pedestrian_attribute_map);
 }
@@ -193,7 +193,7 @@ struct BatchPedestrianInfoT {
   std::vector<PedestrianInfoT> pedestrian_info;
 };
 
-template<class Archive>
+template <class Archive>
 void serialize(Archive& ar, BatchPedestrianInfoT& data) {
   ar(data.video_image_info, data.pedestrian_info);
 }

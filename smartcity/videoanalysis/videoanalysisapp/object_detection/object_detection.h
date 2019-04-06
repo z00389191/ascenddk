@@ -45,6 +45,7 @@
 #include "dvpp/Vpc.h"
 #include "thread_safe_queue.h"
 #include "video_analysis_params.h"
+#include "hiai_data_sp_son.h"
 
 #define INPUT_SIZE 2
 #define OUTPUT_SIZE 1
@@ -76,8 +77,8 @@ uint32_t GetFrameId(const std::string &channel_id);
  * @param [in] hiai_data: used for transmit channel id ,channel name, frame id
  * @param [in] frame: image frame data
  */
-void HandleKeyFrameData(uint8_t* image_data_buffer, uint32_t image_data_size,
-                        void* hiai_data, FRAME* frame);
+void HandleKeyFrameData(uint8_t* &image_data_buffer, uint32_t image_data_size,
+                        void* &hiai_data, FRAME* &frame);
 
 /**
  * @brief call vpc to get yuv42sp image
@@ -91,8 +92,7 @@ void CallVpcGetYuvImage(FRAME* frame, void* hiai_data);
  * @param [in] video_image_para: the image data from video
  * @param [out] current_queue: the queue used for current channel
  */
-void AddImage2QueueByChannel(
-    const shared_ptr<VideoImageParaT> &video_image_para);
+void AddImage2Queue(const shared_ptr<VideoImageParaT> &video_image_para);
 
 class ObjectDetectionInferenceEngine : public hiai::Engine {
  public:
@@ -100,6 +100,11 @@ class ObjectDetectionInferenceEngine : public hiai::Engine {
    * @brief ObjectDetectionInferenceEngine constructor
    */
   ObjectDetectionInferenceEngine();
+
+  /**
+   * @brief ObjectDetectionInferenceEngine constructor
+   */
+  ~ObjectDetectionInferenceEngine();
 
   /**
    * @brief Engine init method.
@@ -148,7 +153,12 @@ HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
       std::shared_ptr<DetectionEngineTransT>& detection_trans,
       bool inference_success = true, std::string err_msg = "");
 
-  bool ConvertH264ToHfbc(const std::shared_ptr<VideoImageParaT>& video_image);
+  /**
+   * @brief : convert video frame data to hfbc data and put results to queue
+   * @param [in] video_image: the input video frame data
+   * @return true: success; false: failed
+   */
+  bool ConvertVideoFrameToHfbc(const std::shared_ptr<VideoImageParaT>& video_image);
 
   /**
    * @brief get channel id(integer value)
@@ -157,16 +167,26 @@ HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
    */
   int GetIntChannelId(const std::string channel_id);
 
-  void ObjectDetecitonInference(
-      std::shared_ptr<DetectionEngineTransT> detection_trans);
+  /**
+   * @brief convert hfbc data to yuv image from queue, and detect object
+   */
+  void ObjectDetectInference();
+
+  /**
+   * @brief : handle input data have is_finished flag
+   * @param [in] video_image: the input video frame data
+   * @return HIAI_StatusT
+   */
+  HIAI_StatusT HandleFinishedData(
+      const std::shared_ptr<VideoImageParaT> &video_image);
 
   // shared ptr to load ai model.
   std::shared_ptr<hiai::AIModelManager> ai_model_manager_;
 
-  // dvpp api for channel 1
+  // dvpp vdec api for channel 1
   IDVPPAPI* dvpp_api_channel1_;
 
-  // dvpp api for channel 2
+  // dvpp vdec api for channel 2
   IDVPPAPI* dvpp_api_channel2_;
 };
 

@@ -374,7 +374,7 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
           continue;
         }
 
-        char* vdec_in_buffer = new char[av_packet.size];
+        uint8_t* vdec_in_buffer = new (nothrow) uint8_t[av_packet.size];
         int memcpy_result = memcpy_s(vdec_in_buffer, av_packet.size,
                                      av_packet.data, av_packet.size);
         if (memcpy_result != EOK) { // check memcpy_s result
