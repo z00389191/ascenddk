@@ -21,17 +21,13 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/protobuf/include \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
-	-I../common/include \
 	-I$(HOME)/ascend_ddk/include/third_party/ffmpeg \
+	-I../common/include \
 
-CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
+CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC
 LNK_FLAGS := \
-	-L$(HOME)/host/lib \
+	-L$(HOME)/ascend_ddk/host/lib -L$(DDK_HOME)/host/lib \
 	-lmedia_mini \
-	-lhiai_server \
-	-lidedaemon \
-	-lhiai_common \
-	-lopencv_world \
 	-lavcodec \
 	-lavformat \
 	-lavdevice \
