@@ -288,6 +288,7 @@ def main():
         ascend_ddk_home = os.path.join(
             os.getenv("HOME"), "ascend_ddk")
         execute("mkdir -p {path}/include/third_party/ffmpeg".format(path=ascend_ddk_home))
+        execute("mkdir -p {path}/host/lib".format(path=ascend_ddk_home))
         execute("cp -rdp {path1}/include/* {path2}/include/third_party/ffmpeg".format(path1=install_path,path2=ascend_ddk_home))
         execute("cp -rdp {path1}/lib/* {path2}/host/lib".format(path1=install_path,path2=ascend_ddk_home))
 
