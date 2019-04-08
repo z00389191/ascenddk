@@ -52,7 +52,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='video_analysis_message.proto',
   package='ascend.presenter.video_analysis',
   syntax='proto3',
-  serialized_pb=_b('\n\x1cvideo_analysis_message.proto\x12\x1f\x61scend.presenter.video_analysis\"\'\n\x0bRegisterApp\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\"Z\n\x0e\x43ommonResponse\x12\x37\n\x03ret\x18\x01 \x01(\x0e\x32*.ascend.presenter.video_analysis.ErrorCode\x12\x0f\n\x07message\x18\x02 \x01(\t\"X\n\nFrameIndex\x12\x0e\n\x06\x61pp_id\x18\x01 \x01(\t\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x14\n\x0c\x63hannel_name\x18\x03 \x01(\t\x12\x10\n\x08\x66rame_id\x18\x04 \x01(\t\"7\n\x06Object\x12\n\n\x02id\x18\x01 \x01(\t\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x12\r\n\x05image\x18\x03 \x01(\x0c\"\x9a\x01\n\x08ImageSet\x12@\n\x0b\x66rame_index\x18\x01 \x01(\x0b\x32+.ascend.presenter.video_analysis.FrameIndex\x12\x13\n\x0b\x66rame_image\x18\x02 \x01(\x0c\x12\x37\n\x06object\x18\x03 \x03(\x0b\x32\'.ascend.presenter.video_analysis.Object\"\xcd\x01\n\x12\x43\x61rInferenceResult\x12@\n\x0b\x66rame_index\x18\x01 \x01(\x0b\x32+.ascend.presenter.video_analysis.FrameIndex\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12?\n\x04type\x18\x03 \x01(\x0e\x32\x31.ascend.presenter.video_analysis.CarInferenceType\x12\x12\n\nconfidence\x18\x04 \x01(\x02\x12\r\n\x05value\x18\x05 \x01(\t\"%\n\x07MapType\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02\"\xad\x01\n\x14HumanInferenceResult\x12@\n\x0b\x66rame_index\x18\x01 \x01(\x0b\x32+.ascend.presenter.video_analysis.FrameIndex\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12@\n\x0ehuman_property\x18\x03 \x03(\x0b\x32(.ascend.presenter.video_analysis.MapType*\xdf\x01\n\tErrorCode\x12\x0e\n\nkErrorNone\x10\x00\x12\x1a\n\x16kErrorAppRegisterExist\x10\x01\x12\x1e\n\x1akErrorAppRegisterNoStorage\x10\x02\x12\x19\n\x15kErrorAppRegisterType\x10\x03\x12\x1a\n\x16kErrorAppRegisterLimit\x10\x04\x12\x13\n\x0fkErrorAppDelete\x10\x05\x12\x11\n\rkErrorAppLost\x10\x06\x12\x16\n\x12kErrorStorageLimit\x10\x07\x12\x0f\n\x0bkErrorOther\x10\x08*0\n\x10\x43\x61rInferenceType\x12\r\n\tkCarColor\x10\x00\x12\r\n\tkCarBrand\x10\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x1cvideo_analysis_message.proto\x12\x1f\x61scend.presenter.video_analysis\"\'\n\x0bRegisterApp\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\"Z\n\x0e\x43ommonResponse\x12\x37\n\x03ret\x18\x01 \x01(\x0e\x32*.ascend.presenter.video_analysis.ErrorCode\x12\x0f\n\x07message\x18\x02 \x01(\t\"X\n\nFrameIndex\x12\x0e\n\x06\x61pp_id\x18\x01 \x01(\t\x12\x12\n\nchannel_id\x18\x02 \x01(\t\x12\x14\n\x0c\x63hannel_name\x18\x03 \x01(\t\x12\x10\n\x08\x66rame_id\x18\x04 \x01(\t\"7\n\x06Object\x12\n\n\x02id\x18\x01 \x01(\t\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x12\r\n\x05image\x18\x03 \x01(\x0c\"\x9a\x01\n\x08ImageSet\x12@\n\x0b\x66rame_index\x18\x01 \x01(\x0b\x32+.ascend.presenter.video_analysis.FrameIndex\x12\x13\n\x0b\x66rame_image\x18\x02 \x01(\x0c\x12\x37\n\x06object\x18\x03 \x03(\x0b\x32\'.ascend.presenter.video_analysis.Object\"\xcd\x01\n\x12\x43\x61rInferenceResult\x12@\n\x0b\x66rame_index\x18\x01 \x01(\x0b\x32+.ascend.presenter.video_analysis.FrameIndex\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12?\n\x04type\x18\x03 \x01(\x0e\x32\x31.ascend.presenter.video_analysis.CarInferenceType\x12\x12\n\nconfidence\x18\x04 \x01(\x02\x12\r\n\x05value\x18\x05 \x01(\t\"%\n\x07MapType\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02\"\xad\x01\n\x14HumanInferenceResult\x12@\n\x0b\x66rame_index\x18\x01 \x01(\x0b\x32+.ascend.presenter.video_analysis.FrameIndex\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12@\n\x0ehuman_property\x18\x03 \x03(\x0b\x32(.ascend.presenter.video_analysis.MapType\"\xcf\x01\n\x13\x46\x61\x63\x65InferenceResult\x12@\n\x0b\x66rame_index\x18\x01 \x01(\x0b\x32+.ascend.presenter.video_analysis.FrameIndex\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12@\n\x04type\x18\x03 \x01(\x0e\x32\x32.ascend.presenter.video_analysis.FaceInferenceType\x12\x12\n\nconfidence\x18\x04 \x01(\x02\x12\r\n\x05value\x18\x05 \x01(\t*\xdf\x01\n\tErrorCode\x12\x0e\n\nkErrorNone\x10\x00\x12\x1a\n\x16kErrorAppRegisterExist\x10\x01\x12\x1e\n\x1akErrorAppRegisterNoStorage\x10\x02\x12\x19\n\x15kErrorAppRegisterType\x10\x03\x12\x1a\n\x16kErrorAppRegisterLimit\x10\x04\x12\x13\n\x0fkErrorAppDelete\x10\x05\x12\x11\n\rkErrorAppLost\x10\x06\x12\x16\n\x12kErrorStorageLimit\x10\x07\x12\x0f\n\x0bkErrorOther\x10\x08*0\n\x10\x43\x61rInferenceType\x12\r\n\tkCarColor\x10\x00\x12\r\n\tkCarBrand\x10\x01*2\n\x11\x46\x61\x63\x65InferenceType\x12\x0c\n\x08kFaceAge\x10\x00\x12\x0f\n\x0bkFaceGender\x10\x01\x62\x06proto3')
 )
 
 _ERRORCODE = _descriptor.EnumDescriptor(
@@ -100,8 +100,8 @@ _ERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=926,
-  serialized_end=1149,
+  serialized_start=1136,
+  serialized_end=1359,
 )
 _sym_db.RegisterEnumDescriptor(_ERRORCODE)
 
@@ -120,15 +120,42 @@ _CARINFERENCETYPE = _descriptor.EnumDescriptor(
       name='kCarBrand', index=1, number=1,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='kCarPlate', index=2, number=2,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=1151,
-  serialized_end=1199,
+  serialized_start=1361,
+  serialized_end=1424,
 )
 _sym_db.RegisterEnumDescriptor(_CARINFERENCETYPE)
 
 CarInferenceType = enum_type_wrapper.EnumTypeWrapper(_CARINFERENCETYPE)
+_FACEINFERENCETYPE = _descriptor.EnumDescriptor(
+  name='FaceInferenceType',
+  full_name='ascend.presenter.video_analysis.FaceInferenceType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='kFaceAge', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='kFaceGender', index=1, number=1,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=1426,
+  serialized_end=1476,
+)
+_sym_db.RegisterEnumDescriptor(_FACEINFERENCETYPE)
+
+FaceInferenceType = enum_type_wrapper.EnumTypeWrapper(_FACEINFERENCETYPE)
 kErrorNone = 0
 kErrorAppRegisterExist = 1
 kErrorAppRegisterNoStorage = 2
@@ -140,6 +167,9 @@ kErrorStorageLimit = 7
 kErrorOther = 8
 kCarColor = 0
 kCarBrand = 1
+kCarPlate = 2
+kFaceAge = 0
+kFaceGender = 1
 
 
 
@@ -502,6 +532,65 @@ _HUMANINFERENCERESULT = _descriptor.Descriptor(
   serialized_end=923,
 )
 
+
+_FACEINFERENCERESULT = _descriptor.Descriptor(
+  name='FaceInferenceResult',
+  full_name='ascend.presenter.video_analysis.FaceInferenceResult',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='frame_index', full_name='ascend.presenter.video_analysis.FaceInferenceResult.frame_index', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='object_id', full_name='ascend.presenter.video_analysis.FaceInferenceResult.object_id', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='type', full_name='ascend.presenter.video_analysis.FaceInferenceResult.type', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='confidence', full_name='ascend.presenter.video_analysis.FaceInferenceResult.confidence', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='ascend.presenter.video_analysis.FaceInferenceResult.value', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=926,
+  serialized_end=1133,
+)
+
 _COMMONRESPONSE.fields_by_name['ret'].enum_type = _ERRORCODE
 _IMAGESET.fields_by_name['frame_index'].message_type = _FRAMEINDEX
 _IMAGESET.fields_by_name['object'].message_type = _OBJECT
@@ -509,6 +598,8 @@ _CARINFERENCERESULT.fields_by_name['frame_index'].message_type = _FRAMEINDEX
 _CARINFERENCERESULT.fields_by_name['type'].enum_type = _CARINFERENCETYPE
 _HUMANINFERENCERESULT.fields_by_name['frame_index'].message_type = _FRAMEINDEX
 _HUMANINFERENCERESULT.fields_by_name['human_property'].message_type = _MAPTYPE
+_FACEINFERENCERESULT.fields_by_name['frame_index'].message_type = _FRAMEINDEX
+_FACEINFERENCERESULT.fields_by_name['type'].enum_type = _FACEINFERENCETYPE
 DESCRIPTOR.message_types_by_name['RegisterApp'] = _REGISTERAPP
 DESCRIPTOR.message_types_by_name['CommonResponse'] = _COMMONRESPONSE
 DESCRIPTOR.message_types_by_name['FrameIndex'] = _FRAMEINDEX
@@ -517,8 +608,10 @@ DESCRIPTOR.message_types_by_name['ImageSet'] = _IMAGESET
 DESCRIPTOR.message_types_by_name['CarInferenceResult'] = _CARINFERENCERESULT
 DESCRIPTOR.message_types_by_name['MapType'] = _MAPTYPE
 DESCRIPTOR.message_types_by_name['HumanInferenceResult'] = _HUMANINFERENCERESULT
+DESCRIPTOR.message_types_by_name['FaceInferenceResult'] = _FACEINFERENCERESULT
 DESCRIPTOR.enum_types_by_name['ErrorCode'] = _ERRORCODE
 DESCRIPTOR.enum_types_by_name['CarInferenceType'] = _CARINFERENCETYPE
+DESCRIPTOR.enum_types_by_name['FaceInferenceType'] = _FACEINFERENCETYPE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RegisterApp = _reflection.GeneratedProtocolMessageType('RegisterApp', (_message.Message,), dict(
@@ -577,5 +670,11 @@ HumanInferenceResult = _reflection.GeneratedProtocolMessageType('HumanInferenceR
   ))
 _sym_db.RegisterMessage(HumanInferenceResult)
 
+FaceInferenceResult = _reflection.GeneratedProtocolMessageType('FaceInferenceResult', (_message.Message,), dict(
+  DESCRIPTOR = _FACEINFERENCERESULT,
+  __module__ = 'video_analysis_message_pb2'
+  # @@protoc_insertion_point(class_scope:ascend.presenter.video_analysis.FaceInferenceResult)
+  ))
+_sym_db.RegisterMessage(FaceInferenceResult)
 
 # @@protoc_insertion_point(module_scope)
