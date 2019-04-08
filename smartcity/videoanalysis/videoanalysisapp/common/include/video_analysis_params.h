@@ -122,12 +122,13 @@ void serialize(Archive& ar, BatchCroppedImageParaT& data) {
 enum CarInferenceType {
   kCarColor = 0,
   kCarType = 1,
+  kCarPlateStr = 2
 };
 
 struct CarInfoT {
   std::string object_id;
   uint32_t label;
-  CarInferenceType attribute_name; // attribute name:cartype or carcolor
+  CarInferenceType attribute_name;  // attribute name:cartype or carcolor
   std::string inference_result;
   float confidence;
 };
@@ -146,6 +147,35 @@ struct BatchCarInfoT {
 template <class Archive>
 void serialize(Archive& ar, BatchCarInfoT& data) {
   ar(data.video_image_info, data.car_infos);
+}
+
+enum FaceInferenceType {
+  kAge = 0,
+  kGender = 1,
+};
+
+struct FaceInfoT {
+  std::string object_id;
+  uint32_t label;
+  FaceInferenceType attribute_name;  // attribute name:cartype or carcolor
+  std::string inference_result;
+  float confidence;
+};
+
+template <class Archive>
+void serialize(Archive& ar, FaceInfoT& data) {
+  ar(data.object_id, data.label, data.attribute_name, data.inference_result,
+     data.confidence);
+}
+
+struct BatchFaceInfoT {
+  VideoImageInfoT video_image_info;
+  std::vector<FaceInfoT> face_infos;
+};
+
+template <class Archive>
+void serialize(Archive& ar, BatchFaceInfoT& data) {
+  ar(data.video_image_info, data.face_infos);
 }
 
 struct OutputT {
