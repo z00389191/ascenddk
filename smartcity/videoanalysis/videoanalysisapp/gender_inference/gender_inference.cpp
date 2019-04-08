@@ -174,7 +174,6 @@ void GenderInferenceEngine::BatchImageResize(
         HIAI_ENGINE_LOG(
             "[GenderInferenceEngine] resize image failed with code %d !", ret);
         continue;
-      }
     }
 
     std::shared_ptr < ObjectImageParaT > obj_image = std::make_shared<
