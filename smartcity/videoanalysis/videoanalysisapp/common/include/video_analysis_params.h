@@ -40,17 +40,26 @@
 using hiai::ImageData;
 using hiai::IMAGEFORMAT;
 
+// video type
+enum VideoType {
+  kH264,
+  kH265,
+  kInvalidTpye
+};
+
 struct VideoImageInfoT {
   std::string channel_id;
   uint32_t frame_id;
   std::string channel_name;
   bool is_finished;
+  VideoType video_type;
 
   VideoImageInfoT& operator=(VideoImageInfoT& value) {
     channel_id = value.channel_id;
     frame_id = value.frame_id;
     channel_name = value.channel_name;
     is_finished = value.is_finished;
+    video_type = value.video_type;
     return *this;
   }
 };
@@ -118,7 +127,7 @@ enum CarInferenceType {
 struct CarInfoT {
   std::string object_id;
   uint32_t label;
-  CarInferenceType attribute_name;  // attribute name:cartype or carcolor
+  CarInferenceType attribute_name; // attribute name:cartype or carcolor
   std::string inference_result;
   float confidence;
 };
@@ -170,10 +179,8 @@ void serialize(Archive& ar, DetectionEngineTransT& data) {
 
 struct PedestrianInfoT {
   std::string object_id;
-  std::string
-      attribute_name;  // property name:cartype or carcolor or pedestrian
-  std::map<string, float>
-      pedestrian_attribute_map;  // string:label_name,float:confidence
+  std::string attribute_name; // property name:cartype or carcolor or pedestrian
+  std::map<string, float> pedestrian_attribute_map; // string:label_name,float:confidence
 };
 
 template <class Archive>
