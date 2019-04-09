@@ -175,6 +175,7 @@ void CarPlateDetection::BatchImageResize(
                                             &dvpp_out);
     if (ret != ascend::utils::kDvppOperationOk) { // check call vpc result
       HIAI_ENGINE_LOG(
+          HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
           "[CarColorInferenceEngine] resize image failed with error code:%d", ret);
       continue;
     }
@@ -308,7 +309,6 @@ HIAI_StatusT CarPlateDetection::PerformInference(
 
       if (score < kMinInferenceScore) { // check score is good enough
         HIAI_ENGINE_LOG(
-            HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
             "[CarPlateDetection] car plate detection score:%f is too less",
             score);
         continue;
@@ -324,10 +324,9 @@ HIAI_StatusT CarPlateDetection::PerformInference(
               kLowerRightCoeff * ptr[BBoxDataIndex::kLowerRightY])
               * base_height;
 
+      // check cropped image size is valid
       if (rb_x - lt_x < kMinCropPixel || rb_y - lt_x < kMinCropPixel) {
-        HIAI_ENGINE_LOG(
-            // check cropped image size is valid
-            HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+        HIAI_ENGINE_LOG(            
             "[CarPlateDetection] the car plate image is too small!");
         continue;
       }
@@ -432,7 +431,7 @@ HIAI_StatusT CarPlateDetection::SendDetectionResult(
     ret = SendData(kOutputPort, "BatchCroppedImageParaT",
                    static_pointer_cast<void>(detection_trans));
     if (ret == HIAI_QUEUE_FULL) { // check send data result
-      HIAI_ENGINE_LOG(HIAI_DEBUG_INFO, "[CarPlateDetection] output queue full");
+      HIAI_ENGINE_LOG("[CarPlateDetection] output queue full");
       usleep(kSleep20MicroSecs); // sleep 20ms
     }
   } while (ret == HIAI_QUEUE_FULL); // loop for send data when queue is full
