@@ -66,6 +66,36 @@ main()
     if [ $? -ne 0 ];then
         exit 1
     fi
+    model_name="car_plate_detection"
+    model_remote_path="computer_vision/object_detect"
+    prepare ${model_name} ${model_remote_path}
+    if [ $? -ne 0 ];then
+        exit 1
+    fi
+    model_name="car_plate_recognition"
+    model_remote_path="computer_vision/classification"
+    prepare ${model_name} ${model_remote_path}
+    if [ $? -ne 0 ];then
+        exit 1
+    fi
+    model_name="inception_age"
+    model_remote_path="computer_vision/classification"
+    prepare ${model_name} ${model_remote_path}
+    if [ $? -ne 0 ];then
+        exit 1
+    fi
+    model_name="inception_gender"
+    model_remote_path="computer_vision/classification"
+    prepare ${model_name} ${model_remote_path}
+    if [ $? -ne 0 ];then
+        exit 1
+    fi
+    model_name="face_detection"
+    model_remote_path="computer_vision/object_detect"
+    prepare ${model_name} ${model_remote_path}
+    if [ $? -ne 0 ];then
+        exit 1
+    fi
     exit 0
 }
 
