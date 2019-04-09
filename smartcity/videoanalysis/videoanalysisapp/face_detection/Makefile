@@ -35,17 +35,7 @@ LNK_FLAGS := \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
-	-lopencv_world \
-	-lpresenteragent \
 	-lascend_ezdvpp \
-	-lascenddk_osd \
-	-lavcodec \
-	-lavformat \
-	-lavdevice \
-	-lavutil \
-	-lswresample \
-	-lavfilter \
-	-lswscale \
 	-shared
 
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
