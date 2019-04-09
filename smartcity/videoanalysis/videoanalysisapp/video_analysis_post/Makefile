@@ -31,7 +31,6 @@ LNK_FLAGS := \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
-	-lopencv_world \
 	-lpresenteragent \
 	-shared
 
