@@ -1,4 +1,4 @@
-all : libMindInferenceEngine_1.so
+all : libcar_plate_detection.so
 #DEVICE COMPILER		
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
@@ -34,8 +34,6 @@ LNK_FLAGS := \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
-	-lopencv_world \
-	-lpresenteragent \
 	-lascend_ezdvpp \
 	-shared
 
@@ -53,7 +51,7 @@ OBJS_no_customop := $(filter-out $(OBJS_customop), $(OBJS))
 DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))
 
 
-libMindInferenceEngine_1.so: $(OBJS_customop)
+libcar_plate_detection.so: $(OBJS_customop)
 	$(CC) $^ $(LNK_FLAGS) -o $@
 	rm -rf $(BUILD_DIR)
 

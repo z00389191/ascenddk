@@ -35,7 +35,6 @@ LNK_FLAGS := \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
-	-lopencv_world \
 	-lascend_ezdvpp \
 	-shared
 

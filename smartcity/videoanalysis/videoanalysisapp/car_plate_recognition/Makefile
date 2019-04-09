@@ -1,4 +1,4 @@
-all : libMindInferenceEngine_2.so
+all : libcar_plate_recognition.so
 #DEVICE COMPILER		
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
@@ -20,7 +20,6 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/protobuf/include \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
-	-I$(HOME)/ascend_ddk/include/third_party/ffmpeg \
 	-I../common/include \
 	-I$(HOME)/ascend_ddk/include \
 
@@ -35,15 +34,6 @@ LNK_FLAGS := \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
-	-lopencv_world \
-	-lavcodec \
-	-lavformat \
-	-lavdevice \
-	-lavutil \
-	-lswresample \
-	-lavfilter \
-	-lswscale \
-	-lpresenteragent \
 	-lascend_ezdvpp \
 	-shared
 
@@ -61,7 +51,7 @@ OBJS_no_customop := $(filter-out $(OBJS_customop), $(OBJS))
 DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))
 
 
-libMindInferenceEngine_2.so: $(OBJS_customop)
+libcar_plate_recognition.so: $(OBJS_customop)
 	$(CC) $^ $(LNK_FLAGS) -o $@
 	rm -rf $(BUILD_DIR)
 

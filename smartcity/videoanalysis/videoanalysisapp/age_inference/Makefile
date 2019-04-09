@@ -21,7 +21,6 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
-	-I$(HOME)/ascend_ddk/include/third_party/ffmpeg \
 	-I$(HOME)/ascend_ddk/include \
 
 CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
@@ -35,16 +34,7 @@ LNK_FLAGS := \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
-	-lopencv_world \
-	-lpresenteragent \
 	-lascend_ezdvpp \
-	-lavcodec \
-	-lavformat \
-	-lavdevice \
-	-lavutil \
-	-lswresample \
-	-lavfilter \
-	-lswscale \
 	-shared
 
 
