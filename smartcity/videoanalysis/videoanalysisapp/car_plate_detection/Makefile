@@ -74,5 +74,5 @@ endif
 .PHONY : clean install
 clean:
 	rm -rf $(BUILD_DIR) lib*.so *.o
-install: libMindInferenceEngine_1.so
+install: libcar_plate_detection.so
 	mv *.so $(OUT_DIR)
