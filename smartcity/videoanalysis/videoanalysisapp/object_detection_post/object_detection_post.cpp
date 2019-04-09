@@ -67,6 +67,8 @@ const uint32_t kPortPost = 0;
 const uint32_t kPortCarType = 1;
 const uint32_t kPortCarColor = 2;
 const uint32_t kPortPedestrian = 3;
+const uint32_t kPortCarPlate = 4;
+const uint32_t kPortFace = 5;
 
 const int kDvppProcSuccess = 0;
 const int kSleepMicroSecs = 20000;
@@ -144,6 +146,7 @@ HIAI_StatusT ObjectDetectionPostProcess::CropObjectFromImage(
    * 2.crop_left and crop_up should be set to zero.
    */
   dvpp_basic_vpc_para.input_image_type = INPUT_YUV420_SEMI_PLANNER_UV; // nv12
+  dvpp_basic_vpc_para.output_image_type = OUTPUT_YUV420SP_UV; // nv12
   dvpp_basic_vpc_para.src_resolution.width = src_img.width;
   dvpp_basic_vpc_para.src_resolution.height = src_img.height;
 
@@ -204,7 +207,8 @@ void ObjectDetectionPostProcess::FilterBoundingBox(
     shared_ptr<VideoDetectionImageParaT>& detection_image,
     vector<ObjectImageParaT>& car_type_imgs,
     vector<ObjectImageParaT>& car_color_imgs,
-    vector<ObjectImageParaT>& person_imgs) {
+    vector<ObjectImageParaT>& person_imgs,
+    vector<ObjectImageParaT>& car_plate_imgs) {
   float* ptr = bbox_buffer;
   int32_t num_car = 0;
   int32_t num_bus = 0;
@@ -253,6 +257,7 @@ void ObjectDetectionPostProcess::FilterBoundingBox(
       object_image.object_info.object_id = ss.str();
       car_type_imgs.push_back(object_image);
       car_color_imgs.push_back(object_image);
+      car_plate_imgs.push_back(object_image);
 
     } else if (attr == kLabelBus) {
       ++num_bus;
@@ -260,6 +265,7 @@ void ObjectDetectionPostProcess::FilterBoundingBox(
       ss << kPrefixBus << num_bus;
       object_image.object_info.object_id = ss.str();
       car_color_imgs.push_back(object_image);
+      car_plate_imgs.push_back(object_image);
 
     } else if (attr == kLabelPerson) {
       ++num_person;
@@ -273,6 +279,11 @@ void ObjectDetectionPostProcess::FilterBoundingBox(
 }
 HIAI_StatusT ObjectDetectionPostProcess::HandleResults(
     const shared_ptr<DetectionEngineTransT>& inference_result) {
+  shared_ptr<VideoImageParaT> origin_image =
+        make_shared<VideoImageParaT>();
+  origin_image->video_image_info = inference_result->video_image.video_image_info;
+  origin_image->img = inference_result->video_image.img;
+
   shared_ptr<VideoDetectionImageParaT> detection_image =
       make_shared<VideoDetectionImageParaT>();
 
@@ -283,8 +294,10 @@ HIAI_StatusT ObjectDetectionPostProcess::HandleResults(
     HIAI_ENGINE_LOG(HIAI_DEBUG_INFO, "[ODPostProcess] input video finished");
     SendResults(kPortPost, "VideoDetectionImageParaT",
                 static_pointer_cast<void>(detection_image));
+    SendResults(kPortFace, "VideoImageParaT",
+                    static_pointer_cast<void>(origin_image));
 
-    for (uint32_t port = kPortCarType; port < OUTPUT_SIZE; ++port) {
+    for (uint32_t port = kPortCarType; port < OUTPUT_SIZE - 1; ++port) {
       shared_ptr<BatchCroppedImageParaT> batch_out =
           make_shared<BatchCroppedImageParaT>();
       batch_out->video_image_info =
@@ -317,6 +330,7 @@ HIAI_StatusT ObjectDetectionPostProcess::HandleResults(
   vector<ObjectImageParaT> car_type_imgs;
   vector<ObjectImageParaT> car_color_imgs;
   vector<ObjectImageParaT> person_imgs;
+  vector<ObjectImageParaT> car_plate_imgs;
 
   float* bbox_buffer = reinterpret_cast<float*>(out_bbox.data.get());
   float bbox_number = *reinterpret_cast<float*>(out_num.data.get());
@@ -325,7 +339,8 @@ HIAI_StatusT ObjectDetectionPostProcess::HandleResults(
                   bbox_number);
 
   FilterBoundingBox(bbox_buffer, bbox_buffer_size, detection_image,
-                    car_type_imgs, car_color_imgs, person_imgs);
+                    car_type_imgs, car_color_imgs, person_imgs,
+                    car_plate_imgs);
 
   // send_data
   HIAI_StatusT send_ret = SendDetectImage(detection_image);
@@ -336,11 +351,19 @@ HIAI_StatusT ObjectDetectionPostProcess::HandleResults(
                     detection_image->image.video_image_info.frame_id);
   }
 
+  // judge the objects contains person or not, if contains , send origin image to face_detection engine
+  if (person_imgs.size() > 0){
+    SendResults(kPortFace, "VideoImageParaT",
+                        static_pointer_cast<void>(origin_image));
+  }
+
   SendCroppedImages(kPortCarColor, car_color_imgs,
                     inference_result->video_image.video_image_info);
   SendCroppedImages(kPortCarType, car_type_imgs,
                     inference_result->video_image.video_image_info);
   SendCroppedImages(kPortPedestrian, person_imgs,
+                    inference_result->video_image.video_image_info);
+  SendCroppedImages(kPortCarPlate, car_plate_imgs,
                     inference_result->video_image.video_image_info);
   return HIAI_OK;
 }

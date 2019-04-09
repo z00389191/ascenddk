@@ -75,6 +75,8 @@ const int kVpcHeightAlign = 16;
 // standard: 4096 * 4096 * 4 = 67108864 (64M)
 const int kAllowedMaxImageMemory = 67108864;
 
+const int kKeyFrameInterval = 5; // key fram interval
+
 const int kWaitTimeShort = 20000; // the short wait time: 20ms
 const int kWaitTimeLong = 100000; // the short wait time: 100ms
 const int kRetryTimeShort = 5; // the short retry time
@@ -245,11 +247,18 @@ void CallVpcGetYuvImage(FRAME* frame, void* hiai_data) {
 
   // construct vpc out data buffer
   uint8_t *vpc_out_buffer = (uint8_t *) mmap(
-      0, vpc_output_size, PROT_READ | PROT_WRITE,
-      MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, 0, 0);
+      0, ALIGN_UP(vpc_output_size, MAP_2M), PROT_READ | PROT_WRITE,
+      MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, -1, 0);
   if (vpc_out_buffer == MAP_FAILED) { // check new buffer result
-    HIAI_ENGINE_LOG("Failed to malloc memory in dvpp(new vpc).");
-    return;
+    HIAI_ENGINE_LOG("Failed to malloc huge table memory in dvpp(new vpc).");
+    vpc_out_buffer = (uint8_t *) mmap(
+        0, ALIGN_UP(vpc_output_size, MAP_2M), PROT_READ | PROT_WRITE,
+        MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
+    if (vpc_out_buffer == MAP_FAILED) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                      "Failed to malloc 4k memory.");
+      return;
+    }
   }
 
   // constructing output roi configuration
@@ -343,6 +352,15 @@ void HandleKeyFrameData(uint8_t* &image_data_buffer, uint32_t image_data_size,
                                    default_delete<uint8_t[]>());
 
   AddImage2Queue(video_image_para);
+}
+
+bool IsKeyFrame(uint32_t frame_id) {
+  // the 1, 6, 11, 16... frame is key frame
+  if (frame_id % kKeyFrameInterval == 1) {
+    return true;
+  }
+
+  return false;
 }
 
 uint32_t GetFrameId(const string &channel_id) {

@@ -55,8 +55,6 @@ using namespace std;
 namespace {
 const int kWait10Milliseconds = 10000; // wait 10ms
 
-const int kKeyFrameInterval = 5; // key fram interval
-
 const int kNoFlag = 0; // no flag
 
 const int kHandleSuccessful = 0; // the process handled successfully
@@ -121,15 +119,6 @@ const string kRegexRtsp =
 }
 
 HIAI_REGISTER_DATA_TYPE("VideoImageParaT", VideoImageParaT);
-
-bool IsKeyFrame(uint32_t frame_id) {
-  // the 1, 6, 11, 16... frame is key frame
-  if (frame_id % kKeyFrameInterval == 1) {
-    return true;
-  }
-
-  return false;
-}
 
 VideoDecode::VideoDecode() {
   channel1_ = ""; // initialize channel1 to empty string

@@ -1,5 +1,5 @@
-all : libvideo_decode.so
-#HOST COMPILER		
+all : libface_detection.so
+#DEVICE COMPILER		
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
@@ -21,13 +21,24 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/protobuf/include \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
-	-I$(HOME)/ascend_ddk/include/third_party/ffmpeg \
 	-I../common/include \
+	-I$(HOME)/ascend_ddk/include \
 
-CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC
+CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
 LNK_FLAGS := \
-	-L$(HOME)/ascend_ddk/host/lib -L$(DDK_HOME)/host/lib \
+	-L$(HOME)/ascend_ddk/device/lib -L$(DDK_HOME)/device/lib/ \
+	-lDvpp_api \
+	-lDvpp_jpeg_decoder \
+	-lDvpp_jpeg_encoder \
+	-lDvpp_vpc \
 	-lmedia_mini \
+	-lhiai_server \
+	-lidedaemon \
+	-lhiai_common \
+	-lopencv_world \
+	-lpresenteragent \
+	-lascend_ezdvpp \
+	-lascenddk_osd \
 	-lavcodec \
 	-lavformat \
 	-lavdevice \
@@ -36,7 +47,6 @@ LNK_FLAGS := \
 	-lavfilter \
 	-lswscale \
 	-shared
-
 
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 CUSTOM_DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
@@ -50,14 +60,13 @@ OBJS_customop = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(notdir $(CUSTOM_S
 OBJS_no_customop := $(filter-out $(OBJS_customop), $(OBJS))
 DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))
 
-libvideo_decode.so: $(OBJS_customop)
+libface_detection.so: $(OBJS_customop)
 	$(CC) $^ $(LNK_FLAGS) -o $@
 	rm -rf $(BUILD_DIR)
 
 $(OBJ_DIR)/%.o:%.cpp
 	@if [ ! -d $(OBJ_DIR) ]; then mkdir -p $(OBJ_DIR); fi;
 	$(CC) -c $(CC_FLAGS) -o $@ $<
-
 
 $(DEPS_DIR)/%.d:%.cpp
 	@if [ ! -d $(DEPS_DIR) ]; then mkdir -p $(DEPS_DIR); fi;
@@ -73,5 +82,5 @@ endif
 .PHONY : clean install
 clean:
 	rm -rf $(BUILD_DIR) lib*.so *.o
-install: libvideo_decode.so
+install: libface_detection.so
 	mv *.so $(OUT_DIR)
