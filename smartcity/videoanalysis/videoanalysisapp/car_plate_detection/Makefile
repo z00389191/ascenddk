@@ -3,7 +3,7 @@ all : libcar_plate_detection.so
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
-CC := aarch64-linux-gnu-g++
+
 LOCAL_DIR  := ./
 
 SRC_DIR = $(LOCAL_DIR)
@@ -22,8 +22,17 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
 	-I$(HOME)/ascend_ddk/include \
+	-I/usr/include/python2.7 \
 
 CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
+
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
+CC := aarch64-linux-gnu-g++
+
 LNK_FLAGS := \
 	-L$(HOME)/ascend_ddk/device/lib -L$(DDK_HOME)/device/lib/ \
 	-lDvpp_api \
@@ -36,8 +45,21 @@ LNK_FLAGS := \
 	-lhiai_common \
 	-lascend_ezdvpp \
 	-shared
+else ifeq ($(mode), ASIC)
+CC := $(DDK_HOME)/toolchains/aarch64-linux-gcc6.3/bin/aarch64-linux-gnu-g++
+LNK_FLAGS := \
+	-L$(DDK_HOME)/device/lib/ \
+	-lDvpp_api \
+	-lDvpp_jpeg_decoder \
+	-lDvpp_jpeg_encoder \
+	-lDvpp_vpc \
+	-lascend_ezdvpp \
+	-lidedaemon \
+	-shared
 
-
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 CUSTOM_DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 
