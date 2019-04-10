@@ -46,6 +46,7 @@ message ImageSet {
 enum CarInferenceType{
     kCarColor = 0;
     kCarBrand = 1;
+    kCarPlate = 2;
 }
 
 message CarInferenceResult {
@@ -65,4 +66,17 @@ message HumanInferenceResult {
     FrameIndex frame_index = 1;
     string object_id = 2;
     repeated MapType human_property = 3;
+}
+
+enum FaceInferenceType{
+    kFaceAge = 0;
+    kFaceGender = 1;
+}
+
+message FaceInferenceResult {
+    FrameIndex frame_index = 1;
+    string object_id = 2;
+    FaceInferenceType type = 3;
+    float confidence = 4;
+    string value = 5;
 }

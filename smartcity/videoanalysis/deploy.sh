@@ -77,10 +77,10 @@ function deploy_videoanalysis()
         return 1
     fi
 
-    #prepare_model.sh: model_mode
+    #prepare_model.sh:
     echo "[Step] Prepare models..."
-    if [[ ${model_mode} == "local" ]];then
-        model_version=""
+    if [[ ${download_mode} == "local" ]];then
+        model_version="local"
     else
         model_version=`grep VERSION ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
         if [[ $? -ne 0 ]];then
@@ -147,7 +147,7 @@ main()
         exit 1
     fi
     
-    deploy_videoanalysis "videoanalysisapp" ${script_path} ${common_path} ${remote_host} ${model_mode}
+    deploy_videoanalysis
     if [[ $? -ne 0 ]];then
         exit 1
     fi

@@ -111,9 +111,9 @@ function build_ffmpeg()
     fi
     
     mkdir -p ${HOME}/ascend_ddk/include/third_party/ffmpeg
-    mkdir -p ${HOME}/ascend_ddk/device/lib
+    mkdir -p ${HOME}/ascend_ddk/host/lib
     cp -rdp ${install_prefix}/include/* ${HOME}/ascend_ddk/include/third_party/ffmpeg
-    cp -rdp ${install_prefix}/lib/* ${HOME}/ascend_ddk/device/lib
+    cp -rdp ${install_prefix}/lib/* ${HOME}/ascend_ddk/host/lib
 
     cd ${install_prefix}/lib && tar -cvf ${script_path}/ffmpeg_lib.tar ./* >> ${script_path}/ffmpeg/ffbuild/build.log
     cd ${script_path}

@@ -42,7 +42,6 @@
 #include <cmath>
 #include <regex>
 #include "hiaiengine/log.h"
-#include "ascenddk/ascend_ezdvpp/dvpp_process.h"
 
 using hiai::Engine;
 using namespace hiai;
@@ -63,6 +62,8 @@ HIAI_REGISTER_DATA_TYPE("OutputT", OutputT);
 HIAI_REGISTER_DATA_TYPE("DetectionEngineTransT", DetectionEngineTransT);
 HIAI_REGISTER_DATA_TYPE("PedestrianInfoT", PedestrianInfoT);
 HIAI_REGISTER_DATA_TYPE("BatchPedestrianInfoT", BatchPedestrianInfoT);
+HIAI_REGISTER_DATA_TYPE("FaceInfoT", FaceInfoT);
+HIAI_REGISTER_DATA_TYPE("BatchFaceInfoT", BatchFaceInfoT);
 
 VideoAnalysisPost::~VideoAnalysisPost() {
   if (agent_channel_ != nullptr) {
@@ -302,6 +303,8 @@ OperationCode VideoAnalysisPost::SendCarInfo(
     car_result.set_object_id(iter->object_id);
     if (iter->attribute_name == kCarType) {
       car_result.set_type(ascend::presenter::video_analysis::kCarBrand);
+    } else if (iter->attribute_name == kCarPlateStr) {
+      car_result.set_type(ascend::presenter::video_analysis::kCarPlate);
     } else {
       car_result.set_type(ascend::presenter::video_analysis::kCarColor);
     }
@@ -413,19 +416,98 @@ OperationCode VideoAnalysisPost::SendPedestrianInfo(
   return kOperationOk;
 }
 
+OperationCode VideoAnalysisPost::SendFaceInfo(
+    const shared_ptr<BatchFaceInfoT> &face_info_para) {
+  if (face_info_para == nullptr) {
+    return kInvalidParam;
+  }
+
+  // exit app when data has been transferred
+  if (face_info_para->video_image_info.is_finished) {
+    return kExitApp;
+  }
+
+  for (vector<FaceInfoT>::iterator iter = face_info_para->face_infos.begin();
+      iter != face_info_para->face_infos.end(); ++iter) {
+    // Construct Message FaceInferenceResult,which has FrameIndex,object_id,
+    // FaceInferenceType,confidence and value
+    FaceInferenceResult face_result;
+    FrameIndex* frame_face = new FrameIndex();
+
+    // set up relevant infomations of origin image
+    frame_face->set_app_id(app_config_->app_name);
+    frame_face->set_channel_id(face_info_para->video_image_info.channel_id);
+    frame_face->set_channel_name(face_info_para->video_image_info.channel_name);
+    frame_face->set_frame_id(
+        to_string(face_info_para->video_image_info.frame_id));
+    face_result.set_allocated_frame_index(frame_face);
+
+    // set up relevant infomations of small image
+    face_result.set_object_id(iter->object_id);
+    if (iter->attribute_name == kAge) {
+      face_result.set_type(ascend::presenter::video_analysis::kFaceAge);
+    } else {
+      face_result.set_type(ascend::presenter::video_analysis::kFaceGender);
+    }
+    face_result.set_confidence(iter->confidence);
+    face_result.set_value(iter->inference_result);
+
+    // construct callback Messages,send to presenter server
+    unique_ptr < google::protobuf::Message > response_objface;
+    PresenterErrorCode face_err = agent_channel_->SendMessage(face_result,
+                                                              response_objface);
+    if (face_err != PresenterErrorCode::kNone) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                      "send face result failed, error code=%d,object_id = %s",
+                      face_err, iter->object_id.c_str());
+      return kSendDataFailed;
+    }
+
+    // get responded Message and judge result
+    CommonResponse* face_response =
+        dynamic_cast<CommonResponse*>(response_objface.get());
+    if (face_response == nullptr) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                      "face_response is nullptr");
+      return kSendDataFailed;
+    }
+
+    ErrorCode response_code = face_response->ret();
+    if (response_code != kErrorNone) {
+      HIAI_ENGINE_LOG(
+          HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+          "[SendFaceInfo]server response failed, error code=%d,object_id = %s",
+          response_code, iter->object_id.c_str());
+      return kSendDataFailed;
+    }
+  }
+
+  return kOperationOk;
+}
+
 HIAI_IMPL_ENGINE_PROCESS("video_analysis_post", VideoAnalysisPost, INPUT_SIZE) {
-  //arg0:image detection; arg1:car type; arg2:car color; arg3:person info
+  // arg0:image detection; arg1:car type; arg2:car color; arg3:person info
+  // arg4:face image; arg5:face age; arg6: face gender
   input_que_.PushData(0, arg0);
   input_que_.PushData(1, arg1);
   input_que_.PushData(2, arg2);
   input_que_.PushData(3, arg3);
+  input_que_.PushData(4, arg4);
+  input_que_.PushData(5, arg5);
+  input_que_.PushData(6, arg6);
+  input_que_.PushData(7, arg7);
 
-  //input_arg0:image detection; input_arg1:car type;
-  //input_arg2:car color; input_arg3:PedestrianInfo
+  // input_arg0:image detection; input_arg1:car type;
+  // input_arg2:car color; input_arg3:PedestrianInfo;
+  // input_arg4:face image; input_arg5:face age; input_arg6:face gender
   shared_ptr<void> input_arg0;
   shared_ptr<void> input_arg1;
   shared_ptr<void> input_arg2;
   shared_ptr<void> input_arg3;
+  shared_ptr<void> input_arg4;
+  shared_ptr<void> input_arg5;
+  shared_ptr<void> input_arg6;
+  shared_ptr<void> input_arg7;
 
   // if the image detection channel has data,then send to presenter server
   if (input_que_.FrontData(0, input_arg0)) {
@@ -471,11 +553,57 @@ HIAI_IMPL_ENGINE_PROCESS("video_analysis_post", VideoAnalysisPost, INPUT_SIZE) {
     }
   }
 
+  // if the face image channel has data,then send to presenter server
+  if (input_que_.FrontData(4, input_arg4)) {
+    input_que_.PopData(4, input_arg4);
+    face_image_ret_ = SendDetectionImage(
+        static_pointer_cast<VideoDetectionImageParaT>(input_arg4));
+    if ((face_image_ret_ != kOperationOk) && (face_image_ret_ != kExitApp)) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,"[VideoAnalysePost]"
+          "SendFaceImage failed,error code: %d", face_image_ret_);
+    }
+  }
+
+  // if the face age channel has data,then send to presenter server
+  if (input_que_.FrontData(5, input_arg5)) {
+    input_que_.PopData(5, input_arg5);
+    age_ret_ = SendFaceInfo(
+        static_pointer_cast<BatchFaceInfoT>(input_arg5));
+    if ((age_ret_ != kOperationOk) && (age_ret_ != kExitApp)) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,"[VideoAnalysePost]"
+          "SendFaceInfo failed,error code: %d",age_ret_);
+    }
+  }
+
+  // if the face gender channel has data,then send to presenter server
+  if (input_que_.FrontData(6, input_arg6)) {
+    input_que_.PopData(6, input_arg6);
+    gender_ret_ = SendFaceInfo(
+        static_pointer_cast<BatchFaceInfoT>(input_arg6));
+    if ((gender_ret_ != kOperationOk) && (gender_ret_ != kExitApp)) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,"[VideoAnalysePost]"
+          "SendFaceInfo failed,error code: %d",gender_ret_);
+    }
+  }
+
+  // if the car plate channel has data,then send to presenter server
+  if (input_que_.FrontData(7, input_arg7)) {
+    input_que_.PopData(7, input_arg7);
+    car_plate_ret_ = SendCarInfo(
+        static_pointer_cast<BatchCarInfoT>(input_arg7));
+    if ((car_plate_ret_ != kOperationOk) && (car_plate_ret_ != kExitApp)) {
+      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT, "[VideoAnalysePost]"
+                      "SendCarPlate failed,error code: %d",
+                      car_plate_ret_);
+    }
+  }
+
   // if all channel transmissions are completed,then exit app
   if ((image_ret_ == kExitApp) && (car_type_ret_ == kExitApp) &&
-      (car_color_ret_ == kExitApp) && (pedestrian_ret_ == kExitApp)) {
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,"[VideoAnalysePost]"
-        "app will exit...");
+      (car_color_ret_ == kExitApp) && (pedestrian_ret_ == kExitApp) &&
+	  (face_image_ret_ == kExitApp) &&(age_ret_ == kExitApp) &&
+	  (gender_ret_ == kExitApp) &&(car_plate_ret_ == kExitApp)) {
+    HIAI_ENGINE_LOG("[VideoAnalysePost]app will exit...");
     shared_ptr<string> result_data(new string);
     SendData(0, "string", static_pointer_cast<void>(result_data));
   }

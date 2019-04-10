@@ -1,4 +1,4 @@
-all : libcar_color_inference.so
+all : libface_detection.so
 #DEVICE COMPILER		
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
@@ -50,7 +50,7 @@ OBJS_customop = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(notdir $(CUSTOM_S
 OBJS_no_customop := $(filter-out $(OBJS_customop), $(OBJS))
 DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))
 
-libcar_color_inference.so: $(OBJS_customop)
+libface_detection.so: $(OBJS_customop)
 	$(CC) $^ $(LNK_FLAGS) -o $@
 	rm -rf $(BUILD_DIR)
 
@@ -72,5 +72,5 @@ endif
 .PHONY : clean install
 clean:
 	rm -rf $(BUILD_DIR) lib*.so *.o
-install: libcar_color_inference.so
+install: libface_detection.so
 	mv *.so $(OUT_DIR)

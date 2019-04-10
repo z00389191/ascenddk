@@ -1,5 +1,5 @@
 all : libvideo_decode.so
-#DEVICE COMPILER		
+#HOST COMPILER		
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
@@ -21,23 +21,13 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/protobuf/include \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
-	-I../common/include \
-	-I$(HOME)/ascend_ddk/include \
 	-I$(HOME)/ascend_ddk/include/third_party/ffmpeg \
+	-I../common/include \
 
-CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
+CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC
 LNK_FLAGS := \
-	-L$(HOME)/ascend_ddk/device/lib -L$(DDK_HOME)/device/lib/ \
-	-lDvpp_api \
-	-lDvpp_jpeg_decoder \
-	-lDvpp_jpeg_encoder \
-	-lDvpp_vpc \
+	-L$(HOME)/ascend_ddk/host/lib -L$(DDK_HOME)/host/lib \
 	-lmedia_mini \
-	-lhiai_server \
-	-lidedaemon \
-	-lhiai_common \
-	-lopencv_world \
-	-lascend_ezdvpp \
 	-lavcodec \
 	-lavformat \
 	-lavdevice \

@@ -1,10 +1,9 @@
-all : libcar_color_inference.so
+all : libcar_plate_recognition.so
 #DEVICE COMPILER		
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 CC := aarch64-linux-gnu-g++
-
 LOCAL_DIR  := ./
 
 SRC_DIR = $(LOCAL_DIR)
@@ -38,6 +37,7 @@ LNK_FLAGS := \
 	-lascend_ezdvpp \
 	-shared
 
+
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 CUSTOM_DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 
@@ -50,13 +50,15 @@ OBJS_customop = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(notdir $(CUSTOM_S
 OBJS_no_customop := $(filter-out $(OBJS_customop), $(OBJS))
 DEPS  = $(addprefix $(DEPS_DIR)/, $(patsubst %.cpp,%.d,$(notdir $(SOURCES))))
 
-libcar_color_inference.so: $(OBJS_customop)
+
+libcar_plate_recognition.so: $(OBJS_customop)
 	$(CC) $^ $(LNK_FLAGS) -o $@
 	rm -rf $(BUILD_DIR)
 
 $(OBJ_DIR)/%.o:%.cpp
 	@if [ ! -d $(OBJ_DIR) ]; then mkdir -p $(OBJ_DIR); fi;
 	$(CC) -c $(CC_FLAGS) -o $@ $<
+
 
 $(DEPS_DIR)/%.d:%.cpp
 	@if [ ! -d $(DEPS_DIR) ]; then mkdir -p $(DEPS_DIR); fi;
@@ -72,5 +74,5 @@ endif
 .PHONY : clean install
 clean:
 	rm -rf $(BUILD_DIR) lib*.so *.o
-install: libcar_color_inference.so
+install: libcar_plate_recognition.so
 	mv *.so $(OUT_DIR)

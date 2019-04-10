@@ -48,11 +48,8 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-#include "thread_safe_queue.h"
 #include "hiaiengine/engine.h"
 #include "hiaiengine/multitype_queue.h"
-#include "dvpp/idvppapi.h"
-#include "dvpp/Vpc.h"
 #include "video_analysis_params.h"
 
 // input size used for engine
@@ -64,59 +61,6 @@ extern "C" {
 // The memory size of the YUV image is 1.5 times that of width*height.
 #define DVPP_YUV420SP_SIZE_MOLECULE    3
 #define DVPP_YUV420SP_SIZE_DENOMINATOR 2
-
-// video type
-enum VideoType {
-  kH264,
-  kH265,
-  kInvalidTpye
-};
-
-/**
- * @brief check current is key frame, key frame: 1,6,11,16...
- * @param [in] frame_id: frame id
- * @return true: is key frame; false: is not key frame
- */
-bool IsKeyFrame(uint32_t frame_id);
-
-/**
- * @brief get frame id by channel id
- * @param [in] channel_id: channel id
- * @return frame id
- */
-uint32_t GetFrameId(const std::string &channel_id);
-
-/**
- * @brief send key frame data to next engine
- * @param [in] image_data_buffer: yuv image data buffer
- * @param [in] image_data_size: yuv image data size
- * @param [in] hiai_data: used for transmit channel id ,channel name, frame id
- * @param [in] frame: image frame data
- */
-void SendKeyFrameData(uint8_t* image_data_buffer, uint32_t image_data_size,
-                      void* hiai_data, FRAME* frame);
-
-/**
- * @brief call vpc to get yuv42sp image
- * @param [in] frame: image frame data
- * @param [in] hiai_data: used for transmit channel and frame info
- */
-void CallVpcGetYuvImage(FRAME* frame, void* hiai_data);
-
-/**
- * @brief add image data to queue by channel id
- * @param [in] video_image_para: the image data from video
- * @param [out] current_queue: the queue used for current channel
- */
-void AddImage2QueueByChannel(
-    const shared_ptr<VideoImageParaT> &video_image_para,
-    ThreadSafeQueue<shared_ptr<VideoImageParaT>> &current_queue);
-
-// yuv420sp image frame info
-struct YuvImageFrameInfo {
-  std::string channel_name;
-  std::string channel_id;
-};
 
 class VideoDecode : public hiai::Engine {
  public:
@@ -174,12 +118,6 @@ HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
    * @brief handle video with multithread
    */
   void MultithreadHandleVideo();
-
-  /**
-   * @brief send image data to next engine
-   * @param [in] channel_id: the input channel id
-   */
-  void SendImageDate(const std::string &channel_id);
 
   /**
    * @brief get video index form video format context
@@ -247,13 +185,6 @@ HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
   void SendFinishedData();
 
   /**
-   * @brief get channel id(integer value)
-   * @param [in] channel_id: the input channel id
-   * @return channel id(integer value)
-   */
-  int GetIntChannelId(const std::string channel_id);
-
-  /**
    * @brief get channel value
    * @param [in] channel_id: the input channel id
    * @return channel value
@@ -287,13 +218,11 @@ HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
   bool InitVideoParams(int videoindex, VideoType &video_type,
                        AVFormatContext* av_format_context,
                        AVBSFContext* &bsf_ctx);
-
   /**
    * @brief send image data by channel
    * @param [out] current_queue:current channel queue
    */
-  void SendImageDataByChannel(
-      ThreadSafeQueue<shared_ptr<VideoImageParaT>> &current_queue);
+  void SendImageData(std::shared_ptr<VideoImageParaT> &video_image_data);
 };
 
 #endif /* VIDEO_DECODE_H_ */

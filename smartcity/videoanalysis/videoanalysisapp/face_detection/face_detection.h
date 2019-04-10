@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * ============================================================================
  */
-#ifndef OBJECT_DETECTION_OBJECT_DETECTION_H_
-#define OBJECT_DETECTION_OBJECT_DETECTION_H_
+#ifndef FACE_DETECTION_H_
+#define FACE_DETECTION_H_
 #include <string>
 #include <vector>
 #include "hiaiengine/ai_model_manager.h"
@@ -41,71 +41,33 @@
 #include "hiaiengine/data_type.h"
 #include "hiaiengine/data_type_reg.h"
 #include "hiaiengine/engine.h"
-#include "dvpp/idvppapi.h"
-#include "dvpp/Vpc.h"
-#include "thread_safe_queue.h"
 #include "video_analysis_params.h"
-#include "hiai_data_sp_son.h"
 
 #define INPUT_SIZE 2
-#define OUTPUT_SIZE 1
+#define OUTPUT_SIZE 3
 
-// yuv420sp image frame info
-struct YuvImageFrameInfo {
-  std::string channel_name;
-  std::string channel_id;
+struct BoundingBox {
+  uint32_t lt_x;
+  uint32_t lt_y;
+  uint32_t rb_x;
+  uint32_t rb_y;
 };
 
-/**
- * @brief check current is key frame, key frame: 1,6,11,16...
- * @param [in] frame_id: frame id
- * @return true: is key frame; false: is not key frame
- */
-bool IsKeyFrame(uint32_t frame_id);
-
-/**
- * @brief get frame id by channel id
- * @param [in] channel_id: channel id
- * @return frame id
- */
-uint32_t GetFrameId(const std::string &channel_id);
-
-/**
- * @brief send key frame data to next engine
- * @param [in] image_data_buffer: yuv image data buffer
- * @param [in] image_data_size: yuv image data size
- * @param [in] hiai_data: used for transmit channel id ,channel name, frame id
- * @param [in] frame: image frame data
- */
-void HandleKeyFrameData(uint8_t* &image_data_buffer, uint32_t image_data_size,
-                        void* &hiai_data, FRAME* &frame);
-
-/**
- * @brief call vpc to get yuv42sp image
- * @param [in] frame: image frame data
- * @param [in] hiai_data: used for transmit channel and frame info
- */
-void CallVpcGetYuvImage(FRAME* frame, void* hiai_data);
-
-/**
- * @brief add image data to queue by channel id
- * @param [in] video_image_para: the image data from video
- * @param [out] current_queue: the queue used for current channel
- */
-void AddImage2Queue(const shared_ptr<VideoImageParaT> &video_image_para);
-
-class ObjectDetectionInferenceEngine : public hiai::Engine {
- public:
-  /**
-   * @brief ObjectDetectionInferenceEngine constructor
-   */
-  ObjectDetectionInferenceEngine();
+class FaceDetection : public hiai::Engine {
+public:
 
   /**
-   * @brief ObjectDetectionInferenceEngine constructor
+   * @brief constructor
    */
-  ~ObjectDetectionInferenceEngine();
+  FaceDetection()
+      : ai_model_manager_(nullptr),
+        confidence_(0),
+        tran_data_(nullptr),
+        tran_jpg_data_(nullptr) {
 
+  }
+  ~ FaceDetection() {
+  }
   /**
    * @brief Engine init method.
    * @return HIAI_StatusT
@@ -122,7 +84,7 @@ class ObjectDetectionInferenceEngine : public hiai::Engine {
 HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
   ;
 
- private:
+private:
   /**
    * @brief : image preprocess function.
    * @param [in] src_img: input image data.
@@ -154,40 +116,94 @@ HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
       bool inference_success = true, std::string err_msg = "");
 
   /**
-   * @brief : convert video frame data to hfbc data and put results to queue
-   * @param [in] video_image: the input video frame data
-   * @return true: success; false: failed
-   */
-  bool ConvertVideoFrameToHfbc(const std::shared_ptr<VideoImageParaT>& video_image);
-
-  /**
-   * @brief get channel id(integer value)
-   * @param [in] channel_id: the input channel id
-   * @return channel id(integer value)
-   */
-  int GetIntChannelId(const std::string channel_id);
-
-  /**
-   * @brief convert hfbc data to yuv image from queue, and detect object
-   */
-  void ObjectDetectInference();
-
-  /**
-   * @brief : handle input data have is_finished flag
-   * @param [in] video_image: the input video frame data
+   * @brief : send inference results to next engine.
+   * @param [in] detection_trans: inference results tensor.
+   * @param [in] success: inference success or not.
+   * @param [in] err_msg: save error message if detection failed.
    * @return HIAI_StatusT
    */
-  HIAI_StatusT HandleFinishedData(
-      const std::shared_ptr<VideoImageParaT> &video_image);
 
+  /**
+     * @brief  send Jpg data to video_analysis_post engine.
+     * @return  success --> HIAI_OK ; fail --> HIAI_ERROR
+     */
+    HIAI_StatusT SendJpgImage(const VideoImageParaT image_input);
+
+  HIAI_StatusT HandleResults(
+      const std::shared_ptr<DetectionEngineTransT>& inference_result);
+  /**
+   * @brief : crop object image from input image.
+   * @param [in] src_img: input image.
+   * @param [out] target_img: output object image.
+   * @param [in] bbox: bounding box coordinate.
+   * @return HIAI_StatusT
+   */
+  HIAI_StatusT CropObjectFromImage(const hiai::ImageData<u_int8_t>& src_img,
+                                   hiai::ImageData<u_int8_t>& target_img,
+                                   const BoundingBox& bbox);
+  /**
+   * @brief : filter bounding box from inferece results.
+   * @param [in] bbox_buffer: bbox results buffer.
+   * @param [in] bbox_buffer_size: bbox buffer size.
+   * @param [out] detection_image: detection results shared_ptr.
+   * @param [out] car_type_imgs: car type imags vector.
+   * @param [out] car_color_imgs: car color images vector.
+   * @param [out] person_imgs: person images vector.
+   */
+  void FilterBoundingBox(
+      float* bbox_buffer, int32_t bbox_buffer_size,
+      std::shared_ptr<VideoDetectionImageParaT>& detection_image,
+      vector<ObjectImageParaT>& face_imgs);
+  /**
+   * @brief : send results to output port.
+   * @param [in] port_id: output port id.
+   * @param [in] data_type: output data type.
+   * @param [in] data_ptr: output data shared ptr.
+   * @return HIAI_StatusT
+   */
+  HIAI_StatusT SendResults(uint32_t port_id, std::string data_type,
+                           const std::shared_ptr<void>& data_ptr);
+
+  /**
+   * @brief : send image results to post port.
+   * @param [in] image_para: output data shared ptr.
+   * @return HIAI_StatusT
+   */
+  HIAI_StatusT SendDetectImage(
+      const std::shared_ptr<VideoDetectionImageParaT> &image_para);
+
+  /**
+   * @brief : send object image to next engine.
+   * @param [in] port_id: output port id.
+   * @param [in] cropped_images: object image vector.
+   * @param [in] video_image_info: input image attr params.
+   * @return HIAI_StatusT
+   */
+  void SendCroppedImages(uint32_t port_id,
+                         const std::vector<ObjectImageParaT>& cropped_images,
+                         VideoImageInfoT& video_image_info);
+  /**
+   * @brief : check if input string is a valid number.
+   * @param [in] input: input string .
+   * @return true or false.
+   */
+  bool InitConfidence(const string& input);
+
+  /**
+   * @brief : correct the coordinate value between 0.0f and 1.0f.
+   * @param [in] input: coordinate value .
+   * @return value bewteen 0.0 and 1.0.
+   */
+  float CorrectCoordinate(float value);
+
+  // face detection confidence
+  float confidence_;
   // shared ptr to load ai model.
   std::shared_ptr<hiai::AIModelManager> ai_model_manager_;
-
-  // dvpp vdec api for channel 1
-  IDVPPAPI* dvpp_api_channel1_;
-
-  // dvpp vdec api for channel 2
-  IDVPPAPI* dvpp_api_channel2_;
+  // the data be sent to next inference engine.
+  std::shared_ptr<BatchCroppedImageParaT> tran_data_;
+  // the data be sent to next videoanalysis_post engine.
+  std::shared_ptr<VideoDetectionImageParaT> tran_jpg_data_;
 };
 
 #endif /* OBJECT_DETECTION_OBJECT_DETECTION_H_ */

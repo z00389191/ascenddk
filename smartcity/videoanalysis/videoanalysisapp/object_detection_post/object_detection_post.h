@@ -43,7 +43,7 @@
 #include "video_analysis_params.h"
 
 #define INPUT_SIZE 1
-#define OUTPUT_SIZE 4
+#define OUTPUT_SIZE 6
 
 struct BoundingBox {
   uint32_t lt_x;
@@ -103,13 +103,15 @@ class ObjectDetectionPostProcess : public hiai::Engine {
    * @param [out] car_type_imgs: car type imags vector.
    * @param [out] car_color_imgs: car color images vector.
    * @param [out] person_imgs: person images vector.
+   * @param [out] car_plate_imgs: car plate images vector.
    */
   void FilterBoundingBox(
       float* bbox_buffer, int32_t bbox_buffer_size,
       std::shared_ptr<VideoDetectionImageParaT>& detection_image,
       vector<ObjectImageParaT>& car_type_imgs,
       vector<ObjectImageParaT>& car_color_imgs,
-      vector<ObjectImageParaT>& person_imgs);
+      vector<ObjectImageParaT>& person_imgs,
+      vector<ObjectImageParaT>& car_plate_imgs);
   /**
    * @brief : send results to output port.
    * @param [in] port_id: output port id.

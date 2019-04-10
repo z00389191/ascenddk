@@ -264,9 +264,9 @@ HIAI_StatusT GeneralPost::FasterRcnnPostProcess(
   for (int i = 0; i < bboxes.size(); ++i) {
     cv::Point p1, p2;
     p1.x = scale_width * bboxes[i].lt_x;
-    p1.y = scale_width * bboxes[i].lt_y;
+    p1.y = scale_height * bboxes[i].lt_y;
     p2.x = scale_width * bboxes[i].rb_x;
-    p2.y = scale_width * bboxes[i].rb_y;
+    p2.y = scale_height * bboxes[i].rb_y;
     cv::rectangle(mat, p1, p2, kColors[i % kColors.size()], kLineSolid);
 
     sstream.str("");
