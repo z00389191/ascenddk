@@ -44,9 +44,15 @@ main()
 
     echo "Clear app build path..."
     rm -rf ${script_path}/videoanalysisapp/out
+    atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
+        return 1
+    fi
 
+    atlas_target=`echo ${atlas_target} | sed 's/ //g' `
     echo "Build main..."
-    make -C ${script_path}/videoanalysisapp 1>/dev/null
+    make mode=${atlas_target} -C ${script_path}/videoanalysisapp 1>/dev/null
     if [ $? -ne 0 ];then
         exit 1
     fi
@@ -59,11 +65,11 @@ main()
         path=`dirname ${file}`
         lib_path_name=`basename ${path}`
         echo "Build ${lib_path_name} lib..."
-        make clean -C ${path} 1>/dev/null
+        make mode=${atlas_target} clean -C ${path} 1>/dev/null
         if [ $? -ne 0 ];then
             exit 1
         fi
-        make install -C ${path} 1>/dev/null
+        make mode=${atlas_target} install -C ${path} 1>/dev/null
 
         if [ $? -ne 0 ];then
             exit 1
