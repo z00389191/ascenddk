@@ -44,7 +44,7 @@ else ifeq ($(mode), ASIC)
 CC := g++
 CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
 LNK_FLAGS := \
-	-L$(DDK_HOME)/host/lib/ \
+	-L$(HOME)/ascend_ddk/host/lib -L$(DDK_HOME)/host/lib/ \
 	-lpresenteragent \
 	-shared
 else

@@ -47,7 +47,7 @@ LNK_FLAGS := \
 else ifeq ($(mode), ASIC)
 CC := $(DDK_HOME)/toolchains/aarch64-linux-gcc6.3/bin/aarch64-linux-gnu-g++
 LNK_FLAGS := \
-	-L$(DDK_HOME)/device/lib/ \
+	-L$(HOME)/ascend_ddk/device/lib -L$(DDK_HOME)/device/lib/ \
 	-lDvpp_api \
 	-lDvpp_jpeg_decoder \
 	-lDvpp_jpeg_encoder \
