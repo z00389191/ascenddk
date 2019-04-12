@@ -53,7 +53,6 @@ LNK_FLAGS := \
 	-lDvpp_jpeg_decoder \
 	-lDvpp_jpeg_encoder \
 	-lDvpp_vpc \
-	-lascend_ezdvpp \
 	-lidedaemon \
 	-shared
 
