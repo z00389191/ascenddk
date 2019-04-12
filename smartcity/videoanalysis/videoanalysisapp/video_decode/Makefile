@@ -44,7 +44,7 @@ LNK_FLAGS := \
 	-lswscale \
 	-shared
 else ifeq ($(mode), ASIC)
-CC := $(DDK_HOME)/toolchains/aarch64-linux-gcc6.3/bin/aarch64-linux-gnu-g++
+CC := g++
 LNK_FLAGS := \
 	-L$(HOME)/ascend_ddk/host/lib	-L$(DDK_HOME)/host/lib/ \
 	-lavcodec \
