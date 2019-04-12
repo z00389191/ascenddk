@@ -93,19 +93,17 @@ function prepare()
             cp ${script_path}/${model_name}.om ${script_path}/MyModel/${model_name}/device/
         fi
     else
-        if [ ! -f "${script_path}/${model_name}_${download_branch}.om" ];then
-            #get download_branch
-            parse_download_branch
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-            
-            download ${model_name} ${model_remote_path}
-            if [ $? -ne 0 ];then
-                return 1
-            fi
+        #get download_branch
+        parse_download_branch
+        if [ $? -ne 0 ];then
+            return 1
         fi
-        
+
+        download ${model_name} ${model_remote_path}
+        if [ $? -ne 0 ];then
+            return 1
+        fi
+
         mkdir -p ${script_path}/MyModel/${model_name}/device
         cp ${script_path}/${model_name}_${download_branch}.om ${script_path}/MyModel/${model_name}/device/${model_name}.om
     fi
