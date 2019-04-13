@@ -22,6 +22,7 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
+download_mode=$2
 
 common_path="${script_path}/../../common"
 
@@ -29,7 +30,7 @@ common_path="${script_path}/../../common"
 
 function main()
 {
-    bash ${common_path}/prepare_presenter_server.sh "facial_recognition" ${remote_host}
+    bash ${common_path}/prepare_presenter_server.sh "facial_recognition" ${remote_host} ${download_mode}
 
     while [ ${presenter_server_storage_path}"X" == "X" ]
     do

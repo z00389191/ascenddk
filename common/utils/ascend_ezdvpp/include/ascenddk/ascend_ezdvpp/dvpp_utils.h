@@ -86,6 +86,9 @@ if (buffer == MAP_FAILED) { \
 #define ASC_LOG_ERROR(fmt, ...) \
 dlog_error(ASCENDDK, "[%s:%d] " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
+#define ASC_LOG_INFO(fmt, ...) \
+dlog_info(ASCENDDK, "[%s:%d] " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
 namespace ascend {
 namespace utils {
 
@@ -164,6 +167,34 @@ public:
      *         IMAGE_NOT_NEED_ALIGN: image don't need align
      */
     int CheckImageNeedAlign(int width, int high);
+
+    /**
+     * @brief check new vpc format whether is correct
+     * @param [in] input_format: input image format
+     * @param [in] output_format: output image format
+     * @return enum DvppErrorCode
+     */
+    int CheckBasicVpcImageFormat(VpcInputFormat input_format,
+                                 VpcOutputFormat output_format);
+
+    /**
+     * @brief check the width and height of output image in new vpc
+     * @param [in] width: output image width, must be even
+     * @param [in] height: output image height, must be even
+     * @return enum DvppErrorCode
+     */
+    int CheckBasicVpcOutputParam(int width, int height);
+
+    /**
+     * @brief check crop parameters in new vpc
+     * @param [in] left_offset: left offset of cropped image, must be even
+     * @param [in] up_offset: up offset of cropped image, must be even
+     * @param [in] right_offset: right offset of cropped image, must be odd
+     * @param [in] down_offset: down offset of cropped image, must be odd
+     * @return enum DvppErrorCode
+     */
+    int CheckBasicVpcCropParam(uint32_t left_offset, uint32_t up_offset,
+                               uint32_t right_offset, uint32_t down_offset);
 
     /**
      * @brief alloc buffer for vpc interface

@@ -101,7 +101,7 @@ def execute(cmd, timeout=3600, cwd=None):
         std_output_lines_last.append(i)
 
     if process.returncode != 0 or "Traceback" in str_std_output:
-        return False, std_output_lines_last
+        return False, std_output_lines_last, str_std_output
 
     return True, std_output_lines_last
 
@@ -177,8 +177,8 @@ def add_engine_setting(settings_link, settings_include):
         engine_info = ddk_engine_config_info.get(
             "configuration").get("OI")
             
-        engine_link_obj = engine_info.get("Device").get("linkflags").get("linkobj")
-        engine_include = engine_info.get("Device").get("includes").get("include")
+        engine_link_obj = engine_info.get("Host").get("linkflags").get("linkobj")
+        engine_include = engine_info.get("Host").get("includes").get("include")
 
         for each_new_setting in settings_link:
             if each_new_setting not in engine_link_obj:
@@ -288,8 +288,9 @@ def main():
         ascend_ddk_home = os.path.join(
             os.getenv("HOME"), "ascend_ddk")
         execute("mkdir -p {path}/include/third_party/ffmpeg".format(path=ascend_ddk_home))
+        execute("mkdir -p {path}/host/lib".format(path=ascend_ddk_home))
         execute("cp -rdp {path1}/include/* {path2}/include/third_party/ffmpeg".format(path1=install_path,path2=ascend_ddk_home))
-        execute("cp -rdp {path1}/lib/* {path2}/device/lib".format(path1=install_path,path2=ascend_ddk_home))
+        execute("cp -rdp {path1}/lib/* {path2}/host/lib".format(path1=install_path,path2=ascend_ddk_home))
 
         # adding engine setting in ddk configuration
         print("[INFO] Adding engine setting in DDK configuration.")

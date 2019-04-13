@@ -4,10 +4,6 @@ ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 
-CC := aarch64-linux-gnu-g++
-CPP := aarch64-linux-gnu-g++
-
-
 LOCAL_MODULE_NAME := ascend_videoanalysisapp
 CC_FLAGS := -std=c++11
 
@@ -23,7 +19,15 @@ local_inc_dirs := \
 
 local_shared_libs_dirs := \
 	$(DDK_HOME)/host/lib/ \
-	
+
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
+CC := aarch64-linux-gnu-g++
+CPP := aarch64-linux-gnu-g++
+
 local_shared_libs := \
 	hiai_server \
 	hiai_common \
@@ -52,6 +56,26 @@ local_shared_libs := \
 	slog \
 	dl \
 	media_mini
+else ifeq ($(mode), ASIC)
+CC := g++
+CPP := g++
+
+local_shared_libs := \
+	matrix \
+	drvdevdrv \
+	drvdevmm \
+	drvhdc_host \
+	mmpa \
+	crypto \
+	c_sec \
+	pthread \
+	protobuf \
+	profilerclient \
+	slog \
+	dl
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
 
 Q := @
 		

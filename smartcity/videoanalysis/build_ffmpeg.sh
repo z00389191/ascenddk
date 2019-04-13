@@ -84,17 +84,17 @@ function build_ffmpeg()
     fi
 
     atlas_target=`echo ${atlas_target} | sed 's/ //g' `
-    if [[ ${atlas_target} == "ASIC" ]];then
-        cross_prefix="${DDK_HOME}/uihost/toolchains/aarch64-linux-gcc6.3/bin/aarch64-linux-gnu-"
-        sysroot="--sysroot=${DDK_HOME}/uihost/toolchains/aarch64-linux-gcc6.3/sysroot"
-    else
-        cross_prefix="/usr/bin/aarch64-linux-gnu-"
-        sysroot=""
-    fi
+
     install_prefix=${script_path}/ffmpeg/install_path
     mkdir -p ${install_prefix}
 
-    ffmpeg_configure_options=" --cross-prefix=${cross_prefix} --enable-pthreads --enable-cross-compile --target-os=linux --arch=aarch64 --enable-shared --enable-network --enable-protocol=tcp --enable-protocol=udp --enable-protocol=rtp --enable-demuxer=rtsp --disable-debug --disable-stripping --disable-doc --disable-ffplay --disable-ffprobe --disable-htmlpages --disable-manpages --disable-podpages  --disable-txtpages --disable-w32threads --disable-os2threads ${sysroot} --prefix=${install_prefix}"
+    if [[ ${atlas_target} == "ASIC" ]];then
+        ffmpeg_configure_options=" --enable-pthreads --enable-cross-compile --target-os=linux --enable-shared --enable-network --enable-protocol=tcp --enable-protocol=udp --enable-protocol=rtp --enable-demuxer=rtsp --disable-debug --disable-stripping --disable-doc --disable-ffplay --disable-ffprobe --disable-htmlpages --disable-manpages --disable-podpages  --disable-txtpages --disable-w32threads --disable-os2threads --disable-x86asm --prefix=${install_prefix}"
+    else
+        ffmpeg_configure_options=" --cross-prefix=/usr/bin/aarch64-linux-gnu- --enable-pthreads --enable-cross-compile --target-os=linux --arch=aarch64 --enable-shared --enable-network --enable-protocol=tcp --enable-protocol=udp --enable-protocol=rtp --enable-demuxer=rtsp --disable-debug --disable-stripping --disable-doc --disable-ffplay --disable-ffprobe --disable-htmlpages --disable-manpages --disable-podpages  --disable-txtpages --disable-w32threads --disable-os2threads --prefix=${install_prefix}"
+    fi
+
+
 
     mkdir -p ${script_path}/ffmpeg/ffbuild
     echo "" > ${script_path}/ffmpeg/ffbuild/build.log
@@ -111,9 +111,9 @@ function build_ffmpeg()
     fi
     
     mkdir -p ${HOME}/ascend_ddk/include/third_party/ffmpeg
-    mkdir -p ${HOME}/ascend_ddk/device/lib
+    mkdir -p ${HOME}/ascend_ddk/host/lib
     cp -rdp ${install_prefix}/include/* ${HOME}/ascend_ddk/include/third_party/ffmpeg
-    cp -rdp ${install_prefix}/lib/* ${HOME}/ascend_ddk/device/lib
+    cp -rdp ${install_prefix}/lib/* ${HOME}/ascend_ddk/host/lib
 
     cd ${install_prefix}/lib && tar -cvf ${script_path}/ffmpeg_lib.tar ./* >> ${script_path}/ffmpeg/ffbuild/build.log
     cd ${script_path}

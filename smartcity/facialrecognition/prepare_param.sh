@@ -46,21 +46,20 @@ common_path="${script_path}/../../common"
 
 function main()
 {
+    if [[ $# -lt 3 ]];then
+        echo "ERROR: invalid command, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name camera_channel_name."
+        exit 1
+    fi
     check_ip_addr ${remote_host}
     if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name channel_name."
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name camera_channel_name."
         exit 1
     fi
 
     if [[ ${data_source} != "Channel-1" && ${data_source} != "Channel-2" ]];then
-        echo "ERROR: invalid channel name, please input Channel-1 or Channel-2."
+        echo "ERROR: invalid camera channel name, please input Channel-1 or Channel-2."
         exit 1
     fi
-    
-    if [[ ${presenter_view_app_name}"X" == "X" ]];then
-        echo "ERROR: invalid presenter_view_app_name, please input a name."
-    fi
-    
     echo "Prepare app configuration..."
     cp -r ${script_path}/facialrecognitionapp/graph_deploy.config ${script_path}/facialrecognitionapp/out/graph.config
     sed -i "s/\${template_data_source}/${data_source}/g" ${script_path}/facialrecognitionapp/out/graph.config
@@ -77,4 +76,4 @@ function main()
     exit 0
 }
 
-main
+main $*

@@ -34,7 +34,6 @@
 #include <cstdlib>
 #include <malloc.h>
 #include "ascenddk/ascend_ezdvpp/dvpp_process.h"
-#include "hiaiengine/ai_memory.h"
 
 using namespace std;
 namespace ascend {
@@ -99,7 +98,7 @@ int DvppProcess::DvppOperationProc(const char *input_buf, int input_size,
         if (ret != kDvppOperationOk) {
             ASC_LOG_ERROR(
                     "To prevent excessive memory, data size should be in "
-                    "(0, 64]M! " "Now data size is %d byte.",
+                    "(0, 64]M! Now data size is %d byte.",
                     output_data_queue->getBufferSize());
             return ret;
         }
@@ -128,7 +127,7 @@ int DvppProcess::DvppOperationProc(const char *input_buf, int input_size,
         if (ret != kDvppOperationOk) {
             ASC_LOG_ERROR(
                     "To prevent excessive memory, data size should be in "
-                    "(0, 64]M! " "Now data size is %d byte.",
+                    "(0, 64]M!, Now data size is %d byte.",
                     jpg_output_data.jpgSize);
             return ret;
         }
@@ -423,9 +422,9 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
 
             input_data.bufSize =
                     ALIGN_UP(
-                            input_data.stride * input_data.heightAligned
-                            * DVPP_YUV420SP_SIZE_MOLECULE
-                            / DVPP_YUV420SP_SIZE_DENOMINATOR,
+                            input_data.stride * input_data.heightAligned *
+                            DVPP_YUV420SP_SIZE_MOLECULE /
+                            DVPP_YUV420SP_SIZE_DENOMINATOR,
                             PAGE_SIZE);
         } else {
             input_data.stride = ALIGN_UP(input_data.width,
@@ -435,9 +434,9 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
                     kJpegEHeightAlign);
             input_data.bufSize =
                     ALIGN_UP(
-                            input_data.stride * input_data.heightAligned
-                            * DVPP_YUV420SP_SIZE_MOLECULE
-                            / DVPP_YUV420SP_SIZE_DENOMINATOR,
+                            input_data.stride * input_data.heightAligned *
+                            DVPP_YUV420SP_SIZE_MOLECULE /
+                            DVPP_YUV420SP_SIZE_DENOMINATOR,
                             PAGE_SIZE);
         }
     }
@@ -447,12 +446,20 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
 
     // apply for memory: 1.Large-page
     unsigned char* addr_orig = (unsigned char*) mmap(
-            0, mmap_size, PROT_READ | PROT_WRITE,
-            MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-            0, 0);
+        0, mmap_size, PROT_READ | PROT_WRITE,
+        MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, -1, 0);
+
     if (addr_orig == MAP_FAILED) {
-        ASC_LOG_ERROR("Failed to malloc memory in dvpp(yuv to jpeg).");
+      ASC_LOG_INFO(
+          "Failed to malloc memory in dvpp(yuv to jpeg), start to try 4K "
+          "memory");
+      addr_orig = (unsigned char*) mmap(
+          0, mmap_size, PROT_READ | PROT_WRITE,
+          MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
+      if (addr_orig == MAP_FAILED) {
+        ASC_LOG_ERROR("4K memory malloc still fail.");
         return kDvppErrorMallocFail;
+      }
     }
 
     // first address of buffer align to 128
@@ -473,7 +480,7 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
                         input_data.buf + ((ptrdiff_t) j * input_data.stride),
                         (unsigned) (mmap_size - j * input_data.stride),
                         temp_buf, (unsigned) (input_data.width));
-                CHECK_MEMCPY_RESULT(ret, nullptr); // if exist error,program exit
+                CHECK_MEMCPY_RESULT(ret, nullptr); // if error,program exit
                 temp_buf += input_data.width;
             }
             for (unsigned int j = input_data.heightAligned;
@@ -482,7 +489,7 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
                         input_data.buf + ((ptrdiff_t) j * input_data.stride),
                         (unsigned) (mmap_size - j * input_data.stride),
                         temp_buf, (unsigned) (input_data.width));
-                CHECK_MEMCPY_RESULT(ret, nullptr); // if exist error,program exit
+                CHECK_MEMCPY_RESULT(ret, nullptr); // if error,program exit
                 temp_buf += input_data.width;
             }
         }
@@ -972,7 +979,8 @@ int DvppProcess::DvppJpegChangeToYuv(const char *input_buf, int input_size,
                                                    output_data);
     if (ret != kDvppOperationOk) {
         ASC_LOG_ERROR(
-                "Jpeg change to yuv input param or output param can not be null!");
+                "Jpeg change to yuv input param or output param can not be "
+                "null!");
         return ret;
     }
 
@@ -987,7 +995,7 @@ int DvppProcess::DvppJpegChangeToYuv(const char *input_buf, int input_size,
     unsigned char* addr_orig = (unsigned char*) mmap(
             0, jpegd_in_data.jpeg_data_size + kJpegDAddressAlgin,
             PROT_READ | PROT_WRITE,
-            MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, 0, 0);
+            MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
 
     if (addr_orig == MAP_FAILED) {
         ASC_LOG_ERROR("Failed to malloc memory in dvpp(JpegD).");
@@ -1058,6 +1066,54 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
         return ret;
     }
 
+    // check image format params
+    VpcInputFormat input_format = dvpp_instance_para_.basic_vpc_para
+            .input_image_type;
+    VpcOutputFormat output_format = dvpp_instance_para_.basic_vpc_para
+            .output_image_type;
+    ret = dvpp_utils.CheckBasicVpcImageFormat(input_format, output_format);
+
+    if (ret != kDvppOperationOk) {
+        ASC_LOG_ERROR(
+                "Input image format or output image format is out of range, "
+                "input format is %d, output format is %d",
+                input_format, output_format);
+        return ret;
+    }
+
+    // check crop params
+    uint32_t left_offset = dvpp_instance_para_.basic_vpc_para.crop_left;
+    uint32_t up_offset = dvpp_instance_para_.basic_vpc_para.crop_up;
+    uint32_t right_offset = dvpp_instance_para_.basic_vpc_para.crop_right;
+    uint32_t down_offset = dvpp_instance_para_.basic_vpc_para.crop_down;
+
+    ret = dvpp_utils.CheckBasicVpcCropParam(left_offset, up_offset,
+                                            right_offset, down_offset);
+    if (ret != kDvppOperationOk) {
+        ASC_LOG_ERROR(
+                "The left_offset and up_offset params must be even, The "
+                "right_offset and down_offset params must be odd, left_offset "
+                "is %d, up_offset is %d, right_offset is %d, down_offset is %d",
+                left_offset, up_offset, right_offset, down_offset);
+
+        return ret;
+    }
+
+    // check output image params
+    int output_width = dvpp_instance_para_.basic_vpc_para.dest_resolution.width;
+    int output_height = dvpp_instance_para_.basic_vpc_para.dest_resolution
+            .height;
+
+    ret = dvpp_utils.CheckBasicVpcOutputParam(output_width, output_height);
+    if (ret != kDvppOperationOk) {
+        ASC_LOG_ERROR(
+                "The width and height of the output image must be even, output "
+                "width is %d, output height is %d",
+                output_width, output_height);
+
+        return ret;
+    }
+
     int input_width = dvpp_instance_para_.basic_vpc_para.src_resolution.width;
     int input_height = dvpp_instance_para_.basic_vpc_para.src_resolution.height;
     int height_stride = ALIGN_UP((input_height >> 1) << 1, kVpcHeightAlign);
@@ -1070,10 +1126,10 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
     bool is_input_align = dvpp_instance_para_.basic_vpc_para.is_input_align;
 
     // alloc input buffer
-    ret = dvpp_utils.AllocBasicVpcBuffer(
-            input_buf, input_size, is_input_align,
-            dvpp_instance_para_.basic_vpc_para.input_image_type, input_width,
-            input_height, width_stride, in_buffer_size, &in_buffer);
+    ret = dvpp_utils.AllocBasicVpcBuffer(input_buf, input_size, is_input_align,
+                                         input_format, input_width,
+                                         input_height, width_stride,
+                                         in_buffer_size, &in_buffer);
 
     if (ret != kDvppOperationOk) {
         ASC_LOG_ERROR("Allocate basic vpc buffer failed!");
@@ -1089,10 +1145,8 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
     image_configure->isCompressData = false;
     image_configure->widthStride = width_stride;
     image_configure->heightStride = height_stride;
-    image_configure->inputFormat = dvpp_instance_para_.basic_vpc_para
-            .input_image_type;
-    image_configure->outputFormat = dvpp_instance_para_.basic_vpc_para
-            .output_image_type;
+    image_configure->inputFormat = input_format;
+    image_configure->outputFormat = output_format;
     image_configure->yuvSumEnable = false;
     image_configure->cmdListBufferAddr = nullptr;
     image_configure->cmdListBufferSize = 0;
@@ -1111,10 +1165,6 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
     input_configure->cropArea.downOffset = dvpp_instance_para_.basic_vpc_para
             .crop_down;
 
-    int output_width = dvpp_instance_para_.basic_vpc_para.dest_resolution.width;
-    int output_height = dvpp_instance_para_.basic_vpc_para.dest_resolution
-            .height;
-
     int aligned_output_width = ALIGN_UP(output_width, kVpcWidthAlign);
     int aligned_output_height = ALIGN_UP(output_height, kVpcHeightAlign);
 
@@ -1123,13 +1173,22 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
     DVPP_YUV420SP_SIZE_DENOMINATOR;
 
     uint8_t *out_buffer = (uint8_t *) mmap(
-            0, vpc_output_size,
+            0, ALIGN_UP(vpc_output_size, MAP_2M),
             PROT_READ | PROT_WRITE,
-            MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, 0, 0);
+            MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, -1, 0);
 
     if (out_buffer == MAP_FAILED) {
-        ASC_LOG_ERROR("Failed to malloc memory in dvpp(new vpc).");
-        return kDvppErrorMallocFail;
+        ASC_LOG_INFO(
+                "Failed to malloc memory in dvpp(new vpc), start to try 4K "
+                "memory");
+        out_buffer = (uint8_t *) mmap(
+                0, ALIGN_UP(vpc_output_size, MAP_2M),
+                PROT_READ | PROT_WRITE,
+                MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
+        if (out_buffer == MAP_FAILED) {
+            ASC_LOG_ERROR("4K memory malloc still fail.");
+            return kDvppErrorMallocFail;
+        }
     }
 
     // constructing output roi configuration

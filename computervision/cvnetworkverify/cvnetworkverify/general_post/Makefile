@@ -38,12 +38,26 @@ INC_DIR = \
 
 # link parameters
 CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC -D $(CC_OPTS)
+
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
+CC := aarch64-linux-gnu-g++
 LNK_FLAGS := \
 	-L$(DDK_HOME)/host/lib/ \
-	-lmedia_mini \
 	-lopencv_world \
 	-shared
-
+else ifeq ($(mode), ASIC)
+CC := g++
+LNK_FLAGS := \
+	-L$(HOME)/ascend_ddk/host/lib\
+	-lopencv_world \
+	-shared
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
 
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 CUSTOM_DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)

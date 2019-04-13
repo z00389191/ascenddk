@@ -36,7 +36,8 @@
 script_path="$( cd "$(dirname "$0")" ; pwd -P )"
 
 remote_host=$1
-data_source=$2
+presenter_view_app_name=$2
+data_source=$3
 
 common_path="${script_path}/../../common"
 
@@ -60,13 +61,18 @@ trap 'kill_remote_running' 2 15
 
 function main()
 {
-    check_ip_addr ${remote_host}
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./run_facedetectionapp.sh host_ip channel_name."
+    if [[ $# -lt 3 ]];then
+        echo "ERROR: invalid command, please check your command format: ./run_facedetectionapp.sh host_ip presenter_view_app_name camera_channel_name."
         exit 1
     fi
 
-    bash ${script_path}/prepare_param.sh ${remote_host} ${data_source}
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command format: ./run_facedetectionapp.sh host_ip presenter_view_app_name camera_channel_name."
+        exit 1
+    fi
+
+    bash ${script_path}/prepare_param.sh ${remote_host} ${presenter_view_app_name} ${data_source}
     if [[ $? -ne 0 ]];then
         exit 1
     fi
@@ -78,8 +84,8 @@ function main()
         echo "presenter server for face detection is not started, please start it."
         exit 1
     fi
-    
-    
+
+
     parse_remote_port
 
     echo "[Step] run ${remote_host}:ascend_facedetectionapp..."
@@ -93,4 +99,4 @@ function main()
     exit 0
 }
 
-main
+main $*

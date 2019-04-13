@@ -47,22 +47,16 @@ common_path="${script_path}/../../common"
 
 function main()
 {
-    check_ip_addr ${remote_host}
-    if [[ $? -ne 0 ]];then
-        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip channel_name presenter_view_app_name."
+    if [[ $# -lt 3 ]];then
+        echo "ERROR: invalid command, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name channel1 [channel2]."
         exit 1
     fi
-    
-    if [[ ${presenter_view_app_name}"X" == "X" ]];then
-        echo "ERROR: invalid presenter_view_app_name, please input a name."
-    fi
-    
-    if [[ ${channel1}"X" == "X" && ${channel2}"X" == "X" ]];then
-        echo "ERROR: invalid channel name, please input mp4 file which in Atlas DK Board or rtsp url."
+    check_ip_addr ${remote_host}
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: invalid host ip, please check your command format: ./prepare_param.sh host_ip presenter_view_app_name channel1 [channel2]."
         exit 1
     fi
 
-    
     echo "Prepare app configuration..."
     cp -r ${script_path}/videoanalysisapp/graph_deploy.config ${script_path}/videoanalysisapp/out/graph.config
     sed -i "s#\${template_channel1}#${channel1}#g" ${script_path}/videoanalysisapp/out/graph.config
@@ -80,4 +74,4 @@ function main()
     exit 0
 }
 
-main
+main $*

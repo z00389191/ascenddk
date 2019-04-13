@@ -62,6 +62,11 @@ class HumanInferenceResultDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<HumanInferenceResult>
       _instance;
 } _HumanInferenceResult_default_instance_;
+class FaceInferenceResultDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<FaceInferenceResult>
+      _instance;
+} _FaceInferenceResult_default_instance_;
 }  // namespace video_analysis
 }  // namespace presenter
 }  // namespace ascend
@@ -239,8 +244,30 @@ void InitDefaultsHumanInferenceResult() {
   ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsHumanInferenceResultImpl);
 }
 
-::google::protobuf::Metadata file_level_metadata[8];
-const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[2];
+void InitDefaultsFaceInferenceResultImpl() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
+#else
+  ::google::protobuf::internal::InitProtobufDefaults();
+#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  protobuf_video_5fanalysis_5fmessage_2eproto::InitDefaultsFrameIndex();
+  {
+    void* ptr = &::ascend::presenter::video_analysis::_FaceInferenceResult_default_instance_;
+    new (ptr) ::ascend::presenter::video_analysis::FaceInferenceResult();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::ascend::presenter::video_analysis::FaceInferenceResult::InitAsDefaultInstance();
+}
+
+void InitDefaultsFaceInferenceResult() {
+  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
+  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsFaceInferenceResultImpl);
+}
+
+::google::protobuf::Metadata file_level_metadata[9];
+const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[3];
 
 const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
@@ -307,6 +334,16 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::HumanInferenceResult, frame_index_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::HumanInferenceResult, object_id_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::HumanInferenceResult, human_property_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::FaceInferenceResult, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::FaceInferenceResult, frame_index_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::FaceInferenceResult, object_id_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::FaceInferenceResult, type_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::FaceInferenceResult, confidence_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ascend::presenter::video_analysis::FaceInferenceResult, value_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::ascend::presenter::video_analysis::RegisterApp)},
@@ -317,6 +354,7 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 39, -1, sizeof(::ascend::presenter::video_analysis::CarInferenceResult)},
   { 49, -1, sizeof(::ascend::presenter::video_analysis::MapType)},
   { 56, -1, sizeof(::ascend::presenter::video_analysis::HumanInferenceResult)},
+  { 64, -1, sizeof(::ascend::presenter::video_analysis::FaceInferenceResult)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -328,6 +366,7 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::video_analysis::_CarInferenceResult_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::video_analysis::_MapType_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::video_analysis::_HumanInferenceResult_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::ascend::presenter::video_analysis::_FaceInferenceResult_default_instance_),
 };
 
 void protobuf_AssignDescriptors() {
@@ -346,7 +385,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 8);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 9);
 }
 
 void AddDescriptorsImpl() {
@@ -375,17 +414,24 @@ void AddDescriptorsImpl() {
       "nd.presenter.video_analysis.FrameIndex\022\021"
       "\n\tobject_id\030\002 \001(\t\022@\n\016human_property\030\003 \003("
       "\0132(.ascend.presenter.video_analysis.MapT"
-      "ype*\337\001\n\tErrorCode\022\016\n\nkErrorNone\020\000\022\032\n\026kEr"
-      "rorAppRegisterExist\020\001\022\036\n\032kErrorAppRegist"
-      "erNoStorage\020\002\022\031\n\025kErrorAppRegisterType\020\003"
-      "\022\032\n\026kErrorAppRegisterLimit\020\004\022\023\n\017kErrorAp"
-      "pDelete\020\005\022\021\n\rkErrorAppLost\020\006\022\026\n\022kErrorSt"
-      "orageLimit\020\007\022\017\n\013kErrorOther\020\010*0\n\020CarInfe"
-      "renceType\022\r\n\tkCarColor\020\000\022\r\n\tkCarBrand\020\001b"
-      "\006proto3"
+      "ype\"\317\001\n\023FaceInferenceResult\022@\n\013frame_ind"
+      "ex\030\001 \001(\0132+.ascend.presenter.video_analys"
+      "is.FrameIndex\022\021\n\tobject_id\030\002 \001(\t\022@\n\004type"
+      "\030\003 \001(\01622.ascend.presenter.video_analysis"
+      ".FaceInferenceType\022\022\n\nconfidence\030\004 \001(\002\022\r"
+      "\n\005value\030\005 \001(\t*\337\001\n\tErrorCode\022\016\n\nkErrorNon"
+      "e\020\000\022\032\n\026kErrorAppRegisterExist\020\001\022\036\n\032kErro"
+      "rAppRegisterNoStorage\020\002\022\031\n\025kErrorAppRegi"
+      "sterType\020\003\022\032\n\026kErrorAppRegisterLimit\020\004\022\023"
+      "\n\017kErrorAppDelete\020\005\022\021\n\rkErrorAppLost\020\006\022\026"
+      "\n\022kErrorStorageLimit\020\007\022\017\n\013kErrorOther\020\010*"
+      "\?\n\020CarInferenceType\022\r\n\tkCarColor\020\000\022\r\n\tkC"
+      "arBrand\020\001\022\r\n\tkCarPlate\020\002*2\n\021FaceInferenc"
+      "eType\022\014\n\010kFaceAge\020\000\022\017\n\013kFaceGender\020\001b\006pr"
+      "oto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1207);
+      descriptor, 1484);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "video_analysis_message.proto", &protobuf_RegisterTypes);
 }
@@ -430,6 +476,21 @@ const ::google::protobuf::EnumDescriptor* CarInferenceType_descriptor() {
   return protobuf_video_5fanalysis_5fmessage_2eproto::file_level_enum_descriptors[1];
 }
 bool CarInferenceType_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* FaceInferenceType_descriptor() {
+  protobuf_video_5fanalysis_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_video_5fanalysis_5fmessage_2eproto::file_level_enum_descriptors[2];
+}
+bool FaceInferenceType_IsValid(int value) {
   switch (value) {
     case 0:
     case 1:
@@ -3230,6 +3291,449 @@ void HumanInferenceResult::InternalSwap(HumanInferenceResult* other) {
 }
 
 ::google::protobuf::Metadata HumanInferenceResult::GetMetadata() const {
+  protobuf_video_5fanalysis_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_video_5fanalysis_5fmessage_2eproto::file_level_metadata[kIndexInFileMessages];
+}
+
+
+// ===================================================================
+
+void FaceInferenceResult::InitAsDefaultInstance() {
+  ::ascend::presenter::video_analysis::_FaceInferenceResult_default_instance_._instance.get_mutable()->frame_index_ = const_cast< ::ascend::presenter::video_analysis::FrameIndex*>(
+      ::ascend::presenter::video_analysis::FrameIndex::internal_default_instance());
+}
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int FaceInferenceResult::kFrameIndexFieldNumber;
+const int FaceInferenceResult::kObjectIdFieldNumber;
+const int FaceInferenceResult::kTypeFieldNumber;
+const int FaceInferenceResult::kConfidenceFieldNumber;
+const int FaceInferenceResult::kValueFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+FaceInferenceResult::FaceInferenceResult()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    ::protobuf_video_5fanalysis_5fmessage_2eproto::InitDefaultsFaceInferenceResult();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:ascend.presenter.video_analysis.FaceInferenceResult)
+}
+FaceInferenceResult::FaceInferenceResult(const FaceInferenceResult& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  object_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.object_id().size() > 0) {
+    object_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.object_id_);
+  }
+  value_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.value().size() > 0) {
+    value_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.value_);
+  }
+  if (from.has_frame_index()) {
+    frame_index_ = new ::ascend::presenter::video_analysis::FrameIndex(*from.frame_index_);
+  } else {
+    frame_index_ = NULL;
+  }
+  ::memcpy(&type_, &from.type_,
+    static_cast<size_t>(reinterpret_cast<char*>(&confidence_) -
+    reinterpret_cast<char*>(&type_)) + sizeof(confidence_));
+  // @@protoc_insertion_point(copy_constructor:ascend.presenter.video_analysis.FaceInferenceResult)
+}
+
+void FaceInferenceResult::SharedCtor() {
+  object_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  value_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(&frame_index_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&confidence_) -
+      reinterpret_cast<char*>(&frame_index_)) + sizeof(confidence_));
+  _cached_size_ = 0;
+}
+
+FaceInferenceResult::~FaceInferenceResult() {
+  // @@protoc_insertion_point(destructor:ascend.presenter.video_analysis.FaceInferenceResult)
+  SharedDtor();
+}
+
+void FaceInferenceResult::SharedDtor() {
+  object_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  value_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (this != internal_default_instance()) delete frame_index_;
+}
+
+void FaceInferenceResult::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* FaceInferenceResult::descriptor() {
+  ::protobuf_video_5fanalysis_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_video_5fanalysis_5fmessage_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
+}
+
+const FaceInferenceResult& FaceInferenceResult::default_instance() {
+  ::protobuf_video_5fanalysis_5fmessage_2eproto::InitDefaultsFaceInferenceResult();
+  return *internal_default_instance();
+}
+
+FaceInferenceResult* FaceInferenceResult::New(::google::protobuf::Arena* arena) const {
+  FaceInferenceResult* n = new FaceInferenceResult;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void FaceInferenceResult::Clear() {
+// @@protoc_insertion_point(message_clear_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  object_id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  value_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == NULL && frame_index_ != NULL) {
+    delete frame_index_;
+  }
+  frame_index_ = NULL;
+  ::memset(&type_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&confidence_) -
+      reinterpret_cast<char*>(&type_)) + sizeof(confidence_));
+  _internal_metadata_.Clear();
+}
+
+bool FaceInferenceResult::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // .ascend.presenter.video_analysis.FrameIndex frame_index = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_frame_index()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string object_id = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_object_id()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->object_id().data(), static_cast<int>(this->object_id().length()),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "ascend.presenter.video_analysis.FaceInferenceResult.object_id"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .ascend.presenter.video_analysis.FaceInferenceType type = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          set_type(static_cast< ::ascend::presenter::video_analysis::FaceInferenceType >(value));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // float confidence = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(37u /* 37 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &confidence_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string value = 5;
+      case 5: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_value()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->value().data(), static_cast<int>(this->value().length()),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "ascend.presenter.video_analysis.FaceInferenceResult.value"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:ascend.presenter.video_analysis.FaceInferenceResult)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:ascend.presenter.video_analysis.FaceInferenceResult)
+  return false;
+#undef DO_
+}
+
+void FaceInferenceResult::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .ascend.presenter.video_analysis.FrameIndex frame_index = 1;
+  if (this->has_frame_index()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, *this->frame_index_, output);
+  }
+
+  // string object_id = 2;
+  if (this->object_id().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->object_id().data(), static_cast<int>(this->object_id().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "ascend.presenter.video_analysis.FaceInferenceResult.object_id");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->object_id(), output);
+  }
+
+  // .ascend.presenter.video_analysis.FaceInferenceType type = 3;
+  if (this->type() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      3, this->type(), output);
+  }
+
+  // float confidence = 4;
+  if (this->confidence() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->confidence(), output);
+  }
+
+  // string value = 5;
+  if (this->value().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->value().data(), static_cast<int>(this->value().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "ascend.presenter.video_analysis.FaceInferenceResult.value");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      5, this->value(), output);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  }
+  // @@protoc_insertion_point(serialize_end:ascend.presenter.video_analysis.FaceInferenceResult)
+}
+
+::google::protobuf::uint8* FaceInferenceResult::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic; // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .ascend.presenter.video_analysis.FrameIndex frame_index = 1;
+  if (this->has_frame_index()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        1, *this->frame_index_, deterministic, target);
+  }
+
+  // string object_id = 2;
+  if (this->object_id().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->object_id().data(), static_cast<int>(this->object_id().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "ascend.presenter.video_analysis.FaceInferenceResult.object_id");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->object_id(), target);
+  }
+
+  // .ascend.presenter.video_analysis.FaceInferenceType type = 3;
+  if (this->type() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      3, this->type(), target);
+  }
+
+  // float confidence = 4;
+  if (this->confidence() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->confidence(), target);
+  }
+
+  // string value = 5;
+  if (this->value().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->value().data(), static_cast<int>(this->value().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "ascend.presenter.video_analysis.FaceInferenceResult.value");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        5, this->value(), target);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ascend.presenter.video_analysis.FaceInferenceResult)
+  return target;
+}
+
+size_t FaceInferenceResult::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  size_t total_size = 0;
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+  }
+  // string object_id = 2;
+  if (this->object_id().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->object_id());
+  }
+
+  // string value = 5;
+  if (this->value().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->value());
+  }
+
+  // .ascend.presenter.video_analysis.FrameIndex frame_index = 1;
+  if (this->has_frame_index()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSize(
+        *this->frame_index_);
+  }
+
+  // .ascend.presenter.video_analysis.FaceInferenceType type = 3;
+  if (this->type() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+  }
+
+  // float confidence = 4;
+  if (this->confidence() != 0) {
+    total_size += 1 + 4;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void FaceInferenceResult::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  GOOGLE_DCHECK_NE(&from, this);
+  const FaceInferenceResult* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const FaceInferenceResult>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:ascend.presenter.video_analysis.FaceInferenceResult)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:ascend.presenter.video_analysis.FaceInferenceResult)
+    MergeFrom(*source);
+  }
+}
+
+void FaceInferenceResult::MergeFrom(const FaceInferenceResult& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.object_id().size() > 0) {
+
+    object_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.object_id_);
+  }
+  if (from.value().size() > 0) {
+
+    value_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.value_);
+  }
+  if (from.has_frame_index()) {
+    mutable_frame_index()->::ascend::presenter::video_analysis::FrameIndex::MergeFrom(from.frame_index());
+  }
+  if (from.type() != 0) {
+    set_type(from.type());
+  }
+  if (from.confidence() != 0) {
+    set_confidence(from.confidence());
+  }
+}
+
+void FaceInferenceResult::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void FaceInferenceResult::CopyFrom(const FaceInferenceResult& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:ascend.presenter.video_analysis.FaceInferenceResult)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool FaceInferenceResult::IsInitialized() const {
+  return true;
+}
+
+void FaceInferenceResult::Swap(FaceInferenceResult* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void FaceInferenceResult::InternalSwap(FaceInferenceResult* other) {
+  using std::swap;
+  object_id_.Swap(&other->object_id_);
+  value_.Swap(&other->value_);
+  swap(frame_index_, other->frame_index_);
+  swap(type_, other->type_);
+  swap(confidence_, other->confidence_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata FaceInferenceResult::GetMetadata() const {
   protobuf_video_5fanalysis_5fmessage_2eproto::protobuf_AssignDescriptorsOnce();
   return ::protobuf_video_5fanalysis_5fmessage_2eproto::file_level_metadata[kIndexInFileMessages];
 }

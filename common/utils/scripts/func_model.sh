@@ -52,20 +52,20 @@ function download()
 {
     model_name=$1
     model_remote_path=$2
-    rm -rf ${script_path}/${model_name}_${download_branch}.om.ing
+    rm -rf ${script_path}/${model_name}_${tools_version}.om.ing
 
-    if [ ! -f "${script_path}/${model_name}_${download_branch}.om" ];then
+    if [ ! -f "${script_path}/${model_name}_${tools_version}.om" ];then
         download_url="https://media.githubusercontent.com/media/Ascend/models/${download_branch}/${model_remote_path}/${model_name}/${model_name}.om"
-        wget -O ${script_path}/${model_name}_${download_branch}.om.ing ${download_url} --no-check-certificate
+        wget -O ${script_path}/${model_name}_${tools_version}.om.ing ${download_url} --no-check-certificate
         if [ $? -ne 0 ];then
             echo "ERROR: download failed, please check ${download_url} connetction."
-            rm -rf ${script_path}/${model_name}_${download_branch}.om.ing
-            rm -rf ${script_path}/${model_name}_${download_branch}.om
+            rm -rf ${script_path}/${model_name}_${tools_version}.om.ing
+            rm -rf ${script_path}/${model_name}_${tools_version}.om
             return 1
         fi
-        mv ${script_path}/${model_name}_${download_branch}.om.ing ${script_path}/${model_name}_${download_branch}.om
+        mv ${script_path}/${model_name}_${tools_version}.om.ing ${script_path}/${model_name}_${tools_version}.om
     else
-        echo "${script_path}/${model_name}_${download_branch}.om exists, skip downloading."
+        echo "${script_path}/${model_name}_${tools_version}.om exists, skip downloading."
     fi
     
     return 0
@@ -93,21 +93,19 @@ function prepare()
             cp ${script_path}/${model_name}.om ${script_path}/MyModel/${model_name}/device/
         fi
     else
-        if [ ! -f "${script_path}/${model_name}_${download_branch}.om" ];then
-            #get download_branch
-            parse_download_branch
-            if [ $? -ne 0 ];then
-                return 1
-            fi
-            
-            download ${model_name} ${model_remote_path}
-            if [ $? -ne 0 ];then
-                return 1
-            fi
+        #get download_branch
+        parse_download_branch
+        if [ $? -ne 0 ];then
+            return 1
         fi
-        
+
+        download ${model_name} ${model_remote_path}
+        if [ $? -ne 0 ];then
+            return 1
+        fi
+
         mkdir -p ${script_path}/MyModel/${model_name}/device
-        cp ${script_path}/${model_name}_${download_branch}.om ${script_path}/MyModel/${model_name}/device/${model_name}.om
+        cp ${script_path}/${model_name}_${tools_version}.om ${script_path}/MyModel/${model_name}/device/${model_name}.om
     fi
 
     echo "${model_name} finish to prepare successfully."

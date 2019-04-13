@@ -124,7 +124,10 @@ class VideoWebApp:
                             +base64.b64encode(bus["image"]).decode("utf-8")
             for person in data["person_list"]:
                 person["image"] = BASE_64_HEADER\
-                                +base64.b64encode(person["image"]).decode("utf-8")
+                            +base64.b64encode(person["image"]).decode("utf-8")
+            for face in data["face_list"]:
+                face["image"] = BASE_64_HEADER\
+                            +base64.b64encode(face["image"]).decode("utf-8")
             data["car_list"].extend(data["bus_list"])
             ret["data"] = data
         return ret

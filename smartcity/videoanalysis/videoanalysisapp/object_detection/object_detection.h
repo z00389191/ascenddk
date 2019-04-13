@@ -41,13 +41,71 @@
 #include "hiaiengine/data_type.h"
 #include "hiaiengine/data_type_reg.h"
 #include "hiaiengine/engine.h"
+#include "dvpp/idvppapi.h"
+#include "dvpp/Vpc.h"
+#include "thread_safe_queue.h"
 #include "video_analysis_params.h"
+#include "hiai_data_sp_son.h"
 
 #define INPUT_SIZE 2
 #define OUTPUT_SIZE 1
 
+// yuv420sp image frame info
+struct YuvImageFrameInfo {
+  std::string channel_name;
+  std::string channel_id;
+};
+
+/**
+ * @brief check current is key frame, key frame: 1,6,11,16...
+ * @param [in] frame_id: frame id
+ * @return true: is key frame; false: is not key frame
+ */
+bool IsKeyFrame(uint32_t frame_id);
+
+/**
+ * @brief get frame id by channel id
+ * @param [in] channel_id: channel id
+ * @return frame id
+ */
+uint32_t GetFrameId(const std::string &channel_id);
+
+/**
+ * @brief send key frame data to next engine
+ * @param [in] image_data_buffer: yuv image data buffer
+ * @param [in] image_data_size: yuv image data size
+ * @param [in] hiai_data: used for transmit channel id ,channel name, frame id
+ * @param [in] frame: image frame data
+ */
+void HandleKeyFrameData(uint8_t* &image_data_buffer, uint32_t image_data_size,
+                        void* &hiai_data, FRAME* &frame);
+
+/**
+ * @brief call vpc to get yuv42sp image
+ * @param [in] frame: image frame data
+ * @param [in] hiai_data: used for transmit channel and frame info
+ */
+void CallVpcGetYuvImage(FRAME* frame, void* hiai_data);
+
+/**
+ * @brief add image data to queue by channel id
+ * @param [in] video_image_para: the image data from video
+ * @param [out] current_queue: the queue used for current channel
+ */
+void AddImage2Queue(const shared_ptr<VideoImageParaT> &video_image_para);
+
 class ObjectDetectionInferenceEngine : public hiai::Engine {
  public:
+  /**
+   * @brief ObjectDetectionInferenceEngine constructor
+   */
+  ObjectDetectionInferenceEngine();
+
+  /**
+   * @brief ObjectDetectionInferenceEngine constructor
+   */
+  ~ObjectDetectionInferenceEngine();
+
   /**
    * @brief Engine init method.
    * @return HIAI_StatusT
@@ -61,7 +119,8 @@ class ObjectDetectionInferenceEngine : public hiai::Engine {
    * @[in]: define a input port, a output port
    * @return HIAI_StatusT
    */
-  HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE);
+HIAI_DEFINE_PROCESS(INPUT_SIZE, OUTPUT_SIZE)
+  ;
 
  private:
   /**
@@ -94,8 +153,41 @@ class ObjectDetectionInferenceEngine : public hiai::Engine {
       std::shared_ptr<DetectionEngineTransT>& detection_trans,
       bool inference_success = true, std::string err_msg = "");
 
+  /**
+   * @brief : convert video frame data to hfbc data and put results to queue
+   * @param [in] video_image: the input video frame data
+   * @return true: success; false: failed
+   */
+  bool ConvertVideoFrameToHfbc(const std::shared_ptr<VideoImageParaT>& video_image);
+
+  /**
+   * @brief get channel id(integer value)
+   * @param [in] channel_id: the input channel id
+   * @return channel id(integer value)
+   */
+  int GetIntChannelId(const std::string channel_id);
+
+  /**
+   * @brief convert hfbc data to yuv image from queue, and detect object
+   */
+  void ObjectDetectInference();
+
+  /**
+   * @brief : handle input data have is_finished flag
+   * @param [in] video_image: the input video frame data
+   * @return HIAI_StatusT
+   */
+  HIAI_StatusT HandleFinishedData(
+      const std::shared_ptr<VideoImageParaT> &video_image);
+
   // shared ptr to load ai model.
   std::shared_ptr<hiai::AIModelManager> ai_model_manager_;
+
+  // dvpp vdec api for channel 1
+  IDVPPAPI* dvpp_api_channel1_;
+
+  // dvpp vdec api for channel 2
+  IDVPPAPI* dvpp_api_channel2_;
 };
 
 #endif /* OBJECT_DETECTION_OBJECT_DETECTION_H_ */

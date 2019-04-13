@@ -4,20 +4,6 @@ ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 
-ifeq ($(mode),)
-mode=AtlasDK
-endif
-
-ifeq ($(mode), AtlasDK)
-CC := aarch64-linux-gnu-g++
-CPP := aarch64-linux-gnu-g++
-else ifeq ($(mode), ASIC)
-CC := g++
-CPP := g++
-else
-$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
-endif
-
 LOCAL_MODULE_NAME := ascend_cvnetworkverify
 CC_FLAGS := -std=c++11
 
@@ -35,34 +21,63 @@ local_inc_dirs := \
 local_shared_libs_dirs := \
 	$(DDK_HOME)/host/lib/ \
 	
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
+CC := aarch64-linux-gnu-g++
+CPP := aarch64-linux-gnu-g++
+
 local_shared_libs := \
-	hiai_server \
-	hiai_common \
-	matrixdaemon \
-	ome \
-	fmk_common \
-	drvdevdrv \
-	drvaicpu \
-	drvhdc \
-	drvhdc_host \
-	drvtcp \
-	mmpa \
-	crypto \
-	c_sec \
-	runtime \
-	devmm \
-	teec \
-	pthread \
-	cce \
-	cce_aicpudev \
-	cce_aicore \
-	aicpu_engine  \
-	protobuf \
-	rt  \
-	profilerclient \
-	slog \
-	dl \
-	media_mini
+        hiai_server \
+        hiai_common \
+        matrixdaemon \
+        ome \
+        fmk_common \
+        drvdevdrv \
+        drvaicpu \
+        drvhdc \
+        drvhdc_host \
+        drvtcp \
+        mmpa \
+        crypto \
+        c_sec \
+        runtime \
+        devmm \
+        teec \
+        pthread \
+        cce \
+        cce_aicpudev \
+        cce_aicore \
+        aicpu_engine  \
+        protobuf \
+        rt  \
+        profilerclient \
+        slog \
+        dl \
+        media_mini
+else ifeq ($(mode), ASIC)
+CC := g++
+CPP := g++
+
+local_shared_libs := \
+        matrix \
+        drvdevdrv \
+        drvdevmm \
+        drvhdc_host \
+        mmpa \
+        crypto \
+        c_sec \
+        pthread \
+        protobuf \
+        profilerclient \
+        slog \
+        dl
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
+
 
 Q := @
 		

@@ -101,18 +101,18 @@ main()
     fi
     
     echo "[Step] Deploy ascendcamera"
-    upload_file "${script_path}/out/ascendcamera" "~/HIAI_PROJECTS/ascend_workspace/ascend_ascendcamera/out"
+    upload_file "${script_path}/out/ascendcamera" "~/HIAI_PROJECTS/ascend_workspace/ascendcamera/out"
     if [[ $? -ne 0 ]];then
         exit 1
     fi
-    iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/ascend_ascendcamera/out/ascendcamera"`
+    iRet=`IDE-daemon-client --host ${remote_host}:${remote_port} --hostcmd "chmod +x ~/HIAI_PROJECTS/ascend_workspace/ascendcamera/out/ascendcamera"`
     if [[ $? -ne 0 ]];then
         echo "ERROR: change excution mode ${remote_host}:./HIAI_PROJECTS/ascend_workspace/${app_name}/out/* failed, please check /var/log/syslog for details."
         return 1
     fi
     
     echo "[Step] Prepare presenter server information..."
-    bash ${common_path}/prepare_presenter_server.sh "face_detection" ${remote_host} ${download_mode}
+    bash ${common_path}/prepare_presenter_server.sh "display" ${remote_host} ${download_mode}
     if [[ $? -ne 0 ]];then
         exit 1
     fi

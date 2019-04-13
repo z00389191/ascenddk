@@ -116,6 +116,36 @@ int DvppUtils::CheckImageNeedAlign(int width, int high) {
     return kImageNeedAlign;
 }
 
+int DvppUtils::CheckBasicVpcImageFormat(VpcInputFormat input_format,
+                                        VpcOutputFormat output_format) {
+    if (input_format < INPUT_YUV400
+            || input_format > INPUT_YUV420_SEMI_PLANNER_VU_10BIT
+            || (output_format != OUTPUT_YUV420SP_UV
+                    && output_format != OUTPUT_YUV420SP_VU)) {
+        return kDvppErrorInvalidParameter;
+    }
+
+    return kDvppOperationOk;
+}
+
+int DvppUtils::CheckBasicVpcOutputParam(int width, int height) {
+    if ((width % 2 != 0) || (height % 2 != 0)) {
+        return kDvppErrorInvalidParameter;
+    }
+    return kDvppOperationOk;
+}
+
+int DvppUtils::CheckBasicVpcCropParam(uint32_t left_offset, uint32_t up_offset,
+                                      uint32_t right_offset,
+                                      uint32_t down_offset) {
+    if ((left_offset % 2 != 0) || (up_offset % 2 != 0)
+            || (right_offset % 2 == 0) || (down_offset % 2 == 0)) {
+        return kDvppErrorInvalidParameter;
+    }
+
+    return kDvppOperationOk;
+}
+
 int DvppUtils::AllocBuffer(const char * src_data, int input_size,
                            bool is_input_align, int format, int width, int high,
                            int &width_stride, int &dest_buffer_size,
@@ -220,10 +250,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv420sp buffer
@@ -242,10 +271,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv422sp buffer
@@ -255,27 +283,26 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             break;
         }
         case kVpcYuv444SemiPlannar: {
-            // y channel width of yuv444sp equals to image width and need 128-byte
-            // alignment
+            // y channel width of yuv444sp equals to image width and need
+            // 128-byte alignment
             int y_align_width = ALIGN_UP(even_width, kVpcWidthAlign);
             width_stride = y_align_width;
 
-            // uv channel width of yuv444sp is 2 times image width and need 128-byte
-            // alignment
+            // uv channel width of yuv444sp is 2 times image width and need
+            // 128-byte alignment
             int uv_align_width = ALIGN_UP(even_width * kYuv444SPWidthMul,
                                           kVpcWidthAlign);
 
-            // memory size of yuv444sp = memory size of y channel + memory size of uv
-            // channel
+            // memory size of yuv444sp = memory size of y channel + memory size
+            // of uv channel
             dest_buffer_size = y_align_width * align_high
                     + uv_align_width * align_high;
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv444sp buffer
@@ -286,7 +313,8 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             break;
         }
         case kVpcYuv422Packed: {
-            //  The memory size of each row in yuv422 packed is 2 times width of image
+            //  The memory size of each row in yuv422 packed is 2 times width of
+            //  image
             int yuv422_packed_width = even_width * kYuv422PackedWidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -298,10 +326,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv422 packed buffer
@@ -312,7 +339,8 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             break;
         }
         case kVpcYuv444Packed: {
-            // The memory size of each row in yuv444 packed is 3 times width of image
+            // The memory size of each row in yuv444 packed is 3 times width of
+            // image
             int yuv444_packed_width = even_width * kYuv444PackedWidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -324,10 +352,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv444 packed buffer
@@ -338,7 +365,8 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             break;
         }
         case kVpcRgb888Packed: {
-            // The memory size of each row in rgb888 packed is 3 times width of image
+            // The memory size of each row in rgb888 packed is 3 times width of
+            // image
             int rgb888_width = even_width * kRgb888WidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -350,10 +378,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc rgb888 packed buffer
@@ -364,8 +391,8 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             break;
         }
         case kVpcXrgb8888Packed: {
-            // The memory size of each row in xrgb8888 packed is 4 times width of
-            // image
+            // The memory size of each row in xrgb8888 packed is 4 times width
+            // of image
             int xrgb8888_width = even_width * kXrgb888WidthMul;
 
             // The memory size of each row need 128-byte alignment
@@ -377,10 +404,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc xrgb8888 packed buffer
@@ -403,10 +429,9 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // input data address 128 byte alignment
             *dest_data = (T *) mmap(
-                    0, dest_buffer_size,
+                    0, ALIGN_UP(dest_buffer_size, MAP_2M),
                     PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-                    0, 0);
+                    MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
             CHECK_MMAP_RESULT(dest_data);
 
             // alloc yuv400sp buffer

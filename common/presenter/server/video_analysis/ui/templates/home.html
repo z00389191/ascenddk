@@ -95,6 +95,29 @@
                 </ul>
                 </div>
         </div>
+		<div id="faceAttrCard" class="card float-right" v-if="facecard" style="width: 20%; margin-right: 20px; margin-top: 10px">
+                <div class="card-header">Details
+                </div>
+                <div class="card-body">
+                    <!--
+                <h5 class="card-title"><span v-text="facecard.id"></span></h5>
+                <h6 class="card-subtitle mb-2 text-muted" v-text="facecard.confidence"></h6>-->
+                <ul class="list-group list-group-flush" style="width: 60%; float: left;">
+                   <li><h5 style="font-weight: 500; padding: .75rem 1.25rem;" v-text="facecard.id"></h5></li>
+                </ul>
+                <ul class="list-group list-group-flush" style="width: 40%; float: left;">
+                    <li><h5 style="font-weight: 500; padding: .75rem 1.25rem;" v-text="facecard.confidence"></h5></li>
+                </ul>
+                <ul class="list-group list-group-flush" style="width: 60%;float: left;">
+                        <li class="list-group-item" v-for="attr in facecard.attrlist"><span v-text="attr"></span></li>
+                </ul>
+                <ul class="list-group list-group-flush" style="width: 40%;float: left;">
+                    <li class="list-group-item" v-for="conf in facecard.confidencelist" style="border-bottom: 1px;
+                    border-bottom-color: rgba(0, 0, 0, 0.125);
+                    border-bottom-style: solid;"><span v-text="conf"></span></li>
+                </ul>
+                </div>
+        </div>
             <div class="box_content"  style="width:55%;"> 
                     
                 <!-- frame detail-->
@@ -129,6 +152,9 @@
                     </li>
                     <li class="nav-item" v-if="personDeskList.length>0">
                         <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false" v-bind:class="{active:!flag.isCarActive}">Person</a>
+                    </li>
+					<li class="nav-item" v-if="faceDeskList.length>0">
+                        <a class="nav-link" id="face-tab" data-toggle="tab" href="#face" role="tab" aria-controls="face" aria-selected="false" v-bind:class="{active:flag.isFaceActive}">Face</a>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent" v-if="flag.showTab">
@@ -214,6 +240,47 @@
                             </a>
                         </div>
                 </div>
+				<div class="tab-pane fade" id="face" role="tabpanel" aria-labelledby="face-tab" v-bind:class="{show:flag.isFaceActive,active:flag.isFaceActive}">
+                    <!--small pic slide -->
+                    <div id="carouselExampleIndicatorsFace" class="carousel slide  py-xl-2" data-ride="carousel" style="margin-top: 30px;">
+                            <div class="carousel-inner" style="width: 95%;
+                            margin: auto;
+                            padding-left: 5px;
+                            padding-right: 5px;">
+                                <div class="carousel-item" v-for="(facedeck,i) in faceDeskList" data-interval="false" v-bind:class="{active: i == 0}">
+                                    <div class="card-deck">
+                                        <div class="card col-sm-4 text-center" v-for="(card,index) in facedeck" v-on:click="this.showAttrs(card,'car')" style="cursor:pointer">
+                                            <div style="height: 160px;background-color:#eaeaea;display: flex; align-items: center;">
+                                                <img class="card-img-top" v-bind:src="card.image" alt="Card image cap" 
+                                                    style="height:initial;width: initial;margin: auto; max-height: 160px;max-width: -webkit-fill-available;">
+                                            </div>
+                                            <div class="card-body" style="height: 5rem;">
+                                                <a href="#top" :id="gernerateCarId(index)" class="card-link" v-text="card.id"></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="carousel-control-prev" href="#carouselExampleIndicatorsFace" v-if="faceDeskList.length>1"  role="button" data-slide="prev" style="    width: 2.5%;
+                            background-color: darkgrey;
+                            height: 92%;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            border-radius: 4px;">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#carouselExampleIndicatorsFace" v-if="faceDeskList.length>1" role="button" data-slide="next" style="    width: 2.5%;
+                            background-color: darkgrey;
+                            height: 92%;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            border-radius: 4px;"> 
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                </div>
         </div>
             </div>
         </div>
@@ -235,15 +302,18 @@
                 data:null,
                 carDeskList:null,
                 personDeskList:null,
+                faceDeskList:null,
                 frameNo:"1",
                 totalFrame:null,
                 totalFrameDisplay:"",
                 card:null,
                 carcard:null,
+                facecard:null,
                 flag:{
                     showTab:false,
                     isCarActive:false,
-                    isPersonActive:false
+                    isPersonActive:false,
+                    isFaceActive:false
                 }
             },
             methods:{
@@ -252,6 +322,9 @@
                 },
                 gerneratePersonId: function (index){
                     return "pAttr_" +index
+                },
+				gernerateFaceId: function (index){
+                    return "fAttr_" +index
                 }
             }
             });
@@ -389,6 +462,7 @@
             $('#cover').show();
             videoapp.$data.flag.showTab=false;
             videoapp.$data.flag.isCarActive=false;
+            videoapp.$data.flag.isFaceActive=false;
             videoapp.$data.frameNo=parseInt(frame);
             var url = "/showimg?"+"time="+(new Date().getTime());
             $.ajax({
@@ -409,6 +483,7 @@
                             var carDeskList = [];
                             resp.data.car_list.sort(sortId);
                             resp.data.person_list.sort(sortId);
+							resp.data.face_list.sort(sortId);
                             for(var i =0;i<resp.data.car_list.length;i=i+4){
                                 var carList = resp.data.car_list.slice(i,i+4);
                                 carDeskList.push(carList);
@@ -418,11 +493,18 @@
                                 var personList = resp.data.person_list.slice(i,i+4);
                                 personDeskList.push(personList);
                             }
+							
+							var faceDeskList = [];
+                            for(var i =0;i<resp.data.face_list.length;i=i+4){
+                                var faceList = resp.data.face_list.slice(i,i+4);
+                                faceDeskList.push(faceList);
+                            }
                             
                             videoapp.$data.data=resp.data;
                             videoapp.$data.carDeskList = carDeskList;
                             videoapp.$data.personDeskList=personDeskList;
-                            if(carDeskList.length>0 || personDeskList.length>0){
+							videoapp.$data.faceDeskList=faceDeskList;
+                            if(carDeskList.length>0 || personDeskList.length>0 || faceDeskList.length>0){
                                 videoapp.$data.flag.showTab=true;
                                 if(carDeskList.length>0){
                                     videoapp.$data.flag.isCarActive=true;
@@ -430,7 +512,11 @@
                             }
                             //default card attributes is first car or first person
                             var flag = "";
-                            var card = videoapp.$data.personDeskList[0]?videoapp.$data.personDeskList[0][0]:null;
+							var card = videoapp.$data.faceDeskList[0]?videoapp.$data.faceDeskList[0][0]:null;
+                            if(card){
+                                flag = "face";
+                            }
+                            card = videoapp.$data.personDeskList[0]?videoapp.$data.personDeskList[0][0]:card;
                             if(card){
                                 flag = "person";
                             }
@@ -438,6 +524,7 @@
                             if(videoapp.$data.carDeskList[0]){
                                 flag = "car";
                             }
+							
                             showAttrs(card,flag);
                         }
                         else
@@ -500,6 +587,7 @@
         function showAttrs(card,flag){
             videoapp.$data.card=null;
             videoapp.$data.carcard=null;
+            videoapp.$data.facecard=null;
             if(!flag){
                 return false;
             }
@@ -509,6 +597,9 @@
                 attrObj = card.property;
             }
             else if (flag == "car"){
+                attrObj = card;
+            }
+			else if (flag == "face"){
                 attrObj = card;
             }
             //get attrlist from json object
@@ -530,6 +621,8 @@
             var carConfidenceList = [];
             var personAttrList = [];
             var personConfidenceList = [];
+			var faceAttrList = [];
+            var faceConfidenceList = [];
             var confidence = new Number(card.confidence);
             if(flag == "person"){
                 $.each(attrlist,function(i,attr){
@@ -560,6 +653,24 @@
                     confidence:confidence.toFixed(3),//sub title
                     attrlist:carAttrList,
                     confidencelist:carConfidenceList
+                };
+            }
+			else if (flag == "face"){
+                $.each(attrlist,function(i,attr){
+                    if((i+1)%2 == 0){
+                        var tmplist = attr.split(":");
+                        attr = tmplist[1];
+                        faceConfidenceList.push(attr);
+                    }
+                    else{
+                        faceAttrList.push(attr);
+                    }
+                });
+                videoapp.$data.facecard={
+                    id:card.id,//title
+                    confidence:confidence.toFixed(3),//sub title
+                    attrlist:faceAttrList,
+                    confidencelist:faceConfidenceList
                 };
             }
             location.href="#top";

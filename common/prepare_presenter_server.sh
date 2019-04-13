@@ -141,6 +141,12 @@ function parse_presenter_view_ip()
 
 function main()
 {
+    stop_pid=`ps -ef | grep "presenter_server\.py" | grep "${app_name}" | awk -F ' ' '{print $2}'`
+    if [[ ${stop_pid}"X" != "X" ]];then
+        echo -e "\033[33mNow do presenter server configuration, kill existing presenter process: kill -9 ${stop_pid}.\033[0m"
+        kill -9 ${stop_pid}
+    fi
+
     if [[ ${download_mode} != "local" ]];then
         echo "Install python3 libs: pip3 install -r ${script_path}/presenter/server/requirements..."
         pip3 install -r ${script_path}/presenter/server/requirements
@@ -148,11 +154,6 @@ function main()
             echo "ERROR: install python3 libs failed, please check your env."
             return 1
         fi
-    fi
-    stop_pid=`ps -ef | grep "presenter_server\.py" | grep "${app_name}" | awk -F ' ' '{print $2}'`
-    if [[ ${stop_pid}"X" != "X" ]];then
-        echo "Kill existing presenter process: kill -9 ${stop_pid}"
-        kill -9 ${stop_pid}
     fi
     
     parse_presenter_altasdk_ip
