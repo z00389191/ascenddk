@@ -42,7 +42,6 @@
 #include <vector>
 
 #include "hiaiengine/log.h"
-#include "hiaiengine/ai_memory.h"
 #include "opencv2/opencv.hpp"
 #include "tool_api.h"
 
@@ -172,21 +171,18 @@ bool GeneralImage::ArrangeImageInfo(shared_ptr<EngineTrans> &image_handle,
 
   // set image data
   uint32_t size = mat.total() * mat.channels();
-  uint8_t *image_buf_ptr = nullptr;
-  HIAI_StatusT ret = hiai::HIAIMemory::HIAI_DMalloc(size,
-                                                    (void*&) image_buf_ptr);
-  if (ret != HIAI_OK || image_buf_ptr == nullptr) {
-    HIAI_ENGINE_LOG("call HIAI_DMalloc error=%d!", ret);
-    ERROR_LOG("Failed to deal file=%s. Reason: call HIAI_DMalloc failed.",
+  u_int8_t *image_buf_ptr = new (nothrow) u_int8_t[size];
+  if (image_buf_ptr == nullptr) {
+    HIAI_ENGINE_LOG("new image buffer failed, size=%d!", size);
+    ERROR_LOG("Failed to deal file=%s. Reason: new image buffer failed.",
               image_path.c_str());
     return false;
   }
 
-  error_t mem_ret = memcpy_s(image_buf_ptr, size, mat.ptr<uint8_t>(),
+  error_t mem_ret = memcpy_s(image_buf_ptr, size, mat.ptr<u_int8_t>(),
                              mat.total() * mat.channels());
   if (mem_ret != EOK) {
-    ret = hiai::HIAIMemory::HIAI_DFree(image_buf_ptr);
-    HIAI_ENGINE_LOG("call HIAI_DFree ret=%d!", ret);
+    delete[] image_buf_ptr;
     ERROR_LOG("Failed to deal file=%s. Reason: memcpy_s failed.",
               image_path.c_str());
     image_buf_ptr = nullptr;
@@ -195,7 +191,7 @@ bool GeneralImage::ArrangeImageInfo(shared_ptr<EngineTrans> &image_handle,
 
   image_handle->image_info.size = size;
   image_handle->image_info.data.reset(image_buf_ptr,
-                                      hiai::HIAIMemory::HIAI_DFree);
+                                      default_delete<u_int8_t[]>());
   return true;
 }
 
