@@ -86,9 +86,6 @@ if (buffer == MAP_FAILED) { \
 #define ASC_LOG_ERROR(fmt, ...) \
 dlog_error(ASCENDDK, "[%s:%d] " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
-#define ASC_LOG_INFO(fmt, ...) \
-dlog_info(ASCENDDK, "[%s:%d] " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
-
 namespace ascend {
 namespace utils {
 
@@ -324,8 +321,9 @@ public:
      * @param [in] is_input_align: true: input image aligned;
      *                             false: input image not aligned
      * @param [in] format: input image format
-     * @param [in] width: image width
-     * @param [in] align_width: image width after align
+     * @param [in] src_width: source image occupied memory size
+     * @param [in] dest_width: dest image occupied memory size
+     * @param [in] dest_align_width: dest image memory width after align
      * @param [in] high: image high
      * @param [in] align_high: image high after align
      * @param [out] dest_buffer_size: image data size after align
@@ -334,8 +332,9 @@ public:
      */
     template<typename T>
     int AllocYuvOrRgbPackedBuffer(const T * src_data, int input_size,
-                                  bool is_input_align, int width,
-                                  int align_width, int high, int align_high,
+                                  bool is_input_align, int src_width,
+                                  int dest_width, int dest_align_width,
+                                  int high, int align_high,
                                   int dest_buffer_size, T * dest_data);
 
 };
