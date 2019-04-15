@@ -83,7 +83,7 @@ function build_opencv()
     install_prefix=${script_path}/opencv/platforms/linux/build64/
     mkdir -p ${install_prefix}
 
-    cp -rdp ${script_path}/opencv/include/opencv2 ${HOME}/ascend_ddk/include/third_party/opencv
+    cp -rdp ${script_path}/opencv/include/* ${HOME}/ascend_ddk/include/third_party/opencv
     cp -rdp ${install_prefix}/lib/* ${HOME}/ascend_ddk/host/lib
 
     cd ${install_prefix}/lib && tar -cvf ${script_path}/opencv_lib.tar ./* >> ${script_path}/opencv/platforms/linux/build64/build.log
