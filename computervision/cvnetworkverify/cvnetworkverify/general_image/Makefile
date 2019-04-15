@@ -15,8 +15,6 @@ DEPS_DIR  = $(BUILD_DIR)/deps
 
 # include
 
-
-CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
 ifeq ($(mode),)
 mode=AtlasDK
 endif
@@ -37,7 +35,7 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
-	
+
 else ifeq ($(mode), ASIC)
 CC := g++
 LNK_FLAGS := \
@@ -53,9 +51,13 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
+
 else
 $(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
 endif
+
+
+CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
 
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 CUSTOM_DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
