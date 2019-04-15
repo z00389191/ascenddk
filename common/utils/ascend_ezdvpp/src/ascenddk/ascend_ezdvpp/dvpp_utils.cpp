@@ -313,6 +313,8 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
             break;
         }
         case kVpcYuv422Packed: {
+            int src_width = width * kYuv422PackedWidthMul;
+
             //  The memory size of each row in yuv422 packed is 2 times width of
             //  image
             int yuv422_packed_width = even_width * kYuv422PackedWidthMul;
@@ -333,12 +335,15 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // alloc yuv422 packed buffer
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
-                                            is_input_align, yuv422_packed_width,
-                                            align_width, high, align_high,
-                                            dest_buffer_size, *dest_data);
+                                            is_input_align, src_width,
+                                            yuv422_packed_width, align_width,
+                                            high, align_high, dest_buffer_size,
+                                            *dest_data);
             break;
         }
         case kVpcYuv444Packed: {
+            int src_width = width * kYuv444PackedWidthMul;
+
             // The memory size of each row in yuv444 packed is 3 times width of
             // image
             int yuv444_packed_width = even_width * kYuv444PackedWidthMul;
@@ -359,12 +364,15 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // alloc yuv444 packed buffer
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
-                                            is_input_align, yuv444_packed_width,
-                                            align_width, high, align_high,
-                                            dest_buffer_size, *dest_data);
+                                            is_input_align, src_width,
+                                            yuv444_packed_width, align_width,
+                                            high, align_high, dest_buffer_size,
+                                            *dest_data);
             break;
         }
         case kVpcRgb888Packed: {
+            int src_width = width * kRgb888WidthMul;
+
             // The memory size of each row in rgb888 packed is 3 times width of
             // image
             int rgb888_width = even_width * kRgb888WidthMul;
@@ -385,12 +393,15 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // alloc rgb888 packed buffer
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
-                                            is_input_align, rgb888_width,
-                                            align_width, high, align_high,
-                                            dest_buffer_size, *dest_data);
+                                            is_input_align, src_width,
+                                            rgb888_width, align_width, high,
+                                            align_high, dest_buffer_size,
+                                            *dest_data);
             break;
         }
         case kVpcXrgb8888Packed: {
+            int src_width = width * kXrgb888WidthMul;
+
             // The memory size of each row in xrgb8888 packed is 4 times width
             // of image
             int xrgb8888_width = even_width * kXrgb888WidthMul;
@@ -411,9 +422,10 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
 
             // alloc xrgb8888 packed buffer
             ret = AllocYuvOrRgbPackedBuffer(src_data, input_size,
-                                            is_input_align, xrgb8888_width,
-                                            align_width, high, align_high,
-                                            dest_buffer_size, *dest_data);
+                                            is_input_align, src_width,
+                                            xrgb8888_width, align_width, high,
+                                            align_high, dest_buffer_size,
+                                            *dest_data);
             break;
         }
         case kVpcYuv400SemiPlannar: {
@@ -442,7 +454,8 @@ int DvppUtils::AllocInputBuffer(const T * src_data, int input_size,
         }
         default: {
             ASC_LOG_ERROR(
-                    "The current image format is not supported, " "so space cannot be allocated!");
+                    "The current image format is not supported, "
+                    "so space cannot be allocated!");
             ret = kDvppErrorInvalidParameter;
             break;
         }
@@ -594,19 +607,19 @@ int DvppUtils::AllocYuv444SPBuffer(const T * src_data, int input_size,
 
 template<typename T>
 int DvppUtils::AllocYuvOrRgbPackedBuffer(const T * src_data, int input_size,
-                                         bool is_input_align, int width,
-                                         int align_width, int high,
-                                         int align_high, int dest_buffer_size,
-                                         T * dest_data) {
+                                         bool is_input_align, int src_width,
+                                         int dest_width, int dest_align_width,
+                                         int high, int align_high,
+                                         int dest_buffer_size, T * dest_data) {
     int ret = EOK;
 
     // Dvpp requires the width and high of image must be even, so we need
     // convert the width and high of an odd number into even numbers
-    int even_width = (width >> 1) << 1;
     int even_high = (high >> 1) << 1;
 
     // If the input image is aligned , directly copy all memory.
-    if ((width == align_width && high == align_high) || is_input_align) {
+    if ((dest_width == dest_align_width && high == align_high)
+            || is_input_align) {
         ret = memcpy_s(dest_data, dest_buffer_size, src_data, input_size);
         CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
     } else {      // If image is not aligned, memory copy from line to line.
@@ -614,11 +627,11 @@ int DvppUtils::AllocYuvOrRgbPackedBuffer(const T * src_data, int input_size,
 
         // y channel and uv channel data copy
         for (int i = 0; i < even_high; ++i) {
-            ret = memcpy_s(dest_data + ((ptrdiff_t) i * align_width),
-                           remain_buffer_size, src_data, even_width);
+            ret = memcpy_s(dest_data + ((ptrdiff_t) i * dest_align_width),
+                           remain_buffer_size, src_data, dest_width);
             CHECK_CROP_RESIZE_MEMCPY_RESULT(ret, dest_buffer_size, dest_data);
-            remain_buffer_size -= align_width;
-            src_data += width;
+            remain_buffer_size -= dest_align_width;
+            src_data += src_width;
         }
     }
     return kDvppOperationOk;
