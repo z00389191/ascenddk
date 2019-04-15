@@ -30,29 +30,17 @@ download_mode=$3
 presenter_atlasdk_ip=""
 presenter_view_ip=""
 
-
 function parse_presenter_altasdk_ip()
 {
-    OLD_IFS_PRESENTER="${IFS}"
-    IFS=$'\n'
-    
     valid_ips=""
-    for ip_info in `/sbin/ifconfig | grep "inet addr"`
+    for ip_info in `/sbin/ip addr | grep "inet " | awk -F ' ' '{print $2}'`
     do
-        IFS=${OLD_IFS_PRESENTER}
-        for each_ip in ${ip_info}
-        do
-            key=`echo ${each_ip} | awk -F ':' '{print $1}'`
-            value=`echo ${each_ip} | awk -F ':' '{print $2}'`
-            if [[ ${key} == "addr" ]];then
-                ip=${value}
-                valid_ips="${valid_ips}\t${value}\n"
-            elif [[ ${key} == "Mask" ]];then
-                mask=${value}
-            fi
-        done
+        ip=`echo ${ip_info} | awk -F '/' '{print $1}'`
+        cidr=`echo ${ip_info} | awk -F '/' '{print $2}'`
+
+        valid_ips="${valid_ips}\t${ip}\n"
+        mask=`cidr2mask ${cidr}`
         if [[ ${ip}"X" == "X" ]];then
-            IFS=$'\n'
             continue
         fi
         check_ips_in_same_segment ${ip} ${mask} ${remote_host}
@@ -61,9 +49,7 @@ function parse_presenter_altasdk_ip()
             echo "Find ${presenter_atlasdk_ip} which is in the same segment with ${remote_host}."
             break
         fi
-        IFS=$'\n'
     done
-    IFS="${OLD_IFS_PRESENTER}"
 
     
     if [[ ${presenter_atlasdk_ip}"X" != "X" ]];then
@@ -93,28 +79,16 @@ function parse_presenter_altasdk_ip()
 
 function parse_presenter_view_ip()
 {
-    OLD_IFS_PRESENTER="${IFS}"
-    IFS=$'\n'
-    
     valid_view_ips=""
-    for ip_info in `/sbin/ifconfig | grep "inet addr"`
+    for ip_info in `/sbin/ip addr | grep "inet " | awk -F ' ' '{print $2}'`
     do
-        IFS=${OLD_IFS_PRESENTER}
-        for each_ip in ${ip_info}
-        do
-            key=`echo ${each_ip} | awk -F ':' '{print $1}'`
-            value=`echo ${each_ip} | awk -F ':' '{print $2}'`
-            if [[ ${key} == "addr" ]];then
-                if [[ ${value} != ${presenter_atlasdk_ip} ]];then
-                    valid_view_ips="${valid_view_ips}\t${value}\n"
-                    break
-                fi
-            fi
-        done
-        IFS=$'\n'
+        ip=`echo ${ip_info} | awk -F '/' '{print $1}'`
+
+        if [[ ${ip} != ${presenter_atlasdk_ip} ]];then
+            valid_view_ips="${valid_view_ips}\t${ip}\n"
+        fi
     done
-    IFS=${OLD_IFS_PRESENTER}
-    
+
     while [[ ${presenter_view_ip}"X" == "X" ]]
     do
         echo -en "Current environment valid ip list:\n${valid_view_ips}Please choose one to show the presenter in browser(default: 127.0.0.1):"
