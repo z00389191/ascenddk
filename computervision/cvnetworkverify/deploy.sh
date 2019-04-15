@@ -65,6 +65,14 @@ function check_app_type(){
 # ******************************************************************************
 function deploy_cvverify()
 {
+
+    #deploy thirdparty app
+    atlas_target=`grep "TARGET" ${DDK_HOME}/ddk_info | awk -F '"' '{print $4}'`
+    if [[ $? -ne 0 ]];then
+        echo "ERROR: can not get TARGET from ${DDK_HOME}/ddk_info, please check your env"
+        return 1
+    fi
+    
     #set remote_port
     parse_remote_port
 
@@ -75,6 +83,17 @@ function deploy_cvverify()
         return 1
     fi
 
+    
+
+    #build third_party
+    if [[ ${atlas_target} == "ASIC" ]];then
+        echo "[Step] Build third party libs..."
+        bash ${script_path}/build_opencv.sh
+        if [[ $? -ne 0 ]];then
+            return 1
+        fi
+    fi
+    
     #build app
     echo "[Step] Build app libs..."
     bash ${script_path}/build.sh $app_type
@@ -89,6 +108,10 @@ function deploy_cvverify()
         return 1
     fi
 
+    if [[ ${atlas_target} == "ASIC" ]];then
+        echo "[Step] Deploy third party libs..."
+        upload_tar_file "${script_path}/opencv_lib.tar" "~/HIAI_PROJECTS/ascend_lib"
+    fi
     #deploy app
     if [ -d ${script_path}/cvnetworkverify/out ];then
         echo "[Step] Deploy app libs..."
