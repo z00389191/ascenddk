@@ -60,7 +60,8 @@ struct ConsoleParams {
  */
 template<class Archive>
 void serialize(Archive& ar, ConsoleParams& data) {
-  ar(data.model_width, data.model_height, data.output_path, data.output_nums);
+  ar(data.model_width, data.model_height, data.input_path, data.output_path,
+     data.output_nums);
 }
 
 /**
@@ -71,7 +72,7 @@ struct ImageInfo {
   int32_t width = 0; // original width
   int32_t height = 0; // original height
   int32_t size = 0; // data size
-  std::shared_ptr<uint8_t> data;
+  std::shared_ptr<u_int8_t> data;
 };
 
 /**
@@ -79,7 +80,14 @@ struct ImageInfo {
  */
 template<class Archive>
 void serialize(Archive& ar, ImageInfo& data) {
-  ar(data.path, data.width, data.height, data.size, data.data);
+  ar(data.path);
+  ar(data.width);
+  ar(data.height);
+  ar(data.size);
+  if (data.size > 0 && data.data.get() == nullptr) {
+    data.data.reset(new u_int8_t[data.size]);
+  }
+  ar(cereal::binary_data(data.data.get(), data.size * sizeof(u_int8_t)));
 }
 
 /**
@@ -95,7 +103,11 @@ struct Output {
  */
 template<class Archive>
 void serialize(Archive& ar, Output& data) {
-  ar(data.size, data.data);
+  ar(data.size);
+  if (data.size > 0 && data.data.get() == nullptr) {
+    data.data.reset(new u_int8_t[data.size]);
+  }
+  ar(cereal::binary_data(data.data.get(), data.size * sizeof(u_int8_t)));
 }
 
 /**
