@@ -53,26 +53,7 @@
 using namespace std;
 
 namespace {
-// The width of image in vpc interface need 128-byte alignment
-const int kVpcWidthAlign = 128;
-
-// The height of image in vpc interface need 16-byte alignment
-const int kVpcHeightAlign = 16;
-
-// standard: 4096 * 4096 * 4 = 67108864 (64M)
-const int kAllowedMaxImageMemory = 67108864;
-
 const int kWait10Milliseconds = 10000; // wait 10ms
-
-const int kWait100Milliseconds = 100000; // wait 100ms
-
-const int kKeyFrameInterval = 5; // key fram interval
-
-const int kImageDataQueueSize = 10; // the queue default size
-
-const int kMaxRetryNumber = 100; // the maximum number of retry
-
-const int kCompareEqual = 0; // string compare equal
 
 const int kNoFlag = 0; // no flag
 
@@ -80,25 +61,16 @@ const int kHandleSuccessful = 0; // the process handled successfully
 
 const string kStrChannelId1 = "channel1"; // channle id 1 string
 
-const string kStrChannelId2 = "channel2";  // channle id 2 string
+const string kStrChannelId2 = "channel2"; // channle id 2 string
 
-const string kVideoTypeH264 = "h264"; // video type h264
-
-const string kVideoTypeH265 = "h265"; // video type h265
+// standard: 4096 * 4096 * 4 = 67108864 (64M)
+const int kAllowedMaxImageMemory = 67108864;
 
 const string kNeedRemoveStr = " \r\n\t"; // the string need remove
 
 const string kVideoImageParaType = "VideoImageParaT"; // video image para type
 
-const int kIntChannelId1 = 1; // channel id 1 integer
-
-const int kIntChannelId2 = 2; // channel id 2 integer
-
-const int kVideoFormatLength = 5; // video format string length
-
 const int kInvalidVideoIndex = -1; // invalid video index
-
-const string kImageFormatNv12 = "nv12"; // image format nv12
 
 const string kRtspTransport = "rtsp_transport"; // rtsp transport
 
@@ -144,30 +116,9 @@ const string kRegexRtsp =
         ":([1-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|"
         "6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])/"
         "(.{1,100})$";
-
-uint32_t frame_id_1 = 0; // frame id used for channle1
-
-uint32_t frame_id_2 = 0; // frame id used for channle2
-
-// the queue record image data from channel1
-ThreadSafeQueue<shared_ptr<VideoImageParaT>> channel1_queue(
-    kImageDataQueueSize);
-
-// the queue record image data from channel2
-ThreadSafeQueue<shared_ptr<VideoImageParaT>> channel2_queue(
-    kImageDataQueueSize);
 }
 
 HIAI_REGISTER_DATA_TYPE("VideoImageParaT", VideoImageParaT);
-
-bool IsKeyFrame(uint32_t frame_id) {
-  // the 1, 6, 11, 16... frame is key frame
-  if (frame_id % kKeyFrameInterval == 1) {
-    return true;
-  }
-
-  return false;
-}
 
 VideoDecode::VideoDecode() {
   channel1_ = ""; // initialize channel1 to empty string
@@ -194,7 +145,7 @@ void VideoDecode::SendFinishedData() {
                         static_pointer_cast<void>(video_image_para));
     if (hiai_ret == HIAI_QUEUE_FULL) { // check hiai queue is full
       HIAI_ENGINE_LOG("Queue full when send finished data, sleep 10ms");
-      usleep(kWait10Milliseconds);  // sleep 10 ms
+      usleep(kWait10Milliseconds); // sleep 10 ms
     }
   } while (hiai_ret == HIAI_QUEUE_FULL); // loop when hiai queue is full
 
@@ -204,240 +155,15 @@ void VideoDecode::SendFinishedData() {
   }
 }
 
-uint32_t GetFrameId(const string &channel_id) {
-  if (channel_id == kStrChannelId1) { // check input channel id is channel1
-    frame_id_1++;
-    return frame_id_1;
-  } else { // the input channel id is channel2
-    frame_id_2++;
-    return frame_id_2;
-  }
-}
-
-void AddImage2QueueByChannel(
-    const shared_ptr<VideoImageParaT>& video_image_para,
-    ThreadSafeQueue<shared_ptr<VideoImageParaT>> &current_queue) {
-  bool add_image_success = false;
-  int count = 0; // count retry number
-
-  // add image data to queue, max retry time: 100
-  while (count < kMaxRetryNumber) {
-    count++;
-
-    if (current_queue.Push(video_image_para)) { // push image data to queue
-      add_image_success = true;
-      break;
-    } else { // queue is full, sleep 100 ms
-      usleep(kWait100Milliseconds);
-    }
-  }
-
-  if (!add_image_success) { // fail to send image data
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to add image data to queue, channel_id:%s, "
-                    "channel_name:%s, frame_id:%d",
-                    video_image_para->video_image_info.channel_id.c_str(),
-                    video_image_para->video_image_info.channel_name.c_str(),
-                    video_image_para->video_image_info.frame_id);
-  }
-}
-
-void SendKeyFrameData(uint8_t* image_data_buffer, uint32_t image_data_size,
-                      void* hiai_data, FRAME* frame) {
-  string channel_name = ((YuvImageFrameInfo*) (hiai_data))->channel_name;
-  string channel_id = ((YuvImageFrameInfo*) (hiai_data))->channel_id;
-  uint32_t frame_id = GetFrameId(channel_id);
-
-  // only send key frame to next engine, key frame id: 1,6,11,16...
-  if (!IsKeyFrame(frame_id)) {
-    delete[] image_data_buffer;
-    return;
-  }
-
-  HIAI_ENGINE_LOG("Get key frame, frame id:%d, channel_id:%s, channel_name:%s,"
-                  " frame->realWidth:%d, frame->realHeight:%d",
-                  frame_id, channel_id.c_str(), channel_name.c_str(),
-                  frame->realWidth, frame->realHeight);
-
-  //send yuv420sp data
-  VideoImageInfoT i_video_image_info;
-  i_video_image_info.channel_id = channel_id;
-  i_video_image_info.channel_name = channel_name;
-  i_video_image_info.frame_id = frame_id;
-  i_video_image_info.is_finished = false;
-
-  hiai::ImageData<unsigned char> image_data;
-  image_data.width = frame->realWidth;
-  image_data.height = frame->realHeight;
-  image_data.format = IMAGEFORMAT::YUV420SP;
-  image_data.size = image_data_size;
-
-  image_data.data.reset(image_data_buffer, default_delete<unsigned char[]>());
-  shared_ptr<VideoImageParaT> video_image_para = make_shared<VideoImageParaT>();
-  video_image_para->img = image_data;
-  video_image_para->video_image_info = i_video_image_info;
-
-  if (channel_id == kStrChannelId1) { // add image data to channel1 queue
-    AddImage2QueueByChannel(video_image_para, channel1_queue);
-  } else { // add image data to channel2 queue
-    AddImage2QueueByChannel(video_image_para, channel2_queue);
-  }
-}
-
-void CallVpcGetYuvImage(FRAME* frame, void* hiai_data) {
-  if (frame == nullptr || hiai_data == nullptr) { // check input parameters
-    HIAI_ENGINE_LOG(
-        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-        "The input data for function:CallVpcGetYuvImage is nullptr!");
-    return;
-  }
-
-  IDVPPAPI* dvpp_api = nullptr;
-  CreateDvppApi(dvpp_api);
-
-  if (dvpp_api == nullptr) { // check create dvpp api result
-    HIAI_ENGINE_LOG(
-        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-        "Fail to call CreateDvppApi for vpc, the result is nullptr!");
-    return;
-  }
-
-  // constructing input image configuration
-  shared_ptr<VpcUserImageConfigure> image_configure(new VpcUserImageConfigure);
-  image_configure->widthStride = frame->width;
-  image_configure->heightStride = frame->height;
-
-  // check image format is nv12
-  if (strcmp(frame->image_format, kImageFormatNv12.c_str()) == kCompareEqual) {
-    image_configure->inputFormat = INPUT_YUV420_SEMI_PLANNER_UV;
-  } else {  // check image format is nv21
-    image_configure->inputFormat = INPUT_YUV420_SEMI_PLANNER_VU;
-  }
-
-  image_configure->outputFormat = OUTPUT_YUV420SP_UV;
-  image_configure->isCompressData = true;
-  image_configure->compressDataConfigure.lumaHeadAddr = (long) (frame->buffer
-      + frame->offset_head_y);
-  image_configure->compressDataConfigure.chromaHeadAddr = (long) (frame->buffer
-      + frame->offset_head_c);
-  image_configure->compressDataConfigure.lumaHeadStride = frame->stride_head;
-  image_configure->compressDataConfigure.chromaHeadStride = frame->stride_head;
-  image_configure->compressDataConfigure.lumaPayloadAddr = (long) (frame->buffer
-      + frame->offset_payload_y);
-  image_configure->compressDataConfigure.chromaPayloadAddr = (long) (frame
-      ->buffer + frame->offset_payload_c);
-  image_configure->compressDataConfigure.lumaPayloadStride = frame
-      ->stride_payload;
-  image_configure->compressDataConfigure.chromaPayloadStride = frame
-      ->stride_payload;
-
-  shared_ptr<VpcUserRoiConfigure> roi_configure(new VpcUserRoiConfigure);
-  roi_configure->next = nullptr;
-
-  // constructing input roi configuration
-  VpcUserRoiInputConfigure *input_configure = &roi_configure->inputConfigure;
-  input_configure->cropArea.leftOffset = 0; // 0 means without crop
-  // dvpp limits rightOffset is odd
-  input_configure->cropArea.rightOffset =
-      frame->width % 2 == 0 ? frame->width - 1 : frame->width;
-  input_configure->cropArea.upOffset = 0; // 0 means without crop
-  // dvpp limits downOffset is odd
-  input_configure->cropArea.downOffset =
-      frame->height % 2 == 0 ? frame->height - 1 : frame->height;
-
-  int aligned_output_width = ALIGN_UP(frame->width, kVpcWidthAlign);
-  int aligned_output_height = ALIGN_UP(frame->height, kVpcHeightAlign);
-  int vpc_output_size = aligned_output_width * aligned_output_height
-      * DVPP_YUV420SP_SIZE_MOLECULE / DVPP_YUV420SP_SIZE_DENOMINATOR;
-
-  // check vpc output size is valid
-  if (vpc_output_size <= 0 || vpc_output_size > kAllowedMaxImageMemory) {
-    HIAI_ENGINE_LOG(
-        HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-        "The vpc_output_size:%d is invalid! value range: 1~67108864",
-        vpc_output_size);
-    return;
-  }
-
-  // construct vpc out data buffer
-  uint8_t *vpc_out_buffer = (uint8_t *) mmap(
-      0, vpc_output_size, PROT_READ | PROT_WRITE,
-      MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, 0, 0);
-  if (vpc_out_buffer == MAP_FAILED) { // check new buffer result
-    HIAI_ENGINE_LOG("Failed to malloc memory in dvpp(new vpc).");
-    return;
-  }
-
-  // constructing output roi configuration
-  VpcUserRoiOutputConfigure *output_configure = &roi_configure->outputConfigure;
-  output_configure->addr = vpc_out_buffer;
-  output_configure->bufferSize = vpc_output_size;
-  output_configure->widthStride = frame->width;
-  output_configure->heightStride = frame->height;
-  output_configure->outputArea.leftOffset = 0; // 0 means without crop
-  // dvpp limits rightOffset is odd
-  output_configure->outputArea.rightOffset =
-      frame->width % 2 == 0 ? frame->width - 1 : frame->width;
-  output_configure->outputArea.upOffset = 0; // 0 means without crop
-  // dvpp limits downOffset is odd
-  output_configure->outputArea.downOffset =
-      frame->height % 2 == 0 ? frame->height - 1 : frame->height;
-
-  image_configure->roiConfigure = roi_configure.get();
-
-  dvppapi_ctl_msg dvpp_api_ctl_msg;
-  dvpp_api_ctl_msg.in = static_cast<void *>(image_configure.get());
-  dvpp_api_ctl_msg.in_size = sizeof(VpcUserImageConfigure);
-
-  // call vpc and check the result
-  if (DvppCtl(dvpp_api, DVPP_CTL_VPC_PROC, &dvpp_api_ctl_msg)
-      != kHandleSuccessful) {
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to call dvppctl VPC!");
-    // free vpc_out_buffer memory
-    munmap(vpc_out_buffer, (unsigned) (ALIGN_UP(vpc_output_size, MAP_2M)));
-    DestroyDvppApi(dvpp_api);
-    return;
-  }
-
-  DestroyDvppApi(dvpp_api);
-
-  uint8_t* output_image_buffer = new (nothrow) uint8_t[vpc_output_size];
-  if (output_image_buffer == nullptr) { // check new result
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to new data when handle vpc output!");
-    // free vpc_out_buffer memory
-    munmap(vpc_out_buffer, (unsigned) (ALIGN_UP(vpc_output_size, MAP_2M)));
-    return;
-  }
-
-  int memcpy_result = memcpy_s(output_image_buffer, vpc_output_size,
-                               vpc_out_buffer, vpc_output_size);
-  // free vpc_out_buffer memory
-  munmap(vpc_out_buffer, (unsigned) (ALIGN_UP(vpc_output_size, MAP_2M)));
-
-  if (memcpy_result != EOK) { // check memcpy_s result
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to copy vpc output image buffer, memcpy_s result:%d",
-                    memcpy_result);
-    delete[] output_image_buffer;
-    return;
-  }
-
-  // send key frame data to next engine
-  SendKeyFrameData(output_image_buffer, vpc_output_size, hiai_data, frame);
-  return;
-}
-
 int VideoDecode::GetVideoIndex(AVFormatContext* av_format_context) {
-  if (av_format_context == nullptr) {  // verify input pointer
+  if (av_format_context == nullptr) { // verify input pointer
     return kInvalidVideoIndex;
   }
 
   // get video index in streams
   for (int i = 0; i < av_format_context->nb_streams; i++) {
     if (av_format_context->streams[i]->codecpar->codec_type
-        == AVMEDIA_TYPE_VIDEO) {  // check is media type is video
+        == AVMEDIA_TYPE_VIDEO) { // check is media type is video
       return i;
     }
   }
@@ -476,14 +202,6 @@ void VideoDecode::InitVideoStreamFilter(
     video_filter = av_bsf_get_by_name("h264_mp4toannexb");
   } else { // the video type is h265
     video_filter = av_bsf_get_by_name("hevc_mp4toannexb");
-  }
-}
-
-int VideoDecode::GetIntChannelId(const string channel_id) {
-  if (channel_id == kStrChannelId1) { // check channel is channel1
-    return kIntChannelId1;
-  } else { // the channel is channel2
-    return kIntChannelId2;
   }
 }
 
@@ -621,43 +339,6 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
     return;
   }
 
-  IDVPPAPI* dvpp_api = nullptr;
-  CreateVdecApi(dvpp_api, 0);
-  if (dvpp_api == nullptr) { // check create dvpp api result
-    DestroyVdecApi(dvpp_api, 0);
-    return;
-  }
-
-  vdec_in_msg vdec_msg;
-  vdec_msg.call_back = CallVpcGetYuvImage;
-
-  YuvImageFrameInfo yuv_image_frame_info;
-  yuv_image_frame_info.channel_name = channel_value;
-  yuv_image_frame_info.channel_id = channel_id;
-
-  vdec_msg.channelId = GetIntChannelId(channel_id);
-  vdec_msg.hiai_data = &yuv_image_frame_info;
-
-  int strcpy_result = 0;
-  if (video_type == kH264) { // check video type is h264
-    strcpy_result = strcpy_s(vdec_msg.video_format, kVideoFormatLength,
-                             kVideoTypeH264.c_str());
-  } else { // the video type is h264
-    strcpy_result = strcpy_s(vdec_msg.video_format, kVideoFormatLength,
-                             kVideoTypeH265.c_str());
-  }
-
-  if (strcpy_result != EOK) { // check strcpy result
-    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                    "Fail to call strcpy_s, result:%d, channel id:%s",
-                    strcpy_result, channel_id.c_str());
-    return;
-  }
-
-  dvppapi_ctl_msg dvppApiCtlMsg;
-  dvppApiCtlMsg.in = (void*) (&vdec_msg);
-  dvppApiCtlMsg.in_size = sizeof(vdec_in_msg);
-
   AVPacket av_packet;
   // loop to get every frame from video stream
   while (av_read_frame(av_format_context, &av_packet) == kHandleSuccessful) {
@@ -671,37 +352,46 @@ void VideoDecode::UnpackVideo2Image(const string &channel_id) {
 
       // receive single frame from ffmpeg
       while (av_bsf_receive_packet(bsf_ctx, &av_packet) == kHandleSuccessful) {
-        vdec_msg.in_buffer = (char*) av_packet.data;
-        vdec_msg.in_buffer_size = av_packet.size;
+        shared_ptr<VideoImageParaT> video_image_para = make_shared<
+            VideoImageParaT>();
+        video_image_para->video_image_info.channel_id = channel_id;
+        video_image_para->video_image_info.channel_name = channel_value;
+        video_image_para->video_image_info.is_finished = false;
+        video_image_para->video_image_info.video_type = video_type;
 
-        // call vdec and check result
-        if (VdecCtl(dvpp_api, DVPP_CTL_VDEC_PROC, &dvppApiCtlMsg, 0)
-            != kHandleSuccessful) {
-          HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                          "Fail to call dvppctl process, channel id:%s",
-                          channel_id.c_str());
+        if (av_packet.size <= 0 || av_packet.size > kAllowedMaxImageMemory) {
+          continue;
+        }
 
-          av_packet_unref(&av_packet);
-          av_bsf_free(&bsf_ctx);
-          avformat_close_input(&av_format_context);
-          DestroyVdecApi(dvpp_api, 0);
+        uint8_t* vdec_in_buffer = new (nothrow) uint8_t[av_packet.size];
+        int memcpy_result = memcpy_s(vdec_in_buffer, av_packet.size,
+                                     av_packet.data, av_packet.size);
+        if (memcpy_result != EOK) { // check memcpy_s result
+          HIAI_ENGINE_LOG(
+              HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+              "Fail to copy av_packet data to vdec buffer, memcpy_s result:%d",
+              memcpy_result);
+          delete[] vdec_in_buffer;
           return;
         }
+
+        video_image_para->img.data.reset(vdec_in_buffer,
+                                         default_delete<uint8_t[]>());
+        video_image_para->img.size = av_packet.size;
 
         av_packet_unref(&av_packet);
 
         // send image data to next engine
-        SendImageDate(channel_id);
+        SendImageData(video_image_para);
       }
     }
   }
 
-  av_bsf_free(&bsf_ctx);  // free AVBSFContext pointer
-  avformat_close_input(&av_format_context);  // close input video
-  DestroyVdecApi(dvpp_api, 0);
+  av_bsf_free(&bsf_ctx); // free AVBSFContext pointer
+  avformat_close_input(&av_format_context); // close input video
 
   // send last yuv image data after call vdec
-  SendImageDate(channel_id);
+  //SendImageData(video_image_para);
 
   HIAI_ENGINE_LOG("Ffmpeg read frame finished, channel id:%s",
                   channel_id.c_str());
@@ -762,7 +452,7 @@ bool VideoDecode::VerifyVideoType() {
     return (VerifyVideoWithUnpack(channel1_) && VerifyVideoWithUnpack(channel2_));
   } else if (!IsEmpty(channel1_, kStrChannelId1)) { // channel1 is not empty
     return VerifyVideoWithUnpack(channel1_);
-  } else {  // channel2 is not empty
+  } else { // channel2 is not empty
     return VerifyVideoWithUnpack(channel2_);
   }
 }
@@ -780,7 +470,7 @@ void VideoDecode::MultithreadHandleVideo() {
     thread_channel_2.join();
   } else if (!IsEmpty(channel1_, kStrChannelId1)) { // unpacke channel1 video
     UnpackVideo2Image(kStrChannelId1);
-  } else {  // unpacke channel2 video
+  } else { // unpacke channel2 video
     UnpackVideo2Image(kStrChannelId2);
   }
 }
@@ -904,54 +594,41 @@ bool VideoDecode::VerifyChannelValues() {
   return true;
 }
 
-void VideoDecode::SendImageDataByChannel(
-    ThreadSafeQueue<shared_ptr<VideoImageParaT>> &current_queue) {
+void VideoDecode::SendImageData(shared_ptr<VideoImageParaT> &video_image_data) {
   HIAI_StatusT hiai_ret = HIAI_OK;
 
-  // send image data unitl queue is empty
-  while (!current_queue.empty()) {
-    shared_ptr<VideoImageParaT> video_iamge_data = current_queue.Pop();
-    if (video_iamge_data == nullptr) { // the queue is empty and return
-      return;
-    }
-
-    // send image data
-    do {
-      hiai_ret = SendData(0, kVideoImageParaType,
-                          static_pointer_cast<void>(video_iamge_data));
-      if (hiai_ret == HIAI_QUEUE_FULL) { // check queue is full
-        HIAI_ENGINE_LOG("The queue is full when send image data, sleep 10ms");
-        usleep(kWait10Milliseconds); // sleep 10 ms
-      }
-    } while (hiai_ret == HIAI_QUEUE_FULL); // loop while queue is full
-
-    if (hiai_ret != HIAI_OK) { // check send data is failed
-      HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
-                      "Send data failed! error code: %d", hiai_ret);
-    }
+  if (video_image_data == nullptr) { // the queue is empty and return
+    return;
   }
-}
 
-void VideoDecode::SendImageDate(const string &channel_id) {
-  if (channel_id == kStrChannelId1) { // check channel id is channle1
-    SendImageDataByChannel(channel1_queue);
-  } else { // check channel id is channle2
-    SendImageDataByChannel(channel2_queue);
+  // send image data
+  do {
+    hiai_ret = SendData(0, kVideoImageParaType,
+                        static_pointer_cast<void>(video_image_data));
+    if (hiai_ret == HIAI_QUEUE_FULL) { // check queue is full
+      HIAI_ENGINE_LOG("The queue is full when send image data, sleep 10ms");
+      usleep(kWait10Milliseconds); // sleep 10 ms
+    }
+  } while (hiai_ret == HIAI_QUEUE_FULL); // loop while queue is full
+
+  if (hiai_ret != HIAI_OK) { // check send data is failed
+    HIAI_ENGINE_LOG(HIAI_ENGINE_RUN_ARGS_NOT_RIGHT,
+                    "Send data failed! error code: %d", hiai_ret);
   }
 }
 
 HIAI_IMPL_ENGINE_PROCESS("video_decode", VideoDecode, INPUT_SIZE) {
-  av_log_set_level(AV_LOG_INFO);  // set ffmpeg log level
+  av_log_set_level(AV_LOG_INFO); // set ffmpeg log level
 
   // verify video type
   if (!VerifyVideoType()) {
-    SendFinishedData();  // send the flag data when finished
+    SendFinishedData(); // send the flag data when finished
     return HIAI_ERROR;
   }
 
-  MultithreadHandleVideo();  // handle video from file or RTSP with multi-thread
+  MultithreadHandleVideo(); // handle video from file or RTSP with multi-thread
 
-  SendFinishedData();  // send the flag data when finished
+  SendFinishedData(); // send the flag data when finished
 
   return HIAI_OK;
 }

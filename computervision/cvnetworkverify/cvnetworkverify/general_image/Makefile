@@ -4,18 +4,6 @@ ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
 
-ifeq ($(mode),)
-mode=AtlasDK
-endif
-
-ifeq ($(mode), AtlasDK)
-CC := aarch64-linux-gnu-g++
-else ifeq ($(mode), ASIC)
-CC := g++
-else
-$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
-endif
-
 # current directory
 LOCAL_DIR  := ./
 
@@ -26,6 +14,20 @@ OBJ_DIR = $(BUILD_DIR)/obj
 DEPS_DIR  = $(BUILD_DIR)/deps
 
 # include
+
+
+CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
+CC := aarch64-linux-gnu-g++
+LNK_FLAGS := \
+	-L$(DDK_HOME)/host/lib/ \
+	-lopencv_world \
+	-shared
+
 INC_DIR = \
 	-I$(SRC_DIR) \
 	-I$(DDK_HOME)/include/inc \
@@ -35,13 +37,25 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/third_party/cereal/include \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
-
-CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
+	
+else ifeq ($(mode), ASIC)
+CC := g++
 LNK_FLAGS := \
-	-L$(DDK_HOME)/host/lib/ \
-	-lmedia_mini \
+	-L$(HOME)/ascend_ddk/host/lib\
 	-lopencv_world \
 	-shared
+INC_DIR = \
+	-I$(SRC_DIR) \
+	-I$(DDK_HOME)/include/inc \
+	-I$(DDK_HOME)/include/inc/custom \
+	-I${HOME}/ascend_ddk/include/third_party/opencv \
+	-I$(DDK_HOME)/include/third_party/protobuf/include \
+	-I$(DDK_HOME)/include/third_party/cereal/include \
+	-I$(DDK_HOME)/include/libc_sec/include \
+	-I../common/include \
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
 
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 CUSTOM_DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)

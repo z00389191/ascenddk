@@ -37,7 +37,7 @@ namespace protobuf_video_5fanalysis_5fmessage_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[8];
+  static const ::google::protobuf::internal::ParseTable schema[9];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -59,6 +59,8 @@ void InitDefaultsMapTypeImpl();
 void InitDefaultsMapType();
 void InitDefaultsHumanInferenceResultImpl();
 void InitDefaultsHumanInferenceResult();
+void InitDefaultsFaceInferenceResultImpl();
+void InitDefaultsFaceInferenceResult();
 inline void InitDefaults() {
   InitDefaultsRegisterApp();
   InitDefaultsCommonResponse();
@@ -68,6 +70,7 @@ inline void InitDefaults() {
   InitDefaultsCarInferenceResult();
   InitDefaultsMapType();
   InitDefaultsHumanInferenceResult();
+  InitDefaultsFaceInferenceResult();
 }
 }  // namespace protobuf_video_5fanalysis_5fmessage_2eproto
 namespace ascend {
@@ -79,6 +82,9 @@ extern CarInferenceResultDefaultTypeInternal _CarInferenceResult_default_instanc
 class CommonResponse;
 class CommonResponseDefaultTypeInternal;
 extern CommonResponseDefaultTypeInternal _CommonResponse_default_instance_;
+class FaceInferenceResult;
+class FaceInferenceResultDefaultTypeInternal;
+extern FaceInferenceResultDefaultTypeInternal _FaceInferenceResult_default_instance_;
 class FrameIndex;
 class FrameIndexDefaultTypeInternal;
 extern FrameIndexDefaultTypeInternal _FrameIndex_default_instance_;
@@ -135,12 +141,13 @@ inline bool ErrorCode_Parse(
 enum CarInferenceType {
   kCarColor = 0,
   kCarBrand = 1,
+  kCarPlate = 2,
   CarInferenceType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   CarInferenceType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool CarInferenceType_IsValid(int value);
 const CarInferenceType CarInferenceType_MIN = kCarColor;
-const CarInferenceType CarInferenceType_MAX = kCarBrand;
+const CarInferenceType CarInferenceType_MAX = kCarPlate;
 const int CarInferenceType_ARRAYSIZE = CarInferenceType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* CarInferenceType_descriptor();
@@ -152,6 +159,27 @@ inline bool CarInferenceType_Parse(
     const ::std::string& name, CarInferenceType* value) {
   return ::google::protobuf::internal::ParseNamedEnum<CarInferenceType>(
     CarInferenceType_descriptor(), name, value);
+}
+enum FaceInferenceType {
+  kFaceAge = 0,
+  kFaceGender = 1,
+  FaceInferenceType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  FaceInferenceType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
+};
+bool FaceInferenceType_IsValid(int value);
+const FaceInferenceType FaceInferenceType_MIN = kFaceAge;
+const FaceInferenceType FaceInferenceType_MAX = kFaceGender;
+const int FaceInferenceType_ARRAYSIZE = FaceInferenceType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* FaceInferenceType_descriptor();
+inline const ::std::string& FaceInferenceType_Name(FaceInferenceType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    FaceInferenceType_descriptor(), value);
+}
+inline bool FaceInferenceType_Parse(
+    const ::std::string& name, FaceInferenceType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<FaceInferenceType>(
+    FaceInferenceType_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -1189,6 +1217,152 @@ class HumanInferenceResult : public ::google::protobuf::Message /* @@protoc_inse
   mutable int _cached_size_;
   friend struct ::protobuf_video_5fanalysis_5fmessage_2eproto::TableStruct;
   friend void ::protobuf_video_5fanalysis_5fmessage_2eproto::InitDefaultsHumanInferenceResultImpl();
+};
+// -------------------------------------------------------------------
+
+class FaceInferenceResult : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ascend.presenter.video_analysis.FaceInferenceResult) */ {
+ public:
+  FaceInferenceResult();
+  virtual ~FaceInferenceResult();
+
+  FaceInferenceResult(const FaceInferenceResult& from);
+
+  inline FaceInferenceResult& operator=(const FaceInferenceResult& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  FaceInferenceResult(FaceInferenceResult&& from) noexcept
+    : FaceInferenceResult() {
+    *this = ::std::move(from);
+  }
+
+  inline FaceInferenceResult& operator=(FaceInferenceResult&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FaceInferenceResult& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const FaceInferenceResult* internal_default_instance() {
+    return reinterpret_cast<const FaceInferenceResult*>(
+               &_FaceInferenceResult_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    8;
+
+  void Swap(FaceInferenceResult* other);
+  friend void swap(FaceInferenceResult& a, FaceInferenceResult& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline FaceInferenceResult* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  FaceInferenceResult* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const FaceInferenceResult& from);
+  void MergeFrom(const FaceInferenceResult& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(FaceInferenceResult* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string object_id = 2;
+  void clear_object_id();
+  static const int kObjectIdFieldNumber = 2;
+  const ::std::string& object_id() const;
+  void set_object_id(const ::std::string& value);
+  #if LANG_CXX11
+  void set_object_id(::std::string&& value);
+  #endif
+  void set_object_id(const char* value);
+  void set_object_id(const char* value, size_t size);
+  ::std::string* mutable_object_id();
+  ::std::string* release_object_id();
+  void set_allocated_object_id(::std::string* object_id);
+
+  // string value = 5;
+  void clear_value();
+  static const int kValueFieldNumber = 5;
+  const ::std::string& value() const;
+  void set_value(const ::std::string& value);
+  #if LANG_CXX11
+  void set_value(::std::string&& value);
+  #endif
+  void set_value(const char* value);
+  void set_value(const char* value, size_t size);
+  ::std::string* mutable_value();
+  ::std::string* release_value();
+  void set_allocated_value(::std::string* value);
+
+  // .ascend.presenter.video_analysis.FrameIndex frame_index = 1;
+  bool has_frame_index() const;
+  void clear_frame_index();
+  static const int kFrameIndexFieldNumber = 1;
+  const ::ascend::presenter::video_analysis::FrameIndex& frame_index() const;
+  ::ascend::presenter::video_analysis::FrameIndex* release_frame_index();
+  ::ascend::presenter::video_analysis::FrameIndex* mutable_frame_index();
+  void set_allocated_frame_index(::ascend::presenter::video_analysis::FrameIndex* frame_index);
+
+  // .ascend.presenter.video_analysis.FaceInferenceType type = 3;
+  void clear_type();
+  static const int kTypeFieldNumber = 3;
+  ::ascend::presenter::video_analysis::FaceInferenceType type() const;
+  void set_type(::ascend::presenter::video_analysis::FaceInferenceType value);
+
+  // float confidence = 4;
+  void clear_confidence();
+  static const int kConfidenceFieldNumber = 4;
+  float confidence() const;
+  void set_confidence(float value);
+
+  // @@protoc_insertion_point(class_scope:ascend.presenter.video_analysis.FaceInferenceResult)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr object_id_;
+  ::google::protobuf::internal::ArenaStringPtr value_;
+  ::ascend::presenter::video_analysis::FrameIndex* frame_index_;
+  int type_;
+  float confidence_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_video_5fanalysis_5fmessage_2eproto::TableStruct;
+  friend void ::protobuf_video_5fanalysis_5fmessage_2eproto::InitDefaultsFaceInferenceResultImpl();
 };
 // ===================================================================
 
@@ -2251,9 +2425,199 @@ HumanInferenceResult::human_property() const {
   return human_property_;
 }
 
+// -------------------------------------------------------------------
+
+// FaceInferenceResult
+
+// .ascend.presenter.video_analysis.FrameIndex frame_index = 1;
+inline bool FaceInferenceResult::has_frame_index() const {
+  return this != internal_default_instance() && frame_index_ != NULL;
+}
+inline void FaceInferenceResult::clear_frame_index() {
+  if (GetArenaNoVirtual() == NULL && frame_index_ != NULL) {
+    delete frame_index_;
+  }
+  frame_index_ = NULL;
+}
+inline const ::ascend::presenter::video_analysis::FrameIndex& FaceInferenceResult::frame_index() const {
+  const ::ascend::presenter::video_analysis::FrameIndex* p = frame_index_;
+  // @@protoc_insertion_point(field_get:ascend.presenter.video_analysis.FaceInferenceResult.frame_index)
+  return p != NULL ? *p : *reinterpret_cast<const ::ascend::presenter::video_analysis::FrameIndex*>(
+      &::ascend::presenter::video_analysis::_FrameIndex_default_instance_);
+}
+inline ::ascend::presenter::video_analysis::FrameIndex* FaceInferenceResult::release_frame_index() {
+  // @@protoc_insertion_point(field_release:ascend.presenter.video_analysis.FaceInferenceResult.frame_index)
+  
+  ::ascend::presenter::video_analysis::FrameIndex* temp = frame_index_;
+  frame_index_ = NULL;
+  return temp;
+}
+inline ::ascend::presenter::video_analysis::FrameIndex* FaceInferenceResult::mutable_frame_index() {
+  
+  if (frame_index_ == NULL) {
+    frame_index_ = new ::ascend::presenter::video_analysis::FrameIndex;
+  }
+  // @@protoc_insertion_point(field_mutable:ascend.presenter.video_analysis.FaceInferenceResult.frame_index)
+  return frame_index_;
+}
+inline void FaceInferenceResult::set_allocated_frame_index(::ascend::presenter::video_analysis::FrameIndex* frame_index) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete frame_index_;
+  }
+  if (frame_index) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      frame_index = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, frame_index, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  frame_index_ = frame_index;
+  // @@protoc_insertion_point(field_set_allocated:ascend.presenter.video_analysis.FaceInferenceResult.frame_index)
+}
+
+// string object_id = 2;
+inline void FaceInferenceResult::clear_object_id() {
+  object_id_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& FaceInferenceResult::object_id() const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+  return object_id_.GetNoArena();
+}
+inline void FaceInferenceResult::set_object_id(const ::std::string& value) {
+  
+  object_id_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+}
+#if LANG_CXX11
+inline void FaceInferenceResult::set_object_id(::std::string&& value) {
+  
+  object_id_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+}
+#endif
+inline void FaceInferenceResult::set_object_id(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  object_id_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+}
+inline void FaceInferenceResult::set_object_id(const char* value, size_t size) {
+  
+  object_id_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+}
+inline ::std::string* FaceInferenceResult::mutable_object_id() {
+  
+  // @@protoc_insertion_point(field_mutable:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+  return object_id_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* FaceInferenceResult::release_object_id() {
+  // @@protoc_insertion_point(field_release:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+  
+  return object_id_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void FaceInferenceResult::set_allocated_object_id(::std::string* object_id) {
+  if (object_id != NULL) {
+    
+  } else {
+    
+  }
+  object_id_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), object_id);
+  // @@protoc_insertion_point(field_set_allocated:ascend.presenter.video_analysis.FaceInferenceResult.object_id)
+}
+
+// .ascend.presenter.video_analysis.FaceInferenceType type = 3;
+inline void FaceInferenceResult::clear_type() {
+  type_ = 0;
+}
+inline ::ascend::presenter::video_analysis::FaceInferenceType FaceInferenceResult::type() const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.video_analysis.FaceInferenceResult.type)
+  return static_cast< ::ascend::presenter::video_analysis::FaceInferenceType >(type_);
+}
+inline void FaceInferenceResult::set_type(::ascend::presenter::video_analysis::FaceInferenceType value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:ascend.presenter.video_analysis.FaceInferenceResult.type)
+}
+
+// float confidence = 4;
+inline void FaceInferenceResult::clear_confidence() {
+  confidence_ = 0;
+}
+inline float FaceInferenceResult::confidence() const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.video_analysis.FaceInferenceResult.confidence)
+  return confidence_;
+}
+inline void FaceInferenceResult::set_confidence(float value) {
+  
+  confidence_ = value;
+  // @@protoc_insertion_point(field_set:ascend.presenter.video_analysis.FaceInferenceResult.confidence)
+}
+
+// string value = 5;
+inline void FaceInferenceResult::clear_value() {
+  value_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& FaceInferenceResult::value() const {
+  // @@protoc_insertion_point(field_get:ascend.presenter.video_analysis.FaceInferenceResult.value)
+  return value_.GetNoArena();
+}
+inline void FaceInferenceResult::set_value(const ::std::string& value) {
+  
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ascend.presenter.video_analysis.FaceInferenceResult.value)
+}
+#if LANG_CXX11
+inline void FaceInferenceResult::set_value(::std::string&& value) {
+  
+  value_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ascend.presenter.video_analysis.FaceInferenceResult.value)
+}
+#endif
+inline void FaceInferenceResult::set_value(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ascend.presenter.video_analysis.FaceInferenceResult.value)
+}
+inline void FaceInferenceResult::set_value(const char* value, size_t size) {
+  
+  value_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ascend.presenter.video_analysis.FaceInferenceResult.value)
+}
+inline ::std::string* FaceInferenceResult::mutable_value() {
+  
+  // @@protoc_insertion_point(field_mutable:ascend.presenter.video_analysis.FaceInferenceResult.value)
+  return value_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* FaceInferenceResult::release_value() {
+  // @@protoc_insertion_point(field_release:ascend.presenter.video_analysis.FaceInferenceResult.value)
+  
+  return value_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void FaceInferenceResult::set_allocated_value(::std::string* value) {
+  if (value != NULL) {
+    
+  } else {
+    
+  }
+  value_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set_allocated:ascend.presenter.video_analysis.FaceInferenceResult.value)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -2287,6 +2651,11 @@ template <> struct is_proto_enum< ::ascend::presenter::video_analysis::CarInfere
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::ascend::presenter::video_analysis::CarInferenceType>() {
   return ::ascend::presenter::video_analysis::CarInferenceType_descriptor();
+}
+template <> struct is_proto_enum< ::ascend::presenter::video_analysis::FaceInferenceType> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::ascend::presenter::video_analysis::FaceInferenceType>() {
+  return ::ascend::presenter::video_analysis::FaceInferenceType_descriptor();
 }
 
 }  // namespace protobuf

@@ -86,6 +86,9 @@ if (buffer == MAP_FAILED) { \
 #define ASC_LOG_ERROR(fmt, ...) \
 dlog_error(ASCENDDK, "[%s:%d] " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
+#define ASC_LOG_INFO(fmt, ...) \
+dlog_info(ASCENDDK, "[%s:%d] " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
 namespace ascend {
 namespace utils {
 

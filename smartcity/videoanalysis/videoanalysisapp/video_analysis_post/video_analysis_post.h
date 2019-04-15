@@ -46,7 +46,7 @@
 #include "ascenddk/presenter/agent/channel.h"
 #include "video_analysis_message.pb.h"
 
-#define INPUT_SIZE 4
+#define INPUT_SIZE 8
 #define OUTPUT_SIZE 1
 
 enum OperationCode {
@@ -109,7 +109,11 @@ public:
         image_ret_(kOperationOk),
         car_type_ret_(kOperationOk),
         car_color_ret_(kOperationOk),
-        pedestrian_ret_(kOperationOk) {
+        pedestrian_ret_(kOperationOk),
+        face_image_ret_(kOperationOk),
+        age_ret_(kOperationOk),
+        gender_ret_(kOperationOk),
+        car_plate_ret_(kOperationOk) {
   }
 
   /**
@@ -175,6 +179,14 @@ public:
       const std::shared_ptr<BatchPedestrianInfoT> &pedestrian_info_para);
 
   /**
+   * @brief  send face inference to presenter server by protobuf
+   * @param [in]  face infomation from age or gender inferential engine
+   * @return  OperationCode
+   */
+  OperationCode SendFaceInfo(
+      const std::shared_ptr<BatchFaceInfoT> &face_info_para);
+
+  /**
    * @brief  reload Engine Process
    * @param [in]  define the number of input and output
    */
@@ -202,6 +214,18 @@ private:
 
   // ret of SendPedestrianInfo function
   OperationCode pedestrian_ret_;
+
+  // ret of SendFaceImage function
+  OperationCode face_image_ret_;
+
+  // ret of SendFaceInfo function when infomation about age
+  OperationCode age_ret_;
+
+  // ret of SendFaceInfo function when infomation about gender
+  OperationCode gender_ret_;
+  
+  // ret of SendCarInfo function when infomation about car plate
+  OperationCode car_plate_ret_;
 };
 
 #endif

@@ -104,6 +104,8 @@ class VideoAnalysisServer(PresenterSocketServer):
             ret = self._process_car_inference_result(conn, msg_data)
         elif msg_name == pb2._HUMANINFERENCERESULT.full_name:
             ret = self._process_human_inference_result(conn, msg_data)
+        elif msg_name == pb2._FACEINFERENCERESULT.full_name:
+            ret = self._process_face_inference_result(conn, msg_data)
         elif msg_name == presenter_message_pb2._HEARTBEATMESSAGE.full_name:
             ret = self._process_heartbeat(conn)
         # process image request, receive an image data from presenter agent
@@ -306,6 +308,9 @@ class VideoAnalysisServer(PresenterSocketServer):
         elif request.type == pb2.kCarBrand:
             inference_dict["brand_confidence"] = request.confidence
             inference_dict["brand"] = request.value
+        elif request.type == pb2.kCarPlate:
+            inference_dict["plate_confidence"] = request.confidence
+            inference_dict["plate"] = request.value
         else:
             logging.error("unknown type %d", request.type)
             self._response_error_unknown(conn)
@@ -366,6 +371,60 @@ class VideoAnalysisServer(PresenterSocketServer):
         response.ret = pb2.kErrorNone
         response.message = "human inference process succeed"
         self.send_message(conn, response, msg_name)
+        return True
+		
+    def _process_face_inference_result(self, conn, msg_data):
+        '''
+        Description: process face_inference_result message
+        Input:
+            conn: a socket connection
+            msg_data: message data.
+        Returns: True or False
+        '''
+        request = pb2.FaceInferenceResult()
+        response = pb2.CommonResponse()
+        msg_name = msg_name = pb2._COMMONRESPONSE.full_name
+        inference_dict = {}
+        if not self._parse_protobuf(request, msg_data):
+            self._response_error_unknown(conn)
+            return False
+
+        app_id = request.frame_index.app_id
+        channel_id = request.frame_index.channel_id
+        frame_id = request.frame_index.frame_id
+        object_id = request.object_id
+
+        if not self.app_manager.is_app_exist(app_id):
+            logging.error("app_id: %s not exist", app_id)
+            response.ret = pb2.kErrorAppLost
+            response.message = "app_id: %s not exist"%(app_id)
+            self.send_message(conn, response, msg_name)
+            return False
+
+        channel_dir = os.path.join(self.storage_dir, app_id, channel_id)
+        stack_list = os.listdir(channel_dir)
+        stack_list.sort()
+        current_stack = stack_list[-1]
+        object_dir = os.path.join(channel_dir, current_stack, frame_id, object_id)
+        if request.type == pb2.kFaceAge:
+            inference_dict["age_confidence"] = request.confidence
+            inference_dict["age"] = request.value
+        elif request.type == pb2.kFaceGender:
+            inference_dict["gender_confidence"] = request.confidence
+            inference_dict["gender"] = request.value
+        else:
+            logging.error("unknown type %d", request.type)
+            self._response_error_unknown(conn)
+            return False
+
+        if not self._save_inference_result(object_dir, inference_dict):
+            self._response_error_unknown(conn)
+            return False
+        self.app_manager.set_heartbeat(conn.fileno())
+        response.ret = pb2.kErrorNone
+        response.message = "face inference process succeed"
+        self.send_message(conn, response, msg_name)
+
         return True
 
     def _response_error_unknown(self, conn):
@@ -635,6 +694,14 @@ class VideoAnalysisManager():
                     brand:value,
                     brand_confidence:value}]
                 person_list:[{}]
+				face_list:[{
+                    face_id:value,
+                    face_confidence:value,
+                    face_image:data,
+                    age: value,
+                    age_confidence:value,
+                    gender:value,
+                    gender_confidence:value}]
             }
         """
         if frame_id is None or frame_id == "":
@@ -683,6 +750,12 @@ class VideoAnalysisManager():
             person_info = self._extract_human_property_info(frame_dir, i)
             if person_info is not None:
                 frame_info["person_list"].append(person_info)
+				
+        face_list = [i for i in os.listdir(frame_dir) if i[:4] == "face"]
+        for i in face_list:
+            face_info = self._extract_face_info(frame_dir, i)
+            if face_info is not None:
+                frame_info["face_list"].append(face_info)
 
         return frame_info
 
@@ -697,6 +770,7 @@ class VideoAnalysisManager():
         frame_info["car_list"] = []
         frame_info["bus_list"] = []
         frame_info["person_list"] = []
+        frame_info["face_list"] = []
 
         return frame_info
 
@@ -756,6 +830,36 @@ class VideoAnalysisManager():
                 person_info = dict(person_info, **load_dict)
 
             return person_info
+        except (OSError, JSONDecodeError) as exp:
+            logging.error(exp)
+            return None
+			
+    def _extract_face_info(self, frame_dir, face_id):
+        """
+        Description: extract face info
+        Input:
+            frame_dir: a frame directory
+            face_id: the index of face
+        Returns: face info
+        """
+        try:
+            face_info = {}
+            face_info["id"] = face_id
+            image_path = os.path.join(frame_dir, face_id, IMAGE_FILE)
+            if not os.path.isfile(image_path):
+                logging.warning("object image:%s lost!", image_path)
+                return None
+
+            face_info["image"] = open(image_path, 'rb').read()
+            json_path = os.path.join(frame_dir, face_id, JSON_FILE)
+            if not os.path.exists(json_path):
+                logging.warning("json file:%s lost!", json_path)
+                return face_info
+
+            with open(json_path, 'r') as json_f:
+                load_dict = json.load(json_f)
+                face_info = dict(face_info, **load_dict)
+            return face_info
         except (OSError, JSONDecodeError) as exp:
             logging.error(exp)
             return None

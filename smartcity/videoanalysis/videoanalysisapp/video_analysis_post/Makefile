@@ -3,7 +3,6 @@ all : libvideo_analysis_post.so
 ifndef DDK_HOME
 $(error "Can not find DDK_HOME env, please set it in environment!.")
 endif
-CC := aarch64-linux-gnu-g++
 
 LOCAL_DIR  := ./
 
@@ -23,7 +22,15 @@ INC_DIR = \
 	-I$(DDK_HOME)/include/libc_sec/include \
 	-I../common/include \
 	-I$(HOME)/ascend_ddk/include \
+	-I/usr/include/python2.7 \
 
+
+ifeq ($(mode),)
+mode=AtlasDK
+endif
+
+ifeq ($(mode), AtlasDK)
+CC := aarch64-linux-gnu-g++
 CC_FLAGS := $(INC_DIR) -g -std=c++11 -fPIC -DCPU_ONLY
 LNK_FLAGS := \
 	-L$(HOME)/ascend_ddk/host/lib -L$(DDK_HOME)/host/lib/ \
@@ -31,9 +38,20 @@ LNK_FLAGS := \
 	-lhiai_server \
 	-lidedaemon \
 	-lhiai_common \
-	-lopencv_world \
 	-lpresenteragent \
 	-shared
+else ifeq ($(mode), ASIC)
+CC := g++
+CC_FLAGS := $(INC_DIR) -std=c++11 -fPIC
+LNK_FLAGS := \
+	-L$(HOME)/ascend_ddk/host/lib -L$(DDK_HOME)/host/lib/ \
+	-lpresenteragent \
+	-shared
+else
+$(error "Unsupported mode: "$(mode)", please input: AtlasDK or ASIC.")
+endif
+
+
 
 DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)
 CUSTOM_DIRS := $(shell find $(SRC_DIR) -maxdepth 3 -type d)

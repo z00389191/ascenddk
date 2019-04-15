@@ -446,12 +446,20 @@ int DvppProcess::DvppYuvChangeToJpeg(const char *input_buf, int input_size,
 
     // apply for memory: 1.Large-page
     unsigned char* addr_orig = (unsigned char*) mmap(
-            0, mmap_size, PROT_READ | PROT_WRITE,
-            MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT,
-            0, 0);
+        0, mmap_size, PROT_READ | PROT_WRITE,
+        MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, -1, 0);
+
     if (addr_orig == MAP_FAILED) {
-        ASC_LOG_ERROR("Failed to malloc memory in dvpp(yuv to jpeg).");
+      ASC_LOG_INFO(
+          "Failed to malloc memory in dvpp(yuv to jpeg), start to try 4K "
+          "memory");
+      addr_orig = (unsigned char*) mmap(
+          0, mmap_size, PROT_READ | PROT_WRITE,
+          MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
+      if (addr_orig == MAP_FAILED) {
+        ASC_LOG_ERROR("4K memory malloc still fail.");
         return kDvppErrorMallocFail;
+      }
     }
 
     // first address of buffer align to 128
@@ -1170,7 +1178,7 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
             MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | API_MAP_VA32BIT, -1, 0);
 
     if (out_buffer == MAP_FAILED) {
-        ASC_LOG_ERROR(
+        ASC_LOG_INFO(
                 "Failed to malloc memory in dvpp(new vpc), start to try 4K "
                 "memory");
         out_buffer = (uint8_t *) mmap(
@@ -1179,8 +1187,8 @@ int DvppProcess::DvppBasicVpc(const uint8_t *input_buf, int32_t input_size,
                 MAP_PRIVATE | MAP_ANONYMOUS | API_MAP_VA32BIT, -1, 0);
         if (out_buffer == MAP_FAILED) {
             ASC_LOG_ERROR("4K memory malloc still fail.");
+            return kDvppErrorMallocFail;
         }
-        return kDvppErrorMallocFail;
     }
 
     // constructing output roi configuration
