@@ -34,8 +34,7 @@
 #ifndef ASCENDDK_ASCEND_EZDVPP_DVPP_PROCESS_H_
 #define ASCENDDK_ASCEND_EZDVPP_DVPP_PROCESS_H_
 
-#include "dvpp/idvppapi.h"
-#include "dvpp_utils.h"
+#include "dvpp_data_type.h"
 
 namespace ascend {
 namespace utils {
@@ -56,18 +55,6 @@ public:
      * @param [in] DvppToJpgPara para: instance h264 object
      */
     DvppProcess(const DvppToH264Para &para);
-
-    /**
-     * @brief class constructor
-     * @param [in] DvppToYuvPara para: instance yuv object
-     */
-    DvppProcess(const DvppToYuvPara &para);
-
-    /**
-     * @brief class constructor
-     * @param [in] DvppCropOrResizePara para: instance crop or resize object
-     */
-    DvppProcess(const DvppCropOrResizePara &para);
 
     /**
      * @brief class constructor
@@ -161,29 +148,6 @@ private:
     int DvppYuvChangeToH264(const char *input_buf, int input_size,
                             shared_ptr<AutoBuffer> *output_buf);
 
-    /**
-     * @brief convert image from BGR to YUV420SP_NV12
-     * @param [in] input_buf:input image data
-     *             (dvpp need char *,so pInputBuf do not use const)
-     * @param [in] input_size: input image data size
-     * @param [in] output_size: output image data size
-     * @param [out] output_buf: image data after conversion
-     * @return enum DvppErrorCode
-     */
-    int DvppBgrChangeToYuv(const char *input_buf, int input_size,
-                           int output_size, unsigned char *output_buf);
-
-    /**
-     * @brief crop or resize origin image
-     * @param [in] input_buf:input image data
-     *             (dvpp need char *,so pInputBuf do not use const)
-     * @param [in] input_size: input image data size
-     * @param [in] output_size: output image data size
-     * @param [out] output_buf: image data after conversion
-     * @return enum DvppErrorCode
-     */
-    int DvppCropOrResize(const char *input_buf, int input_size, int output_size,
-                         unsigned char *output_buf);
     /**
      * @brief new vpc interface, include crop/resize/image format conversion
      * @param [in] input_buf:input image data
