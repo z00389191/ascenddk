@@ -34,9 +34,8 @@
 #ifndef ASCENDDK_ASCEND_EZDVPP_DVPP_DATA_TYPE_H_
 #define ASCENDDK_ASCEND_EZDVPP_DVPP_DATA_TYPE_H_
 
-#include "securec.h"
-#include "dvpp/dvpp_config.h"
 #include "dvpp/Vpc.h"
+#include "dvpp/dvpp_config.h"
 
 // The memory size of the BGR image is 3 times that of width*height.
 #define DVPP_BGR_BUFFER_MULTIPLE 3
@@ -103,7 +102,7 @@ const int kImageNeedAlign = 0;
 const int kImageNotNeedAlign = 1;
 
 // max increase scale in resize function
-const double kMaxIncrease = 4.0;
+const double kMaxIncrease = 16.0;
 
 // min increase scale in resize function
 const double kMinIncrease = 0.03125;
@@ -115,36 +114,6 @@ const int kAllowedMaxImageMemory = 67108864;
 struct ErrorDescription {
     int code;
     std::string code_info;
-};
-
-// Image format supported by dvpp vpc interface
-enum DvppVpcImageType {
-    kVpcYuv420SemiPlannar = 0,  // yuv420sp
-    kVpcYuv422SemiPlannar,  // yuv422s
-    kVpcYuv444SemiPlannar,  // yuv444sp
-    kVpcYuv422Packed,  // yuv422packed
-    kVpcYuv444Packed,  // yuv444packed
-    kVpcRgb888Packed,  // rgb888packed
-    kVpcXrgb8888Packed,  // xrgb8888packed
-    kVpcYuv400SemiPlannar,  // yuv400sp
-    kVpcInvalidImageType,  // invalid image type
-};
-
-// Image arrangement method supported by dvpp vpc interface
-enum DvppVpcImageRankType {
-    kVpcNv12 = 0,
-    kVpcNv21,
-    kVpcYuyv,
-    kVpcYvyu,
-    kVpcUyvy,
-    kVpcYuv,
-    kVpcRgb,
-    kVpcBgr,
-    kVpcRgba,
-    kVpcBgra,
-    kVpcArgb,
-    kVpcAbgr,
-    kVpcInvalidImageRankType,
 };
 
 enum DvppEncodeType {
@@ -187,60 +156,29 @@ struct ResolutionRatio {
 };
 
 struct DvppToJpgPara {
-// used to indicate the input format.
+    // used to indicate the input format.
     eEncodeFormat format = JPGENC_FORMAT_NV12;
 
-// used to indicate the output quality while output is jpg.
+    // used to indicate the output quality while output is jpg.
     int level = 100;
 
-// image resolution.
+    // image resolution.
     ResolutionRatio resolution;
 
-// false: Input image is not aligned; true: Input image is aligned
+    // false: Input image is not aligned; true: Input image is aligned
     bool is_align_image = false;
 };
 
 struct DvppToH264Para {
-// coding protocol. 0:H265-main level 1:H264-baseline level
-//                  2:H264-main level 3:H264-high level
+    // coding protocol. 0:H265-main level 1:H264-baseline level
+    //                  2:H264-main level 3:H264-high level
     int coding_type = 3;
 
-// YUV storage method.0:YUV420 semi-planner 1:YVU420 semi-planner
+    // YUV storage method.0:YUV420 semi-planner 1:YVU420 semi-planner
     int yuv_store_type = 0;
 
-// resolution
+    // resolution
     ResolutionRatio resolution;
-};
-
-struct DvppToYuvPara {
-    int image_type = 0;  // Dvpp image format
-    int rank = 0;  // Image arrangement format
-    int bit_width = 0;  // Image bit depth
-    int cvdr_or_rdma = 0;  // Image path.default is cvdr
-    ResolutionRatio resolution;  // Image resolution
-    int horz_max = 0; // The maximum deviation from the origin in horz direction
-    int horz_min = 0; // The minimum deviation from the origin in horz direction
-    int vert_max = 0; // The maximum deviation from the origin in vert direction
-    int vert_min = 0; // The minimum deviation from the origin in vert direction
-    double horz_inc = 0;  // Horizontal magnification
-    double vert_inc = 0;  // Vertical magnification
-};
-
-struct DvppCropOrResizePara {
-    int image_type = 0;  // Dvpp image format
-    int rank = 1;  // Image arrangement format
-    int bit_width = 8;  // Image bit depth
-    int cvdr_or_rdma = 1;  // Image path.default is cvdr
-    ResolutionRatio src_resolution;  // src image resolution
-    int horz_max = 0; // The maximum deviation from the origin in horz direction
-    int horz_min = 0; // The minimum deviation from the origin in horz direction
-    int vert_max = 0; // The maximum deviation from the origin in vert direction
-    int vert_min = 0; // The minimum deviation from the origin in vert direction
-    ResolutionRatio dest_resolution;  // dest image resolution
-    bool is_input_align = false;  // false:input image is not aligned
-// true:input image is aligned
-    bool is_output_align = true;  //true:output image need alignment
-//false:output image does not need alignment
 };
 
 struct DvppOutput {
@@ -249,15 +187,35 @@ struct DvppOutput {
 };
 
 struct DvppBasicVpcPara {
+    // input image format
     VpcInputFormat input_image_type = INPUT_YUV420_SEMI_PLANNER_UV;
+
+    // src image resolution
     ResolutionRatio src_resolution;
+
+    // x-axis of upper left corner
     int crop_left = 0;
+
+    // y-axis of upper left corner
     int crop_up = 0;
+
+    // x-axis of lower right corner
     int crop_right = 0;
+
+    // y-axis of lower right corner
     int crop_down = 0;
+
+    // output image format
     VpcOutputFormat output_image_type = OUTPUT_YUV420SP_UV;
+
+    // dest image resolution
     ResolutionRatio dest_resolution;
+
+    // false:input image is not aligned; true:input image is aligned
     bool is_input_align = false;
+
+    // true:output image need alignment;
+    // false:output image does not need alignment
     bool is_output_align = true;
 };
 
@@ -284,8 +242,6 @@ struct DvppJpegDOutput {
 struct DvppPara {
     DvppToJpgPara jpg_para;
     DvppToH264Para h264_para;
-    DvppToYuvPara yuv_para;
-    DvppCropOrResizePara crop_or_resize_para;
     DvppJpegDInPara jpegd_para;
     DvppBasicVpcPara basic_vpc_para;
 };
