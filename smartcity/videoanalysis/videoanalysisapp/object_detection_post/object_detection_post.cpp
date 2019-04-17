@@ -94,7 +94,6 @@ enum BBoxDataIndex {
 };
 }  // namespace
 
-using ascend::utils::DvppCropOrResizePara;
 using ascend::utils::DvppOutput;
 using ascend::utils::DvppProcess;
 using hiai::ImageData;

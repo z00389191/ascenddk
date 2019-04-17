@@ -37,10 +37,8 @@
 #include <sstream>
 #include "ascenddk/ascend_ezdvpp/dvpp_process.h"
 
-using ascend::utils::DvppCropOrResizePara;
 using ascend::utils::DvppOutput;
 using ascend::utils::DvppProcess;
-using ascend::utils::DvppVpcImageType;
 using hiai::ImageData;
 using hiai::IMAGEFORMAT;
 using namespace std;
