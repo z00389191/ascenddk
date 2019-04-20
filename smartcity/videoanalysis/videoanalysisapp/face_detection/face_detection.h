@@ -127,7 +127,7 @@ private:
      * @brief  send Jpg data to video_analysis_post engine.
      * @return  success --> HIAI_OK ; fail --> HIAI_ERROR
      */
-    HIAI_StatusT SendJpgImage(const VideoImageParaT image_input);
+    HIAI_StatusT SendJpgImage(const VideoImageParaT &image_input);
 
   HIAI_StatusT HandleResults(
       const std::shared_ptr<DetectionEngineTransT>& inference_result);

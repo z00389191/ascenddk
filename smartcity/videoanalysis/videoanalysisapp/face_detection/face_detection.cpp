@@ -233,6 +233,7 @@ void FaceDetection::FilterBoundingBox(
   uint32_t base_width = detection_image->image.img.width;
   uint32_t base_height = detection_image->image.img.height;
 
+  // each object result contains seven float data
   for (int32_t k = 0; k < bbox_buffer_size; k += kSizePerResultset) {
     ptr = bbox_buffer + k;
     int32_t attr = static_cast<int32_t>(ptr[BBoxDataIndex::kAttribute]);
@@ -247,7 +248,8 @@ void FaceDetection::FilterBoundingBox(
         ptr[BBoxDataIndex::kLowerRightX]) * base_width, rb_y =
         CorrectCoordinate(ptr[BBoxDataIndex::kLowerRightY]) * base_height;
 
-    if (rb_x - lt_x < kMinCropPixel || rb_y - lt_x < kMinCropPixel) {
+    // YUVtoJpg supports smallest size is 16*16
+    if (rb_x - lt_x < kMinCropPixel || rb_y - lt_y < kMinCropPixel) {
       continue;
     }
     // crop image
@@ -271,7 +273,7 @@ void FaceDetection::FilterBoundingBox(
   }
 }
 
-HIAI_StatusT FaceDetection::SendJpgImage(const VideoImageParaT image_input) {
+HIAI_StatusT FaceDetection::SendJpgImage(const VideoImageParaT &image_input) {
   HIAI_StatusT hiai_ret = HIAI_OK;
 
   // use dvpp convert yuv image to jpg image
@@ -280,7 +282,7 @@ HIAI_StatusT FaceDetection::SendJpgImage(const VideoImageParaT image_input) {
   ascend::utils::DvppToJpgPara dvpp_to_jpg_para;
   dvpp_to_jpg_para.format = JPGENC_FORMAT_NV12;
 
-  // use dvpp convert yuv to jpg image, level should set fixed value 100
+  // 100 used to indicate the output quality while output is jpg.
   dvpp_to_jpg_para.level = 100;
   dvpp_to_jpg_para.resolution.height = image_input.img.height;
   dvpp_to_jpg_para.resolution.width = image_input.img.width;
@@ -311,7 +313,7 @@ HIAI_StatusT FaceDetection::SendJpgImage(const VideoImageParaT image_input) {
     ascend::utils::DvppToJpgPara dvpp_to_jpg_obj_para;
     dvpp_to_jpg_obj_para.format = JPGENC_FORMAT_NV12;
 
-    // level should set fixed value 100
+    // 100 used to indicate the output quality while output is jpg.
     dvpp_to_jpg_obj_para.level = 100;
 
     // true indicate the image is aligned
